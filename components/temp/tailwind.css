@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary Colors */
+    --primary-background: #8a71fe;
+    --primary-foreground: #ffffff;
+    --primary-light: #cfc5ff;
+    --primary-dark: #0050ff;
+
+    /* Secondary Colors */
+    --secondary-background: #ffffff;
+    --secondary-foreground: #121416;
+    --secondary-light: #f5f5f5;
+    --secondary-dark: #0f1326;
+
+    /* Accent Colors */
+    --accent-background: #2d2d2d;
+    --accent-foreground: #ffffff;
+    --accent-light: #e7e9f1;
+    --accent-dark: #161d3a;
+
+    /* Text Colors */
+    --text-primary: #121416;
+    --text-secondary: #353535;
+    --text-muted: #484848;
+    --text-light: #989898;
+    --text-accent: #8a71fe;
+
+    /* Background Colors */
+    --bg-main: #ffffff;
+    --bg-card: #e7eaf1;
+    --bg-overlay: #8a71fea0;
+    --bg-gradient: #ffffff38;
+
+    /* Border Colors */
+    --border-primary: #d9d9d9;
+    --border-secondary: #2c2c2c;
+    --border-accent: #8a71fe;
+    --border-light: #ffffff;
+
+    /* Typography Variables */
+    --font-size-xs: 10px;
+    --font-size-sm: 14px;
+    --font-size-base: 16px;
+    --font-size-lg: 20px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 28px;
+    --font-size-3xl: 32px;
+    --font-size-4xl: 36px;
+    --font-size-5xl: 48px;
+    --font-size-6xl: 96px;
+
+    /* Font Weight Variables */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Line Height Variables */
+    --line-height-tight: 12px;
+    --line-height-snug: 15px;
+    --line-height-normal: 24px;
+    --line-height-relaxed: 30px;
+    --line-height-loose: 36px;
+
+    /* Spacing Variables */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-base: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 40px;
+    --spacing-3xl: 48px;
+    --spacing-4xl: 64px;
+
+    /* Border Radius Variables */
+    --radius-none: 0px;
+    --radius-sm: 12px;
+    --radius-base: 16px;
+    --radius-md: 18px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+    --radius-2xl: 26px;
+    --radius-3xl: 30px;
+    --radius-full: 32px;
+
+    /* Component-specific Colors */
+    --header-background: var(--secondary-background);
+    --header-text: var(--text-secondary);
+    --button-primary-bg: var(--primary-background);
+    --button-primary-text: var(--primary-foreground);
+    --button-secondary-bg: var(--accent-background);
+    --button-secondary-text: var(--accent-foreground);
+    --logo-width: 146px;
+  }
+}
