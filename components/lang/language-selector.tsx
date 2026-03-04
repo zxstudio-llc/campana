@@ -1,136 +1,98 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import Image from 'next/image'
+import { useRouter, usePathname } from 'next/navigation'
+import { Check, ChevronDown } from 'lucide-react'
+
 import {
-  List,
-  ListItemButton,
-  Menu,
-  MenuItem,
-  Box,
-  Typography,
-  useTheme,
-  useMediaQuery,
-} from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import { useRouter, usePathname } from "next/navigation";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type Language = {
-  code: string;
-  name: string;
-  flag: string;
-};
+  code: string
+  name: string
+  flag: string
+}
 
 export function LanguageSelector({ languages }: { languages: Language[] }) {
-  const router = useRouter();
-  const pathname = usePathname();
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const segments = pathname.split("/");
+  const segments = pathname.split('/')
   const currentLang =
-    ["en", "es", "zh"].includes(segments[1]) ? segments[1] : "en";
+    ['en', 'es'].includes(segments[1]) ? segments[1] : 'en'
 
   const currentLanguage =
-    languages.find((l) => l.code === currentLang) ?? languages[0];
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    
-
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+    languages.find((l) => l.code === currentLang) ?? languages[0]
 
   const handleSelect = (langCode: string) => {
-    const segments = pathname.split("/");
+    const segments = pathname.split('/')
 
-    if (["en", "es", "zh"].includes(segments[1])) {
-      segments[1] = langCode;
+    if (['en', 'es'].includes(segments[1])) {
+      segments[1] = langCode
     } else {
-      segments.splice(1, 0, langCode);
+      segments.splice(1, 0, langCode)
     }
 
-    router.push(segments.join("/"));
-    setAnchorEl(null);
-  };
+    router.push(segments.join('/'))
+  }
 
   return (
-    <>
-      <List component="nav" sx={{ p: 0 }}>
-      <ListItemButton
-  disableRipple
-  onClick={(e) => setAnchorEl(e.currentTarget)}
-  sx={{
-    gap: 1,
-    px: 0,
-    "&:hover": { backgroundColor: "transparent" },
-  }}
->
-  <Box
-    component="img"
-    src={currentLanguage.flag}
-    width={20}
-    alt={currentLanguage.name}
-  />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="unstyled"
+          className="flex items-center gap-2 px-0 w-16 md:w-32 rounded-full bg-campana-primary hover:bg-campana-primary-hover text-campana-secondary hover:text-campana-secondary"
+        >
+          <Image
+            src={currentLanguage.flag}
+            alt={currentLanguage.name}
+            width={20}
+            height={14}
+          />
 
-  {!isMobile && (
-    <Typography
-      fontWeight={600}
-      color="primary.dark"
-      variant="body2"
-    >
-      {currentLanguage.name}
-    </Typography>
-  )}
-</ListItemButton>
-      </List>
+          <span className="hidden text-sm sm:inline">
+            {currentLanguage.name}
+          </span>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={() => setAnchorEl(null)}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        slotProps={{
-          list: {
-            role: "listbox",
-          },
-        }}
-      >
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="min-w-[160px] bg-campana-primary hover:bg-campana-primary-hover text-campana-secondary hover:text-campana-secondary border-none">
         {languages.map((lang) => {
-          const isActive = lang.code === currentLang;
+          const isActive = lang.code === currentLang
 
           return (
-            <MenuItem
+            <DropdownMenuItem
               key={lang.code}
               onClick={() => handleSelect(lang.code)}
-              disableRipple
-              sx={{
-                gap: 2,
-                "&:hover": {
-                  backgroundColor: "transparent",
-                },
-              }}
+              className={cn(
+                'flex items-center gap-3 cursor-pointer',
+                isActive && 'font-medium'
+              )}
             >
-              <Box component="img" src={lang.flag} width={20} />
+              <Image
+                src={lang.flag}
+                alt={lang.name}
+                width={20}
+                height={14}
+              />
 
-              <Typography variant="body2">
-                {lang.name}
-              </Typography>
+              <span className="text-sm">{lang.name}</span>
 
               {isActive && (
-                <CheckIcon
-                  fontSize="small"
-                  sx={{ ml: "auto", color: "primary.main" }}
-                />
+                <Check className="ml-auto h-4 w-4" />
               )}
-            </MenuItem>
-          );
+            </DropdownMenuItem>
+          )
         })}
-      </Menu>
-    </>
-  );
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }

@@ -8,13 +8,19 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: wordpressHostname
       ? [
-          {
-            protocol: "https",
-            hostname: wordpressHostname,
-            port: "",
-            pathname: "/**",
-          },
-        ]
+        {
+          protocol: "https",
+          hostname: wordpressHostname,
+          port: "",
+          pathname: "/**",
+        },
+        {
+          protocol: "http",
+          hostname: wordpressHostname,
+          port: "",
+          pathname: "/**",
+        },
+      ]
       : [],
   },
   async redirects() {

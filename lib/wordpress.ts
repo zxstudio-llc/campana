@@ -10,6 +10,15 @@ import type {
   WpMenuItem,
   AppMenuItem,
   Slider,
+  ActivoEstrategico,
+  OurValues,
+  Projects,
+  Timeline,
+  SiteInfo,
+  Investment,
+  Biography,
+  Faq,
+  Contact,
 } from "./wordpress.d";
 import { mapWpMenu } from "@/utlis/menu.utils";
 
@@ -87,7 +96,6 @@ async function wordpressFetchGraceful<T>(
   try {
     return await wordpressFetch<T>(path, query, tags);
   } catch {
-    console.warn(`WordPress fetch failed for ${path}`);
     return fallback;
   }
 }
@@ -140,37 +148,239 @@ async function wordpressFetchPaginatedGraceful<T>(
   try {
     return await wordpressFetchPaginated<T[]>(path, query, tags);
   } catch {
-    console.warn(`WordPress paginated fetch failed for ${path}`);
     return emptyResponse;
   }
 }
 
 export async function getGlobalCTA(): Promise<GlobalCTA | null> {
-  const res = await fetch(
-    `${process.env.WORDPRESS_URL}/wp-json/site/v1/cta`,
-    { cache: 'no-store' }
-  )
+  if (!baseUrl) return null;
 
-  if (!res.ok) return null
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/site/v1/cta`,
+      { cache: 'no-store' }
+    )
 
-  const raw = await res.json()
+    if (!res.ok) return null
 
-  return {
-    enabled: raw.enabled,
-    title: raw.title,
-    url: raw.url,
-    newTab: raw.newTab,
+    const raw = await res.json()
+
+    return {
+      enabled: raw.enabled,
+      title: raw.title,
+      url: raw.url,
+      newTab: raw.newTab,
+    }
+  } catch (error) {
+    console.error("[WP API] Error en getGlobalCTA:", error);
+    return null;
   }
 }
 
 export async function getSliderById(id: number): Promise<Slider | null> {
-  const res = await fetch(
-    `${process.env.WORDPRESS_URL}/wp-json/wp/v2/sliders/${id}`,
-    { next: { revalidate: 3600 } }
-  )
+  if (!baseUrl) return null;
 
-  if (!res.ok) return null
-  return res.json()
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/sliders/${id}`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return null
+    const data = await res.json();
+    return data
+  } catch (error) {
+    console.error(`[WP API] Error en getSliderById(${id}):`, error);
+    return null;
+  }
+}
+
+export async function getProjectsByIds(
+  ids: number[]
+): Promise<Projects[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/projects?include=${ids.join(",")}&per_page=100&acf_format=standard`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+
+    const data: Projects[] = await res.json()
+
+    return ids
+      .map((id) => data.find((p) => p.id === id))
+      .filter(Boolean) as Projects[]
+  } catch (error) {
+    console.error("[WP API] Error en getProjectsByIds:", error);
+    return [];
+  }
+}
+
+export async function getTimelineByIds(
+  ids: number[]
+): Promise<Timeline[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/timelines?include=${ids.join(",")}&per_page=100&acf_format=standard`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+
+    const data: Timeline[] = await res.json()
+
+    return ids
+      .map((id) => data.find((p) => p.id === id))
+      .filter(Boolean) as Timeline[]
+  } catch (error) {
+    console.error("[WP API] Error en getTimelineByIds:", error);
+    return [];
+  }
+}
+
+export async function getOurValuesById(ids: number[]): Promise<OurValues[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/our-values?include=${ids.join(",")}`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+    const data = await res.json();
+
+    // Ordenar resultados según el orden de IDs pedido
+    return ids
+      .map((id) => data.find((item: any) => item.id === id))
+      .filter(Boolean) as OurValues[];
+  } catch (error) {
+    console.error("[WP API] Error en getOurValuesById:", error);
+    return [];
+  }
+}
+
+export async function getActivoEstrategicoById(ids: number[]): Promise<ActivoEstrategico[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/activos-estrategicos?include=${ids.join(",")}`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+    const data = await res.json();
+
+    // Ordenar resultados según el orden de IDs pedido
+    return ids
+      .map((id) => data.find((item: any) => item.id === id))
+      .filter(Boolean) as ActivoEstrategico[];
+  } catch (error) {
+    console.error("[WP API] Error en getActivoEstrategicoById:", error);
+    return [];
+  }
+}
+
+export async function getInvestmentById(
+  ids: number[]
+): Promise<Investment[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/investments?include=${ids.join(",")}&orderby=include&order=asc&per_page=100&acf_format=standard`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+
+    const data: Investment[] = await res.json()
+
+    return ids
+      .map((id) => data.find((p) => p.id === id))
+      .filter(Boolean) as Investment[]
+  } catch (error) {
+    console.error("[WP API] Error en getInvestmentById:", error);
+    return [];
+  }
+}
+
+export async function getBiographyById(
+  ids: number[]
+): Promise<Biography[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/biographies?include=${ids.join(",")}&acf_format=standard`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+
+    const data: Biography[] = await res.json()
+
+    return ids
+      .map((id) => data.find((p) => p.id === id))
+      .filter(Boolean) as Biography[]
+  } catch (error) {
+    console.error("[WP API] Error en getBiographyById:", error);
+    return [];
+  }
+}
+
+export async function getFaqById(
+  ids: number[]
+): Promise<Faq[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/faqs?include=${ids.join(",")}&acf_format=standard`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+
+    const data: Faq[] = await res.json()
+
+    return ids
+      .map((id) => data.find((p) => p.id === id))
+      .filter(Boolean) as Faq[]
+  } catch (error) {
+    console.error("[WP API] Error en getFaqById:", error);
+    return [];
+  }
+}
+
+export async function getContactById(
+  ids: number[]
+): Promise<Contact[]> {
+  if (!baseUrl || !ids?.length) return []
+
+  try {
+    const res = await fetch(
+      `${baseUrl}/wp-json/wp/v2/contact-us?include=${ids.join(",")}&acf_format=standard`,
+      { next: { revalidate: 3600 } }
+    )
+
+    if (!res.ok) return []
+
+    const data: Contact[] = await res.json()
+
+    return ids
+      .map((id) => data.find((p) => p.id === id))
+      .filter(Boolean) as Contact[]
+  } catch (error) {
+    console.error("[WP API] Error en getContactById:", error);
+    return [];
+  }
 }
 
 export async function getMainMenu(
@@ -259,6 +469,23 @@ export async function getPostById(id: number): Promise<Post> {
   return wordpressFetch<Post>(`/wp-json/wp/v2/posts/${id}`);
 }
 
+export async function getSiteInfo(): Promise<SiteInfo | null> {
+  if (!process.env.WORDPRESS_URL) return null;
+
+  try {
+    const res = await fetch(
+      `${process.env.WORDPRESS_URL}/wp-json/custom/v1/site-info`,
+      { next: { revalidate: 3600 } }
+    );
+
+    if (!res.ok) return null;
+
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 export async function getPostBySlug(slug: string): Promise<Post | undefined> {
   const posts = await wordpressFetchGraceful<Post[]>(
     "/wp-json/wp/v2/posts",
@@ -337,9 +564,13 @@ export async function getPageBySlug(slug: string): Promise<Page | undefined> {
       { slug }
     );
 
-    return Array.isArray(pages) && pages.length > 0 ? pages[0] : undefined;
+    if (Array.isArray(pages) && pages.length > 0) {
+      const page = pages[0];
+      return page;
+    }
+
+    return undefined;
   } catch (error) {
-    console.error("Error fetching page by slug:", slug, error);
     return undefined;
   }
 }
@@ -435,7 +666,6 @@ export async function getAllPostSlugs(): Promise<{ slug: string }[]> {
 
     return allSlugs;
   } catch {
-    console.warn("WordPress unavailable, skipping static generation for posts");
     return [];
   }
 }
@@ -491,10 +721,9 @@ export async function getActiveLanguages(): Promise<WpLanguage[]> {
     "/wp-json/polylang/v2/languages",
     [
       { code: "en", name: "English", locale: "en_US", flag: "" },
-      { code: "es", name: "Español", locale: "es_ES", flag: "" },
-      { code: "zh", name: "Chinese", locale: "zh_CN", flag: "" }
+      { code: "es", name: "Español", locale: "es_ES", flag: "" }
     ]
   );
 }
 
-export { WordPressAPIError };
+export { WordPressAPIError, type Timeline };

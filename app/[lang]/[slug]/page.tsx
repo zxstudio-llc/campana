@@ -35,9 +35,9 @@ export async function generateMetadata({
   const description = page.excerpt?.rendered
     ? page.excerpt.rendered.replace(/<[^>]*>/g, "").trim()
     : page.content.rendered
-        .replace(/<[^>]*>/g, "")
-        .trim()
-        .slice(0, 200) + "...";
+      .replace(/<[^>]*>/g, "")
+      .trim()
+      .slice(0, 200) + "...";
   ogUrl.searchParams.append("description", description);
 
   return {
@@ -95,7 +95,7 @@ export default async function Page({
   return (
     <Section>
       <Container>
-        <Hero page={page} />
+        {/* <Hero page={page} /> */}
         {/* aquí irá el PageBuilder */}
       </Container>
     </Section>

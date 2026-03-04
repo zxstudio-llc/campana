@@ -58,6 +58,26 @@ export interface GlobalCTA {
   newTab?: boolean;
 }
 
+export interface MediaSize {
+  file: string;
+  width: number;
+  height: number;
+  "mime-type": string;
+  filesize: number;
+}
+
+export interface SiteInfo {
+  title: string;
+  description: string;
+  logo: {
+    id: number;
+    url: string;
+    alt: string;
+    sizes: Record<string, MediaSize>;
+    mime: string;
+  };
+}
+
 export interface WpMenuItem {
   ID: number;
   title: string;
@@ -72,26 +92,120 @@ export interface Slider {
   id: number
   slug: string
   acf: {
-    slides: Slide[]
-    autoplay: boolean
-    delay: string
+    desktop_version?: string
+    mobile_version?: string
   }
 }
 
-export type SlideType = 'hero' | 'corporate' | 'product' | 'service'
-
-export interface Slide {
-  image?: {
-    url: string
-    alt?: string
+export interface ActivoEstrategico {
+  id: number
+  slug: string
+  acf: {
+    title: string
+    amount: string
+    description: string
   }
-  title?: string
-  subtitle?: string
-  slide_type?: SlideType
-  cta?: {
-    link: string
-    cta_name: string
-  }[]
+}
+
+export interface OurValues {
+  id: number
+  slug: string
+  acf: {
+    title: string
+    description: string
+  }
+}
+
+export interface Projects {
+  id: number
+  slug: string
+  acf: {
+    photos: {
+      primary: {
+        url: string
+        alt?: string
+        sizes?: {
+          thumbnail: string
+          medium: string
+          large: string
+        }
+      }
+      secondary: {
+        url: string
+        alt?: string
+        sizes?: {
+          thumbnail: string
+          medium: string
+          large: string
+        }
+      }
+    }
+    project: {
+      highlight: string
+      title: string
+      description: string
+      details: string
+      cta: string
+      cta_url: string
+    }
+  }
+}
+
+export interface Timeline {
+  id: number
+  slug: string
+  acf: {
+    year: string
+    title: string
+    description: string
+  }
+}
+
+export interface Investment {
+  id: number
+  slug: string
+  acf: {
+    highlight: string
+    title: string
+    description: string
+  }
+}
+
+export interface Faq {
+  id: number
+  slug: string
+  title: {
+    rendered: string
+  }
+  acf: {
+    content: string
+  }
+}
+
+export interface Biography {
+  id: number
+  slug: string
+  acf: {
+    photo: {
+      url: string
+      alt?: string
+      sizes?: {
+        thumbnail: string
+        medium: string
+        large: string
+      }
+    }
+    biography: {
+      highlight: string
+      name: string
+      role: string
+      title: string
+      description: string
+      cta: string
+      cta_url: string
+      signature: string
+    }
+  }
 }
 
 export interface AppMenuItem {
@@ -144,15 +258,30 @@ export interface HeroStatic {
   }[] | false
 }
 
-export interface ServicesSection {
-  acf_fc_layout: 'services'
+export interface AboutSection {
+  acf_fc_layout: 'about'
+  highlight?: string
+  title?: string
+  subtitle?: string
+  short_description?: string
+  description?: string
+  video_link?: string
+}
+
+export interface OurValuesSection {
+  acf_fc_layout: 'our_values'
+  highlight?: string
   title?: string
   description?: string
-  services: number[]
-  cta?: {
-    label: string
-    link: string
-  }[]
+  our_values: number[]
+}
+
+export interface TimelineSection {
+  acf_fc_layout: 'timelines'
+  highlight: string
+  description: string
+  subtitle: string
+  timelines: number[]
 }
 
 export interface ProjectsSection {
@@ -166,11 +295,35 @@ export interface ProjectsSection {
   }[]
 }
 
-export interface TestimonialsSection {
-  acf_fc_layout: 'testimonials'
+export interface InvestmentsSection {
+  acf_fc_layout: 'investment'
+  photo: {
+    url: string
+    alt?: string
+    sizes?: {
+      thumbnail: string
+      medium: string
+      large: string
+    }
+  }
+  highlight?: string
   title?: string
   description?: string
-  testimonials: number[]
+  investment: number[]
+  cta?: string
+  cta_url?: string
+}
+
+export interface ActivosEstrategicosSection {
+  acf_fc_layout: "activos";
+  title?: string;
+  description?: string;
+  activos: number[];
+}
+
+export interface BiographySection {
+  acf_fc_layout: 'biography'
+  biography: { ID: number }[]
 }
 
 export interface FaqsSection {
@@ -190,14 +343,19 @@ export interface TeamSection {
 export interface ContactSection {
   acf_fc_layout: 'contact'
   title?: string
-  description?: string
-  contact_us: number
+  subtitle?: string
+  phone?: string
+  mail?: string
 }
 
 export type PageSection =
-  | ServicesSection
+  | AboutSection
+  | OurValuesSection
+  | ActivosEstrategicosSection
+  | TimelineSection
   | ProjectsSection
-  | TestimonialsSection
+  | InvestmentSection
+  | BiographySection
   | FaqsSection
   | TeamSection
   | ContactSection

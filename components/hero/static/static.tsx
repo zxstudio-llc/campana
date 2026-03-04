@@ -13,8 +13,8 @@ export function StaticHero({ hero }: StaticHeroProps) {
     description?.content_position === 'left'
       ? 'items-start text-left'
       : description?.content_position === 'right'
-      ? 'items-end text-right'
-      : 'items-center text-center'
+        ? 'items-end text-right'
+        : 'items-center text-center'
 
   const background =
     hero.background_image || null

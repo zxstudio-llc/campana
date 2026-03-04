@@ -1,30 +1,51 @@
-// Craft Imports
 import { Section, Container } from "@/components/craft";
-import { getSliderById, getPageBySlug } from "@/lib/wordpress";
+import { getPageBySlug, getOurValuesById, getActivoEstrategicoById, getProjectsByIds, getTimelineByIds, getInvestmentById, getBiographyById, getFaqById, getContactById } from "@/lib/wordpress";
 import Link from "next/link";
 import { File, Pen, Tag, Diamond, User, Folder } from "lucide-react";
 import { Hero } from "@/components/hero/hero";
+import { AboutUsSection } from "@/components/about/about";
+import { ActivosSection } from "@/components/activos/activos";
+
+import type {
+  ActivoEstrategico,
+  ActivosEstrategicosSection,
+  BiographySection,
+  ContactSection,
+  FaqsSection,
+  InvestmentsSection,
+  OurValues,
+  OurValuesSection,
+  PageSection,
+  ProjectsSection,
+  TimelineSection,
+} from "@/lib/wordpress.d";
+import { OurValueSection } from "@/components/our-values/our-values";
+import { ProjectsCardsSection } from "@/components/projects/Cards";
+import { StoryTimelineSection } from "@/components/story/story-section";
+import InvestmentSection from "@/components/investment/investment";
+import { BiographyCompanySection } from "@/components/biography/biography";
+import FAQSection from "@/components/faqs/faq";
+import ContactFormSection from "@/components/contact/components/ContactSectionCompany";
+import ContactSectionCompany from "@/components/contact/components/ContactSectionCompany";
+import { Preloader } from "@/components/preloader/preloader";
 
 export const revalidate = 3600;
 
-export default async function Home({ 
-  params 
-}: { 
-  params: Promise<{ lang: string }> 
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  console.log("Idioma detectado:", lang);
+
   const slugByLang: Record<string, string> = {
-    zh: "shouye",
     en: "home",
-    es: "inicio"
+    es: "inicio",
   };
 
   const currentSlug = slugByLang[lang] || "home";
-  console.log("Buscando slug:", currentSlug);
-  
+
   const page = await getPageBySlug(currentSlug);
-  console.log("Página encontrada:", page ? "SÍ" : "NO");
 
   if (!page) {
     return (
@@ -37,105 +58,209 @@ export default async function Home({
     );
   }
 
+  const sections: PageSection[] =
+    page.acf?.default?.page_sections ?? [];
+
   return (
     <Section>
+      <Preloader />
       <Container>
-        {/* Renderizado de Slider si existe */}
         <Hero page={page} />
 
-        {/* Ejemplo de cómo pintar tus nuevos campos ACF de servicios */}
-        {/* {page.acf?.page_service && (
-          <div className="mt-12 p-6 border rounded-xl">
-            <h2 className="text-2xl font-bold">{page.acf.page_service.title}</h2>
-            <p className="text-muted-foreground">{page.acf.page_service.description}</p>
-          </div>
-        )} */}
-
-        <ToDelete />
+        <BlocksRenderer sections={sections} />
       </Container>
     </Section>
   );
 }
 
-// This is just some example TSX
-const ToDelete = () => {
-  return (
-    <main className="space-y-6 p-6 sm:p-8 max-w-5xl items-center mx-auto">
+async function BlocksRenderer({
+  sections,
+}: {
+  sections: PageSection[];
+}) {
+  const result: React.ReactNode[] = [];
 
-      <div className="grid md:grid-cols-3 gap-4 mt-6">
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts"
-        >
-          <Pen size={32} />
-          <span>
-            Posts{" "}
-            <span className="block text-sm text-muted-foreground">
-              All posts from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/pages"
-        >
-          <File size={32} />
-          <span>
-            Pages{" "}
-            <span className="block text-sm text-muted-foreground">
-              Custom pages from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts/authors"
-        >
-          <User size={32} />
-          <span>
-            Authors{" "}
-            <span className="block text-sm text-muted-foreground">
-              List of the authors from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts/tags"
-        >
-          <Tag size={32} />
-          <span>
-            Tags{" "}
-            <span className="block text-sm text-muted-foreground">
-              Content by tags from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts/categories"
-        >
-          <Diamond size={32} />
-          <span>
-            Categories{" "}
-            <span className="block text-sm text-muted-foreground">
-              Categories from your WordPress
-            </span>
-          </span>
-        </Link>
-        <a
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="https://github.com/9d8dev/next-wp/blob/main/README.md"
-        >
-          <Folder size={32} />
-          <span>
-            Documentation{" "}
-            <span className="block text-sm text-muted-foreground">
-              How to use `next-wp`
-            </span>
-          </span>
-        </a>
-      </div>
-    </main>
+  const gradientLayouts = ["our_values", "activos"];
+
+  for (let i = 0; i < sections.length; i++) {
+    const current = sections[i];
+
+    if (gradientLayouts.includes(current.acf_fc_layout)) {
+      const groupedBlocks: PageSection[] = [];
+
+      while (
+        i < sections.length &&
+        gradientLayouts.includes(
+          sections[i].acf_fc_layout
+        )
+      ) {
+        groupedBlocks.push(sections[i]);
+        i++;
+      }
+
+      i--;
+
+      result.push(
+        <GradientWrapper key={`group-${i}`}>
+          {await Promise.all(
+            groupedBlocks.map((block, idx) => (
+              <RenderBlock key={idx} block={block} />
+            ))
+          )}
+        </GradientWrapper>
+      );
+
+      continue;
+    }
+
+    result.push(
+      <RenderBlock key={i} block={current} />
+    );
+  }
+
+  return <>{result}</>;
+}
+
+function GradientWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative bg-gradient-to-b from-black to-campana-primary w-screen">
+      {children}
+    </div>
   );
-};
+}
+
+async function RenderBlock({
+  block,
+}: {
+  block: PageSection;
+}) {
+  switch (block.acf_fc_layout) {
+    case "about":
+      return <AboutUsSection about={block as any} />;
+
+    case "activos": {
+      const data = block as ActivosEstrategicosSection
+      const activosRaw = await getActivoEstrategicoById(
+        Array.isArray(data.activos) ? data.activos : []
+      );
+
+      const activosResolved: ActivoEstrategico[] =
+        (activosRaw ?? []).filter(
+          (item): item is ActivoEstrategico => item !== null
+        );
+      return (
+        <ActivosSection
+          title={data.title}
+          description={data.description}
+          activos={activosResolved}
+        />
+      )
+    }
+
+    case "our_values": {
+      const data = block as OurValuesSection;
+
+      const valuesRaw = await getOurValuesById(
+        Array.isArray(data.our_values) ? data.our_values : []
+      );
+
+      const valuesResolved: OurValues[] =
+        (valuesRaw ?? []).filter(
+          (item): item is OurValues => item !== null
+        );
+
+      return (
+        <OurValueSection
+          title={data.title}
+          description={data.description}
+          values={valuesResolved}
+        />
+      );
+    }
+
+    case "projects": {
+      const data = block as ProjectsSection
+      const projects = await getProjectsByIds(
+        data.projects
+      )
+
+      return (
+        <ProjectsCardsSection
+          title={data.title}
+          description={data.description}
+          projects={projects}
+        />
+      )
+    }
+
+    case "timelines": {
+      const data = block as TimelineSection
+      const timelines = await getTimelineByIds(
+        data.timelines
+      )
+
+      return (
+        <StoryTimelineSection
+          highlight={data.highlight}
+          description={data.description}
+          subtitle={data.subtitle}
+          timelines={timelines}
+        />
+      )
+    }
+
+    case "investment": {
+      const data = block as InvestmentsSection
+      const investments = await getInvestmentById(
+        data.investment
+      )
+
+      return (
+        <InvestmentSection
+          photo={data.photo}
+          highlight={data.highlight}
+          title={data.title}
+          description={data.description}
+          investment={investments}
+          cta={data.cta}
+          cta_url={data.cta_url}
+        />
+      )
+    }
+    case "biography": {
+      const data = block as BiographySection
+      const bioIds = (data.biography || []).map((b: any) => b.ID || b.id || b).filter(Boolean);
+      const biographies = await getBiographyById(bioIds)
+      return (
+        <BiographyCompanySection
+          biographies={biographies}
+        />
+      )
+    }
+
+    case "faqs": {
+      const data = block as FaqsSection
+      const faqs = await getFaqById(
+        data.faqs
+      )
+      return (
+        <FAQSection
+          section={data}
+          faqs={faqs}
+        />
+      )
+    }
+
+    case "contact": {
+      const data = block as ContactSection
+      return <ContactSectionCompany {...data} />
+    }
+
+    default:
+      return null;
+  }
+}

@@ -33,22 +33,29 @@ export function mapWpMenu(
   items: WpMenuItem[],
   lang?: string
 ): AppMenuItem[] {
-  const homeSlugs = ['home', 'inicio', 'shouye']
+  const homeSlugs = ['home', 'inicio']
   const roots: AppMenuItem[] = []
   const map = new Map<number, AppMenuItem>();
 
-  items.forEach((item) => {
-    let path = ''
+  items.forEach((item, idx) => {
+    if (!item) {
+      console.warn(`[MENU] Item en índice ${idx} es undefined o null`);
+      return;
+    }
 
-    if (homeSlugs.includes(item.slug.toLowerCase())) {
+    let path = ''
+    const slug = (item.slug || '').toString()
+    const lowerSlug = slug.toLowerCase()
+
+    if (homeSlugs.includes(lowerSlug)) {
       path = ''
     } else {
-      path = `/${item.slug}`
+      path = slug ? `/${slug}` : ''
     }
 
     map.set(item.ID, {
       id: item.ID,
-      label: item.title,
+      label: item.title || 'Sin título',
       url: `/${lang}${path}`,
       children: [],
     })
