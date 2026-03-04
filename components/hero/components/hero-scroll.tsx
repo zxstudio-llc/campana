@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MaskedLogo, MaskedLogoHandle } from "./masked-logo";
@@ -83,25 +83,35 @@ export default function HeroScroll({ videoSrcDesktop, videoSrcMobile, children }
         return () => ctx.revert();
     }, [isMobile]);
 
-    const videoSrc = isMobile ? videoSrcMobile : videoSrcDesktop;
+    const [videoSrc, setVideoSrc] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Deferimos la carga del video 500ms para que no bloquee los scripts críticos iniciales
+        const timer = setTimeout(() => {
+            setVideoSrc(isMobile ? (videoSrcMobile ?? null) : (videoSrcDesktop ?? null));
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [isMobile, videoSrcMobile, videoSrcDesktop]);
 
     return (
         <section ref={sectionRef} className="relative ">
             <div className="h-screen overflow-hidden relative transition-opacity duration-700 " style={{ opacity: isVideoReady ? 1 : 0 }}>
                 <div className="absolute inset-0 bg-[#00122d]"></div>
-                <iframe
-                    ref={videoRef}
-                    src={`${isMobile ? videoSrcMobile : videoSrcDesktop}?background=1&autoplay=1&loop=1&muted=1&transparent=0`}
-                    className={`absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none`}
-                    style={{
-                        width: '200vw',
-                        height: '100vh',
-                        objectFit: 'fill',
-                        minWidth: '100%',
-                    }}
-                    allow="autoplay; fullscreen"
-                    onLoad={() => setIsVideoReady(true)}
-                />
+                {videoSrc && (
+                    <iframe
+                        ref={videoRef}
+                        src={`${videoSrc}?background=1&autoplay=1&loop=1&muted=1&transparent=0`}
+                        className={`absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none`}
+                        style={{
+                            width: '200vw',
+                            height: '100vh',
+                            objectFit: 'fill',
+                            minWidth: '100%',
+                        }}
+                        allow="autoplay; fullscreen"
+                        onLoad={() => setIsVideoReady(true)}
+                    />
+                )}
                 <MaskedLogo ref={maskLogoRef} videoSrc={(isMobile ? videoSrcMobile : videoSrcDesktop) ?? ''} />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 ">
                     <svg ref={whiteLogoRef} viewBox="0 0 1334.1 242.1" className="w-full h-full max-w-[93%] md:max-w-[530px]" fill="white">

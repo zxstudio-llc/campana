@@ -5,7 +5,10 @@ const wordpressUrl = process.env.WORDPRESS_URL;
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  compress: true,
   images: {
+    minimumCacheTTL: 60,
+    formats: ["image/avif", "image/webp"],
     remotePatterns: wordpressHostname
       ? [
         {
