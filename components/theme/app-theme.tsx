@@ -1,17 +1,11 @@
 "use client";
 
 import * as React from 'react';
-import { useServerInsertedHTML } from 'next/navigation'; 
+import { useServerInsertedHTML } from 'next/navigation';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import type { ThemeOptions } from '@mui/material/styles';
-import { dataDisplayCustomizations } from './customizations/data-display';
-import { feedbackCustomizations } from './customizations/feedback';
-import { inputsCustomizations } from './customizations/inputs';
-import { navigationCustomizations } from './customizations/navigation';
-import { surfacesCustomizations } from './customizations/surfaces';
-import { colorSchemes, typography, shadows, shape } from './themePrimitives';
 
 interface AppThemeProps {
   children: React.ReactNode;
@@ -46,23 +40,14 @@ export default function AppTheme(props: AppThemeProps) {
     return disableCustomTheme
       ? {}
       : createTheme({
-          cssVariables: {
-            colorSchemeSelector: 'data-mui-color-scheme',
-            cssVarPrefix: 'template',
-          },
-          colorSchemes,
-          typography,
-          shadows,
-          shape,
-          components: {
-            ...inputsCustomizations,
-            ...dataDisplayCustomizations,
-            ...feedbackCustomizations,
-            ...navigationCustomizations,
-            ...surfacesCustomizations,
-            ...themeComponents,
-          },
-        });
+        cssVariables: {
+          colorSchemeSelector: 'data-mui-color-scheme',
+          cssVarPrefix: 'template',
+        },
+        components: {
+          ...themeComponents,
+        },
+      });
   }, [disableCustomTheme, themeComponents]);
 
   if (disableCustomTheme) {
