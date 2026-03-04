@@ -15,9 +15,20 @@ export const TextHoverEffect = ({
   const [hovered, setHovered] = useState(false);
   const [maskPosition, setMaskPosition] = useState({ cx: "50%", cy: "50%" });
 
+  const [svgRect, setSvgRect] = useState<DOMRect | null>(null);
+
   useEffect(() => {
-    if (svgRef.current && cursor.x !== null && cursor.y !== null) {
-      const svgRect = svgRef.current.getBoundingClientRect();
+    if (!svgRef.current) return;
+    const updateRect = () => {
+      setSvgRect(svgRef.current?.getBoundingClientRect() || null);
+    };
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    return () => window.removeEventListener("resize", updateRect);
+  }, []);
+
+  useEffect(() => {
+    if (svgRect && cursor.x !== null && cursor.y !== null) {
       const cxPercentage = ((cursor.x - svgRect.left) / svgRect.width) * 100;
       const cyPercentage = ((cursor.y - svgRect.top) / svgRect.height) * 100;
       setMaskPosition({
@@ -25,7 +36,7 @@ export const TextHoverEffect = ({
         cy: `${cyPercentage}%`,
       });
     }
-  }, [cursor]);
+  }, [cursor, svgRect]);
 
   return (
     <svg
@@ -64,15 +75,15 @@ export const TextHoverEffect = ({
           r="20%"
           initial={{ cx: "50%", cy: "50%" }}
           animate={maskPosition}
-        //   transition={{ duration: duration ?? 0, ease: "easeOut" }}
+          //   transition={{ duration: duration ?? 0, ease: "easeOut" }}
 
           // example for a smoother animation below
 
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 50,
-            }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 50,
+          }}
         >
           <stop offset="0%" stopColor="white" />
           <stop offset="100%" stopColor="black" />

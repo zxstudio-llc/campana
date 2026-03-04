@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import type { SiteInfo } from "@/lib/wordpress.d";
 
 export default function SiteLogo({ siteInfo }: { siteInfo: SiteInfo | null }) {
@@ -26,11 +27,14 @@ export default function SiteLogo({ siteInfo }: { siteInfo: SiteInfo | null }) {
       onClick={handleClick}
       className="mr-2 w-50 h-full flex items-center"
     >
-      <img
+      <Image
         src={siteInfo.logo.url}
         alt={siteInfo.logo.alt || "Logo"}
         width={200}
         height={50}
+        priority
+        fetchPriority="high"
+        className="object-contain"
       />
     </Link>
   );

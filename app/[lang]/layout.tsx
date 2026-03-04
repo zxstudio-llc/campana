@@ -1,20 +1,10 @@
 import "../globals.css";
 
-import { Section, Container } from "@/components/craft";
 import { Inter as FontSans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { MobileNav } from "@/components/nav/mobile-nav";
 import { Analytics } from "@vercel/analytics/react";
-import { Button } from "@/components/ui/button";
-
-import { mainMenu, contentMenu } from "@/menu.config";
 import { siteConfig } from "@/site.config";
 import { cn } from "@/lib/utils";
-
-import Logo from "@/public/logo.svg";
-import Image from "next/image";
-import Link from "next/link";
 
 import type { Metadata } from "next";
 import AppNav from "@/components/nav/app-nav";
@@ -28,16 +18,18 @@ const font = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
 });
+export async function generateMetadata(): Promise<Metadata> {
+  const siteInfo = await getSiteInfo();
 
-export const metadata: Metadata = {
-  title: "Grupo Campana",
-  description:
-    "Grupo Campana",
-  metadataBase: new URL(siteConfig.site_domain),
-  alternates: {
-    canonical: "/",
-  },
-};
+  return {
+    title: siteInfo?.title || "Título por defecto",
+    description: siteInfo?.description || "Descripción por defecto",
+    metadataBase: new URL(siteConfig.site_domain || 'http://localhost:3000'),
+    openGraph: {
+      images: siteInfo?.logo?.url ? [siteInfo.logo.url] : [],
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

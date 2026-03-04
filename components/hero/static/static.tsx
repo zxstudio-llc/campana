@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import type { HeroStatic } from '@/lib/wordpress.d'
 
 interface StaticHeroProps {
@@ -25,9 +26,11 @@ export function StaticHero({ hero }: StaticHeroProps) {
   return (
     <section className="relative h-dvh w-full overflow-hidden">
       {background && (
-        <img
+        <Image
           src={background.url}
           alt={background.alt ?? ''}
+          fill
+          priority
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}
