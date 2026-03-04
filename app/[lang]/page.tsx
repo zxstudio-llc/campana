@@ -25,8 +25,8 @@ import { StoryTimelineSection } from "@/components/story/story-section";
 import InvestmentSection from "@/components/investment/investment";
 import { BiographyCompanySection } from "@/components/biography/biography";
 import FAQSection from "@/components/faqs/faq";
-import ContactSectionCompany from "@/components/contact/components/ContactSectionCompany";
 import { Preloader } from "@/components/preloader/preloader";
+import ContactPageSection from "@/components/contact/contact";
 
 export const revalidate = 3600;
 
@@ -256,7 +256,7 @@ async function RenderBlock({
 
     case "contact": {
       const data = block as ContactSection
-      return <ContactSectionCompany {...data} />
+      return <ContactPageSection {...data} />
     }
 
     default:

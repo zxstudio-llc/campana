@@ -96,11 +96,8 @@ export default function BiographyCompany({ biography }: Props) {
     return (
         <section
             ref={sectionRef}
-            className="relative w-full h-screen overflow-hidden bg-black flex items-center"
+            className="relative w-full h-screen overflow-hidden bg-gradient-to-b from-black to-campana-primary flex items-center"
         >
-            {/* ========================= */}
-            {/* FONDO (STICKY POR PINNING) */}
-            {/* ========================= */}
             <div
                 ref={imageRef}
                 className="
@@ -122,13 +119,11 @@ export default function BiographyCompany({ biography }: Props) {
                             lg:object-contain 
                             lg:object-right-bottom"
                         />
-                        {/* Capa reactiva para el Blur Progresivo de GSAP */}
                         <div
                             ref={overlayRef}
                             className="absolute inset-0 z-10 pointer-events-none"
                         />
-                        {/* Overlay base para legibilidad constante */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent z-0" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black to-campana-primary z-0" />
                     </div>
                 )}
             </div>
@@ -136,10 +131,8 @@ export default function BiographyCompany({ biography }: Props) {
             <div className="relative z-20 w-full px-6 md:px-20">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-12 h-full items-center">
 
-                    {/* El texto sube mientras el fondo está "pinned" */}
                     <div ref={textRef} className="lg:col-span-7 flex flex-col text-white py-20 pointer-events-auto max-w-2xl">
 
-                        {/* Highlight */}
                         <motion.span
                             initial={{ opacity: 0 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
@@ -148,7 +141,6 @@ export default function BiographyCompany({ biography }: Props) {
                             {data.highlight}
                         </motion.span>
 
-                        {/* Título Principal Estilo Apple */}
                         <motion.h2
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -157,7 +149,6 @@ export default function BiographyCompany({ biography }: Props) {
                             {data.title}
                         </motion.h2>
 
-                        {/* Descripción (Scroll simulado) */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -178,14 +169,12 @@ export default function BiographyCompany({ biography }: Props) {
                                 {data.role}
                             </p>
                         </div>
-                        {/* CTA + Firma */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.6 }}
                             className="mt-8 flex flex-col sm:flex-row items-center gap-10">
 
-                            {/* Video Modal Trigger */}
                             {data.cta && data.cta_url && (
                                 <Modal>
                                     <ModalTrigger asChild>
@@ -215,7 +204,6 @@ export default function BiographyCompany({ biography }: Props) {
                                             bg-black
                                             shadow-2xl
                                         ">
-                                            {/* Contenedor del Video con Aspect Ratio Forzado */}
                                             <div className="relative w-full aspect-video bg-black flex items-center justify-center">
                                                 <iframe
                                                     src={`${data.cta_url}?autoplay=1&api=1&background=0&mute=0`}
@@ -225,7 +213,6 @@ export default function BiographyCompany({ biography }: Props) {
                                                 />
                                             </div>
 
-                                            {/* Footer del Modal estilo Apple VIP */}
                                             <div className="p-8 bg-[#001D3D] border-t border-[#b5934a]/20">
                                                 <h4 className="text-2xl font-bold text-[#b5934a] tracking-tight">
                                                     Presentación Ejecutiva: Grupo Campana
