@@ -1,5 +1,5 @@
 import { Section, Container } from "@/components/craft";
-import { getPageBySlug, getOurValuesById, getActivoEstrategicoById, getProjectsByIds, getTimelineByIds, getInvestmentById, getBiographyById, getFaqById, getContactById } from "@/lib/wordpress";
+import { getPageBySlug, getOurValuesById, getActivoEstrategicoById, getProjectsByIds, getTimelineByIds, getInvestmentById, getBiographyById, getFaqById } from "@/lib/wordpress";
 import Link from "next/link";
 import { File, Pen, Tag, Diamond, User, Folder } from "lucide-react";
 import { Hero } from "@/components/hero/hero";
@@ -25,7 +25,6 @@ import { StoryTimelineSection } from "@/components/story/story-section";
 import InvestmentSection from "@/components/investment/investment";
 import { BiographyCompanySection } from "@/components/biography/biography";
 import FAQSection from "@/components/faqs/faq";
-import ContactFormSection from "@/components/contact/components/ContactSectionCompany";
 import ContactSectionCompany from "@/components/contact/components/ContactSectionCompany";
 import { Preloader } from "@/components/preloader/preloader";
 

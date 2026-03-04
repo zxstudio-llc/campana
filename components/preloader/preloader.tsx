@@ -26,7 +26,7 @@ export const Preloader = () => {
             opacity: 1,
             transition: {
                 duration: 2.5,
-                ease: "easeInOut",
+                ease: "easeInOut" as any,
                 repeat: Infinity,
                 repeatType: "reverse" as const,
             }

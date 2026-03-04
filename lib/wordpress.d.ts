@@ -342,10 +342,10 @@ export interface TeamSection {
 
 export interface ContactSection {
   acf_fc_layout: 'contact'
-  title?: string
-  subtitle?: string
-  phone?: string
-  mail?: string
+  mail: string | undefined;
+  phone: string | undefined;
+  subtitle: string | undefined;
+  title: string | undefined;
 }
 
 export type PageSection =

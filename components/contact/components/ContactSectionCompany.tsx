@@ -4,7 +4,6 @@ import { useRef, useLayoutEffect, useState } from "react"
 import { Mail, Phone } from "lucide-react"
 import { motion, useInView } from "motion/react"
 import Container from "./container"
-import { ContactSection } from "@/lib/wordpress.d"
 
 interface ContactSectionCompanyProps {
     title?: string;

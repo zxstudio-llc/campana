@@ -18,7 +18,6 @@ import type {
   Investment,
   Biography,
   Faq,
-  Contact,
 } from "./wordpress.d";
 import { mapWpMenu } from "@/utlis/menu.utils";
 
@@ -355,30 +354,6 @@ export async function getFaqById(
       .filter(Boolean) as Faq[]
   } catch (error) {
     console.error("[WP API] Error en getFaqById:", error);
-    return [];
-  }
-}
-
-export async function getContactById(
-  ids: number[]
-): Promise<Contact[]> {
-  if (!baseUrl || !ids?.length) return []
-
-  try {
-    const res = await fetch(
-      `${baseUrl}/wp-json/wp/v2/contact-us?include=${ids.join(",")}&acf_format=standard`,
-      { next: { revalidate: 3600 } }
-    )
-
-    if (!res.ok) return []
-
-    const data: Contact[] = await res.json()
-
-    return ids
-      .map((id) => data.find((p) => p.id === id))
-      .filter(Boolean) as Contact[]
-  } catch (error) {
-    console.error("[WP API] Error en getContactById:", error);
     return [];
   }
 }
