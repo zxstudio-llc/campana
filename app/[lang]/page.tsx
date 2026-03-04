@@ -42,7 +42,7 @@ export default async function Home({
     es: "inicio",
   };
 
-  const currentSlug = slugByLang[lang] || "home";
+  const currentSlug = slugByLang[lang] || "inicio";
 
   const page = await getPageBySlug(currentSlug);
 

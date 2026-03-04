@@ -12,6 +12,6 @@ export const contentMenu = {
 };
 
 export const menuConfig = {
-  homeSlug: 'home',
+  homeSlug: 'inicio',
   wpBaseUrl: 'https://zxcms.xiaotianqi.com/',
 }

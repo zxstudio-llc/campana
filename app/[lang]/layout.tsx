@@ -52,7 +52,7 @@ export default async function RootLayout({
     en: 21,
   };
 
-  const currentMenuId = menuMap[lang] || 21;
+  const currentMenuId = menuMap[lang] || 5;
   const [menuItems, cta, wpLanguages, siteInfo] = await Promise.all([
     getMainMenu(currentMenuId, lang),
     getGlobalCTA(),
