@@ -55,7 +55,7 @@ export default async function RootLayout({
   return (
     <html lang={lang} suppressHydrationWarning>
       <head />
-      <body className={cn("min-h-screen bg-campana-primary text-foreground antialiased", font.variable)}>
+      <body className={cn("min-h-screen bg-gradient-to-b from-black to-campana-bg-hover text-foreground antialiased", font.variable)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -22,12 +22,9 @@ export async function Hero({ page }: HeroProps) {
 
     return (
       <HeroScroll
-        videoSrcDesktop={slider.acf.desktop_version}
-        videoSrcMobile={slider.acf.mobile_version}
-      >
-        <div className="reveal-rotate opacity-0 -mt-40 md:mt-0 md:translate-y-10 absolute">
-        </div>
-      </HeroScroll>
+        mux_playback_web_id={slider.acf.mux_playback_web_id}
+        mux_playback_mobile_id={slider.acf.mux_playback_mobile_id}
+      />
     )
   }
 

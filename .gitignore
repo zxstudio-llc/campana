@@ -40,3 +40,6 @@ next-env.d.ts
 .claude
 .factory
 RAILWAY-SETUP.md
+
+# large video files
+public/video/Website_Main_NoText.mp4

@@ -44,7 +44,6 @@ export function StoryTimelineSection({
                 heading={highlight}
                 description={description}
                 subtitle={subtitle}
-                animateYear={{ from: 1995, to: 2012, duration: 2000 }}
                 data={data}
             />
         </div>

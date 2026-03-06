@@ -48,7 +48,7 @@ const FAQSection = ({ section, faqs }: FAQSectionProps) => {
                                     >
                                         <AccordionTrigger className="text-campana-primary hover:no-underline text-left py-6 group w-full">
                                             <div className="flex items-start gap-4 w-full">
-                                                <Plus className="w-5 h-5 text-[#b5934a] shrink-0 mt-1 transition-transform duration-200 group-data-[state=open]:rotate-45" />
+                                                <Plus className="w-5 h-5 text-campana-secondary shrink-0 mt-1 transition-transform duration-200 group-data-[state=open]:rotate-45" />
                                                 <span
                                                     className="text-lg md:text-xl font-semibold leading-tight"
                                                     dangerouslySetInnerHTML={{
@@ -58,7 +58,7 @@ const FAQSection = ({ section, faqs }: FAQSectionProps) => {
                                             </div>
                                         </AccordionTrigger>
 
-                                        <AccordionContent className="text-gray-700 text-base md:text-lg pl-9 pb-8 leading-relaxed">
+                                        <AccordionContent className="text-gray-700 text-base md:text-lg pl-9 pb-8 leading-4">
                                             <div
                                                 dangerouslySetInnerHTML={{
                                                     __html: faq.acf.content,

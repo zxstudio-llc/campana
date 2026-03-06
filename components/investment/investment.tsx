@@ -1,11 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect, useRef } from "react";
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Investment } from "@/lib/wordpress.d";
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+    gsap.registerPlugin(ScrollTrigger);
+}
 
 interface InvestmentsSectionProps {
     photo?: {
@@ -102,10 +108,62 @@ export default function InvestmentSection({
         },
     };
 
-    return (
-        <section className="relative py-20 md:py-32 overflow-hidden bg-campana-bg-hover -mt-2">
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+    const backdropRef = useRef<HTMLDivElement>(null);
 
-            {/* Imagen derecha desktop */}
+    useLayoutEffect(() => {
+        if (!sectionRef.current || !contentRef.current || !backdropRef.current) return;
+
+        let ctx = gsap.context(() => {
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top top",
+                    end: "+=100%",
+                    scrub: 1,
+                    pin: true,
+                    pinSpacing: true,
+                    anticipatePin: 1,
+                },
+            });
+
+            // Fade in backdrop blur
+            tl.fromTo(backdropRef.current,
+                { opacity: 0, backdropFilter: "blur(0px)" },
+                { opacity: 1, backdropFilter: "blur(12px)", ease: "none", duration: 1 },
+                0
+            );
+
+            // Animate content upwards
+            tl.fromTo(contentRef.current,
+                { y: 150, opacity: 0 },
+                { y: 0, opacity: 1, ease: "power2.out", duration: 1 },
+                0
+            );
+        }, sectionRef);
+
+        const timer = setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 100);
+
+        return () => {
+            ctx.revert();
+            clearTimeout(timer);
+        };
+    }, []);
+
+    return (
+        <section ref={sectionRef} className="relative w-full overflow-hidden bg-campana-bg -mt-2">
+
+            {/* Backdrop Blur layer (Initially hidden) */}
+            <div
+                ref={backdropRef}
+                className="absolute inset-0 z-10 bg-campana-bg-hover/10 pointer-events-none"
+                style={{ opacity: 0 }}
+            />
+
+            {/* Fixed Background Image */}
             {imageUrl && (
                 <div className="absolute top-0 right-0 h-full w-full lg:w-1/2 z-0">
                     <Image
@@ -118,7 +176,10 @@ export default function InvestmentSection({
                 </div>
             )}
 
-            <div className="relative z-10 max-w-8xl mx-auto pt-16 md:pt-30">
+            <div
+                ref={contentRef}
+                className="relative z-20 max-w-8xl mx-auto pt-16 md:pt-30 min-h-screen flex flex-col justify-center py-20"
+            >
 
                 {/* HEADER */}
                 <div className="flex flex-col items-center space-y-4 mb-10">
@@ -134,23 +195,13 @@ export default function InvestmentSection({
                         className="text-campana-primary text-xl leading-6 px-6 md:px-32 text-center mt-4"
                         dangerouslySetInnerHTML={{ __html: description || "" }}
                     />
-
-                    {cta && (
-                        <Button
-                            size="lg"
-                            className="px-6 py-6 rounded-full bg-campana-primary hover:bg-campana-secondary text-white mt-4"
-                            onClick={() => window.open(cta_url, "_blank")}
-                        >
-                            {cta}
-                        </Button>
-                    )}
                 </div>
 
                 {/* ======================= */}
                 {/* DESKTOP GRID */}
                 {/* ======================= */}
                 <motion.div
-                    className="hidden lg:grid grid-cols-3 gap-6 w-[68%] pl-20 mt-20"
+                    className="hidden lg:grid grid-cols-3 gap-6 w-[68%] pl-30 mt-10"
                     variants={containerVariants}
                     initial="hidden"
                     whileInView="show"
@@ -182,13 +233,13 @@ export default function InvestmentSection({
                                     transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                                     onClick={prev}
                                     className="
-            absolute -left-6 top-1/2 -translate-y-1/2
-            h-11 w-11
-            rounded-full
-            bg-campana-primary
-            flex items-center justify-center
-            text-campana-secondary z-50
-          "
+                                        absolute -left-6 top-1/2 -translate-y-1/2
+                                        h-11 w-11
+                                        rounded-full
+                                        bg-campana-primary
+                                        flex items-center justify-center
+                                        text-campana-secondary z-50
+                                    "
                                 >
                                     <ChevronLeft size={26} strokeWidth={1.5} />
                                 </motion.button>
@@ -228,13 +279,13 @@ export default function InvestmentSection({
                                     transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                                     onClick={next}
                                     className="
-            absolute -right-6 top-1/2 -translate-y-1/2
-            h-11 w-11
-            rounded-full
-            bg-campana-primary
-            flex items-center justify-center
-            text-campana-secondary z-50
-          "
+                                        absolute -right-6 top-1/2 -translate-y-1/2
+                                        h-11 w-11
+                                        rounded-full
+                                        bg-campana-primary
+                                        flex items-center justify-center
+                                        text-campana-secondary z-50
+                                    "
                                 >
                                     <ChevronRight size={26} strokeWidth={1.5} />
                                 </motion.button>
@@ -242,6 +293,17 @@ export default function InvestmentSection({
                         </AnimatePresence>
 
                     </div>
+                </div>
+
+                <div className="flex items-center justify-center mt-10">
+                    {cta && (
+                        <Button
+                            className="px-6 py-6 rounded-full bg-campana-primary hover:bg-campana-secondary text-white mt-4"
+                            onClick={() => window.open(cta_url, "_blank")}
+                        >
+                            {cta}
+                        </Button>
+                    )}
                 </div>
             </div>
         </section>

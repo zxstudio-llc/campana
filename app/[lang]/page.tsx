@@ -62,7 +62,7 @@ export default async function Home({
 
   return (
     <Section>
-      <Preloader />
+      {/* <Preloader /> */}
       <Container>
         <Hero page={page} />
 
@@ -126,7 +126,7 @@ function GradientWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative bg-gradient-to-b from-black to-campana-primary w-screen">
+    <div className="relative bg-gradient-to-b from-black to-campana-bg-hover w-screen">
       {children}
     </div>
   );
@@ -138,6 +138,21 @@ async function RenderBlock({
   block: PageSection;
 }) {
   switch (block.acf_fc_layout) {
+
+    case "biography": {
+      const data = block as BiographySection
+      const bioIds = (data.biography || []).map((b: any) => b.ID || b.id || b).filter(Boolean);
+      const biographies = await getBiographyById(bioIds)
+      return (
+        <BiographyCompanySection
+          biographies={biographies}
+          highlight={data.highlight || ""}
+          short_description={data.short_description || ""}
+          description={data.description || ""}
+        />
+      )
+    }
+
     case "about":
       return <AboutUsSection about={block as any} />;
 
@@ -227,16 +242,6 @@ async function RenderBlock({
           investment={investments}
           cta={data.cta}
           cta_url={data.cta_url}
-        />
-      )
-    }
-    case "biography": {
-      const data = block as BiographySection
-      const bioIds = (data.biography || []).map((b: any) => b.ID || b.id || b).filter(Boolean);
-      const biographies = await getBiographyById(bioIds)
-      return (
-        <BiographyCompanySection
-          biographies={biographies}
         />
       )
     }

@@ -33,7 +33,7 @@ export const Showcase = ({ content }: ShowcaseProps) => {
     setActiveCard((prev) => Math.max(0, prev - 1));
 
   return (
-    <div className="relative w-full max-w-8xl mx-auto h-[400px] md:h-[600px] rounded-none md:rounded-[32px] bg-transparent md:bg-[#030b14] ">
+    <div className="relative w-full max-w-8xl mx-auto h-[400px] md:h-[600px] rounded-none md:rounded-[32px] bg-transparent md:bg-black ">
       <DesktopUI
         content={content}
         activeCard={activeCard}
@@ -171,7 +171,7 @@ export const DesktopUI = ({
               }}
               className={cn(
                 "relative overflow-hidden rounded-[28px] left-4",
-                "bg-[#081c34] text-white",
+                "bg-[#1e1e20] text-white",
                 "cursor-pointer"
               )}
               onClick={() => toggleItem(index)}
@@ -200,8 +200,13 @@ export const DesktopUI = ({
                 }}
                 className="absolute left-0 right-0 top-0"
               >
-                <div className="px-6 pt-6 pb-6 text-sm text-white/80">
-                  {item.description}
+                <div className="px-6 pt-6 pb-6 text-sm text-white/80 flex flex-col">
+                  <span className="text-lg font-bold tracking-tight text-campana-secondary">
+                    {item.title}
+                  </span>
+                  <span>
+                    {item.description}
+                  </span>
                 </div>
               </div>
             </div>
@@ -218,7 +223,7 @@ export const DesktopUI = ({
                 toggleItem(Math.max(0, activeIndex - 1));
               }
             }}
-            className="p-2 bg-[#081c34] rounded-full text-neutral-500 hover:text-[#f1ba0a] transition-colors"
+            className="p-2 bg-[#1e1e20] rounded-full text-neutral-500 hover:text-[#f1ba0a] transition-colors"
           >
             <ChevronUp size={20} />
           </button>
@@ -231,7 +236,7 @@ export const DesktopUI = ({
                 toggleItem(Math.min(content.length - 1, activeIndex + 1));
               }
             }}
-            className="p-2 bg-[#081c34] rounded-full text-neutral-500 hover:text-[#f1ba0a] transition-colors"
+            className="p-2 bg-[#1e1e20] rounded-full text-neutral-500 hover:text-[#f1ba0a] transition-colors"
           >
             <ChevronDown size={20} />
           </button>

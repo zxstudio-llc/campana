@@ -18,11 +18,6 @@ interface TimelineProps {
     heading: string;
     description?: string;
     subtitle?: string;
-    animateYear?: {
-        from: number;
-        to: number;
-        duration?: number;
-    };
     data: TimelineEntry[];
 }
 
@@ -31,7 +26,6 @@ export const Timeline = ({
     heading,
     description,
     subtitle,
-    animateYear,
 }: TimelineProps) => {
     const sectionRef = useRef<HTMLDivElement>(null);
     const horizontalRef = useRef<HTMLDivElement>(null);
@@ -164,7 +158,7 @@ export const Timeline = ({
             className="w-full bg-campana-bg relative py-24 overflow-hidden"
         >
             <div className="max-w-7xl mx-auto px-6 text-center">
-                <HeadingWithCounter text={heading} animateYear={animateYear} />
+                <HeadingWithCounter text={heading} />
 
                 {description && (
                     <p
@@ -278,7 +272,7 @@ export const Timeline = ({
             </div>
             <motion.div
                 ref={ref}
-                className="max-w-5xl mx-auto px-2 text-center"
+                className="max-w-7xl mx-auto px-2 text-center"
                 initial={{ opacity: 0, y: 50 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, ease: "easeOut" }}

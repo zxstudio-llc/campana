@@ -4,16 +4,22 @@ import type { Biography } from "@/lib/wordpress.d"
 
 interface Props {
     biographies: Biography[]
+    highlight: string
+    short_description: string
+    description: string
 }
 
-export async function BiographyCompanySection({ biographies }: Props) {
+export async function BiographyCompanySection({ biographies, highlight, short_description, description }: Props) {
     if (!biographies?.length) return null
 
-    const data = await getBiographyById(biographies.map((b) => b.id))
+    const biography = biographies[0]
 
-    if (!data?.length) return null
-
-    const biography = data[0]
-
-    return <BiographyCompany biography={biography} />
+    return (
+        <BiographyCompany
+            biography={biography}
+            highlight={highlight}
+            short_description={short_description}
+            description={description}
+        />
+    )
 }

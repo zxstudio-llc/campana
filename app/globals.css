@@ -93,7 +93,7 @@
         --campana-secondary-hover: #b5934a;
         --campana-secondary-active: #9a773d;
         --campana-bg: #ffffff;
-        --campana-bg-hover: #f5f5f7;
+        --campana-bg-hover: #1d1d1f;
         --background: #ffffff;
         --brand: #f5f5f5;
         --foreground: oklch(0.145 0 0);
@@ -142,8 +142,8 @@
         --campana-secondary-hover: #b5934a;
         --campana-secondary-active: #9a773d;
         --campana-bg: #ffffff;
-        --campana-bg-hover: #f5f5f7;
-        --background: oklch(0.145 0 0);
+        --campana-bg-hover: #1d1d1f;
+        --background: oklch(19.689% 0.0016 16.521);
         --foreground: oklch(0.985 0 0);
         --brand: #f5f5f5;
         --card: oklch(0.145 0 0);

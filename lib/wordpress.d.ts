@@ -93,6 +93,8 @@ export interface Slider {
   slug: string
   acf: {
     desktop_version?: string
+    mux_playback_web_id?: string
+    mux_playback_mobile_id?: string
     mobile_version?: string
   }
 }
@@ -202,7 +204,7 @@ export interface Biography {
       title: string
       description: string
       cta: string
-      cta_url: string
+      mux_playback_id?: string
       signature: string
     }
   }
@@ -260,12 +262,10 @@ export interface HeroStatic {
 
 export interface AboutSection {
   acf_fc_layout: 'about'
-  highlight?: string
   title?: string
   subtitle?: string
-  short_description?: string
-  description?: string
   video_link?: string
+  mux_playback_id?: string
 }
 
 export interface OurValuesSection {
@@ -323,6 +323,9 @@ export interface ActivosEstrategicosSection {
 
 export interface BiographySection {
   acf_fc_layout: 'biography'
+  highlight?: string
+  short_description?: string
+  description?: string
   biography: { ID: number }[]
 }
 
@@ -346,16 +349,20 @@ export interface ContactSection {
   phone: string | undefined;
   subtitle: string | undefined;
   title: string | undefined;
+  instagram: string | undefined;
+  facebook: string | undefined;
+  x: string | undefined;
+  linkedin: string | undefined;
 }
 
 export type PageSection =
+  | BiographySection
   | AboutSection
   | OurValuesSection
   | ActivosEstrategicosSection
   | TimelineSection
   | ProjectsSection
   | InvestmentSection
-  | BiographySection
   | FaqsSection
   | TeamSection
   | ContactSection

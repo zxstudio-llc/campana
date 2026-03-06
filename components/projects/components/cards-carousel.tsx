@@ -392,7 +392,7 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
       >
         <div className="absolute inset-0 z-20 bg-gradient-to-b from-black/80 via-transparent to-black/20" />
         <div className="relative z-30 p-10 md:p-14 text-left">
-          <p className="font-bold text-[#f1ba0a] text-sm md:text-base uppercase tracking-[0.2em] mb-3">{card.category}</p>
+          <p className="font-bold text-campana-secondary text-sm md:text-base uppercase tracking-[0.2em] mb-3">{card.category}</p>
           <p className="text-3xl md:text-5xl font-bold text-white leading-[0.95] tracking-tighter max-w-lg">{card.title}</p>
         </div>
         <BlurImage src={card.src.url} alt={card.src.alt || "Imagen"} fill className="absolute inset-0 z-10 object-cover transition-transform duration-700 group-hover:scale-105" />

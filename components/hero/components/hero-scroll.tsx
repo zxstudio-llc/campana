@@ -4,21 +4,21 @@ import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MaskedLogo, MaskedLogoHandle } from "./masked-logo";
+import MuxPlayer from "@mux/mux-player-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface Props {
-    videoSrcDesktop?: string | null;
-    videoSrcMobile?: string | null;
-    children: React.ReactNode;
+    mux_playback_web_id?: string | null;
+    mux_playback_mobile_id?: string | null;
 }
 
-export default function HeroScroll({ videoSrcDesktop, videoSrcMobile, children }: Props) {
+export default function HeroScroll({ mux_playback_web_id, mux_playback_mobile_id }: Props) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const maskLogoRef = useRef<MaskedLogoHandle>(null);
     const whiteLogoRef = useRef<SVGSVGElement>(null);
     const [isVideoReady, setIsVideoReady] = useState(false);
-    const videoRef = useRef<HTMLIFrameElement>(null);
+    const playerRef = useRef<any>(null);
     const textRef = useRef<HTMLDivElement>(null);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -46,7 +46,6 @@ export default function HeroScroll({ videoSrcDesktop, videoSrcMobile, children }
             const overflowMultiplier = isMobile ? 2480 : 90;
             const startScale = coverScale * overflowMultiplier;
             const targetWidth = isMobile ? 1980 : 1230;
-            const yOffset = isMobile ? -120 : -90;
             const endScale = targetWidth / bbox.width;
 
             gsap.set(logo, { scale: startScale, transformOrigin: "50% 50%" });
@@ -57,62 +56,78 @@ export default function HeroScroll({ videoSrcDesktop, videoSrcMobile, children }
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=300%",
-                    scrub: true,
+                    end: "+=500%",
+                    scrub: 1.8, // Apple M5 chip style inertia
                     pin: true,
+                    pinSpacing: true,
                     anticipatePin: 1,
                 },
             });
 
+            // Force refresh when hero is ready
+            ScrollTrigger.refresh();
+
+            // Phase 1: Logo Zoom Out (The mask expands)
             tl.to(logo, { scale: endScale, ease: "none" });
-            tl.to(videoRef.current, { opacity: 0, ease: "none" }, 0.3);
-            tl.to(whiteLogoRef.current, { opacity: 1, ease: "none" }, 0.5);
+
+            // Phase 2: Transición de "Atravesar" (The video fades and zooms in while white logo appears)
+            tl.to(playerRef.current, {
+                opacity: 0, // M5-style depth zoom
+                ease: "none"
+            }, 0.3); // Perfect sync with logo scale endpoint
+
+            tl.set(whiteLogoRef.current, { opacity: 1 }, 0.5);
             tl.to(whiteLogoRef.current, { scale: 1, ease: "none" });
+
             tl.set(maskLogoRef.current?.container, { autoAlpha: 0 });
-            tl.to(textRef.current, { opacity: 1, y: 90, ease: "none" });
-            tl.to(".reveal-description", { opacity: 1, duration: 1, ease: "power2.out" });
-            tl.to([".reveal-description", whiteLogoRef.current], {
-                opacity: 0,
+
+            // Final: Exit Fade
+            tl.to([whiteLogoRef.current], {
+                opacity: 1,
                 scale: 0.9,
                 filter: "blur(20px)",
-                duration: 1.5,
-                ease: "power2.inOut",
+                duration: 0.2,
+                ease: "none",
             });
         }, sectionRef);
 
         return () => ctx.revert();
     }, [isMobile]);
 
-    const [videoSrc, setVideoSrc] = useState<string | null>(null);
+    const playbackId = isMobile ? (mux_playback_mobile_id ?? null) : (mux_playback_web_id ?? null);
 
-    useEffect(() => {
-        // Deferimos la carga del video 500ms para que no bloquee los scripts críticos iniciales
-        const timer = setTimeout(() => {
-            setVideoSrc(isMobile ? (videoSrcMobile ?? null) : (videoSrcDesktop ?? null));
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [isMobile, videoSrcMobile, videoSrcDesktop]);
+    const handleCanPlay = () => {
+        setIsVideoReady(true);
+        // console.log(`HERO VIDEO: Ready in ${(performance.now() / 1000).toFixed(2)}s from navigation start`);
+    };
 
     return (
         <section ref={sectionRef} className="relative ">
             <div className="h-screen overflow-hidden relative transition-opacity duration-700 " style={{ opacity: isVideoReady ? 1 : 0 }}>
-                <div className="absolute inset-0 bg-[#00122d]"></div>
-                {videoSrc && (
-                    <iframe
-                        ref={videoRef}
-                        src={`${videoSrc}?background=1&autoplay=1&loop=1&muted=1&transparent=0`}
-                        className={`absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none`}
-                        style={{
-                            width: '200vw',
-                            height: '100vh',
-                            objectFit: 'fill',
-                            minWidth: '100%',
-                        }}
-                        allow="autoplay; fullscreen"
-                        onLoad={() => setIsVideoReady(true)}
-                    />
+                <div className="absolute inset-0 bg-gradient-to-b from-campana-bg-hover to-black"></div>
+                {playbackId && (
+                    <div className="absolute inset-0 w-full h-full">
+                        <MuxPlayer
+                            ref={playerRef}
+                            playbackId={playbackId}
+                            streamType="on-demand"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className={`absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none`}
+                            style={{
+                                width: '200vw',
+                                height: '100vh',
+                                "--controls": "none",
+                                background: 'transparent',
+                                minWidth: '100%',
+                            } as any}
+                            onCanPlay={handleCanPlay}
+                        />
+                    </div>
                 )}
-                <MaskedLogo ref={maskLogoRef} videoSrc={(isMobile ? videoSrcMobile : videoSrcDesktop) ?? ''} />
+                <MaskedLogo ref={maskLogoRef} videoSrc={(isMobile ? mux_playback_mobile_id : mux_playback_web_id) ?? ''} />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 ">
                     <svg ref={whiteLogoRef} viewBox="0 0 1334.1 242.1" className="w-full h-full max-w-[93%] md:max-w-[530px]" fill="white">
                         <path d="M165.1,28.7c4.4,0,7.3,3,7.3,7.3v31c0,4.4-3,7.3-7.3,7.3h-89.1c-9.3,0-15.2,8.5-15.2,17.1v60.1c0,8.8,5.9,16.9,15.2,16.9h89.1c4.4,0,7.3,3,7.3,7.3v31.3c0,4.4-3,7.3-7.3,7.3h-89.1c-34.9,0-62.3-29.3-62.3-63.7v-57.9c0-34.5,27.2-64,62.3-64,0,0,89.1,0,89.1,0Z" />
@@ -123,9 +138,6 @@ export default function HeroScroll({ videoSrcDesktop, videoSrcMobile, children }
                         <path d="M555.1,210.7v-98.3c0-2.4-3.3-3.3-4.5-1.2l-33.5,61.7c-.4.8-1.3,1.3-2.1,1.3h-34.1c-.9,0-1.7-.5-2.1-1.3l-33.7-61.8c-1.2-2.2-4.5-1.3-4.5,1.2v98.5c0,1.3-1,2.4-2.4,2.4h-34.6c-3.2,0-5.7-2.6-5.7-5.7V35.3c0-3.1,2.6-5.7,5.7-5.7h43.8c.9,0,1.7.5,2.1,1.2l46.3,83.3c.9,1.7,3.2,1.7,4.1,0l46.3-83.3c.4-.8,1.3-1.2,2.1-1.2h43.5c3.2,0,5.7,2.6,5.7,5.7v172.2c0,3.2-2.6,5.7-5.7,5.7h-34.6c-1.3,0-2.3-1-2.3-2.4h.3,0Z" />
                         <path d="M1066.7,212l-71.3-100c-1.5-2.2-5-1-5,1.5v96.8c0,1.5-1.3,2.7-2.7,2.7h-31.9c-3.9,0-7-3.1-7-7V32.9c0-3.9,3.1-7,7-7h28.8c.9,0,1.7.4,2.2,1.2l71.3,100.3c1.5,2.2,5,1,5-1.5V28.8c0-1.5,1.3-2.7,2.7-2.7h31.9c3.9,0,7,3.1,7,7v173.1c0,3.9-3.1,7-7,7h-28.8c-.9,0-1.7-.4-2.2-1.2h0Z" />
                     </svg>
-                </div>
-                <div ref={textRef} className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6 pointer-events-none " >
-                    {children}
                 </div>
             </div>
         </section>
