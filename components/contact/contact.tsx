@@ -28,13 +28,13 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-top">
 
                     {/* Columna Izquierda: Información de Contacto (5 columnas en desktop) */}
-                    <div className="lg:col-span-7 flex flex-col space-y-8 text-center lg:text-left">
+                    <div className="lg:col-span-7 flex flex-col space-y-4 md:space-y-8 text-center lg:text-left">
 
                         <div className="space-y-6">
                             <h2 className="text-5xl md:text-8xl font-black text-[#001D3D] tracking-tighter leading-none uppercase">
                                 {title}
                             </h2>
-                            <p className="text-gray-700 text-xl lg:text-xl max-w-2xl mx-auto lg:mx-0 leading-[1.3]"
+                            <p className="text-gray-700 text-xl lg:text-xl max-w-2xl mx-auto lg:mx-0 leading-4 md:leading-[1.3]"
                                 style={{
                                     textAlign: "justify",
                                     textAlignLast: "left",

@@ -140,7 +140,7 @@ const Content = ({
 
         return (
           <div key={index} className="flex items-start ml-2 gap-0">
-            <span className="text-[#b5934a] flex-shrink-0 text-sm">•</span>
+            <span className="text-[#b5934a] shrink-0 text-sm">•</span>
             <span
               className="text-neutral-600 text-sm leading-snug"
               dangerouslySetInnerHTML={{ __html: formatted }}
@@ -229,7 +229,7 @@ const Content = ({
           priority={currentIndex === index}
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-black/20 to-transparent hidden md:block" />
+        <div className="absolute inset-0 bg-linear-to-l from-black/20 to-transparent hidden md:block" />
       </div>
     </div>
   );

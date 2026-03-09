@@ -115,7 +115,9 @@ export default function InvestmentSection({
     useLayoutEffect(() => {
         if (!sectionRef.current || !contentRef.current || !backdropRef.current) return;
 
-        let ctx = gsap.context(() => {
+        const mm = gsap.matchMedia();
+
+        mm.add("(min-width: 1024px)", () => {
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: sectionRef.current,
@@ -128,27 +130,55 @@ export default function InvestmentSection({
                 },
             });
 
-            // Fade in backdrop blur
-            tl.fromTo(backdropRef.current,
+            tl.fromTo(
+                backdropRef.current,
                 { opacity: 0, backdropFilter: "blur(0px)" },
                 { opacity: 1, backdropFilter: "blur(12px)", ease: "none", duration: 1 },
                 0
             );
 
-            // Animate content upwards
-            tl.fromTo(contentRef.current,
+            tl.fromTo(
+                contentRef.current,
                 { y: 150, opacity: 0 },
                 { y: 0, opacity: 1, ease: "power2.out", duration: 1 },
                 0
             );
-        }, sectionRef);
+        });
+
+        mm.add("(max-width: 1023px)", () => {
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top top",
+                    end: "+=100%",
+                    scrub: 1,
+                    pin: true,
+                    pinSpacing: true,
+                    anticipatePin: 1,
+                },
+            });
+
+            tl.fromTo(
+                backdropRef.current,
+                { opacity: 0, backdropFilter: "blur(0px)" },
+                { opacity: 1, backdropFilter: "blur(12px)", ease: "none", duration: 1 },
+                0
+            );
+
+            tl.fromTo(
+                contentRef.current,
+                { y: 70, opacity: 0 }, // 👈 más corto en mobile
+                { y: 0, opacity: 1, ease: "power2.out", duration: 1 },
+                0
+            );
+        });
 
         const timer = setTimeout(() => {
             ScrollTrigger.refresh();
         }, 100);
 
         return () => {
-            ctx.revert();
+            mm.revert();
             clearTimeout(timer);
         };
     }, []);
@@ -180,21 +210,26 @@ export default function InvestmentSection({
 
             <div
                 ref={contentRef}
-                className="relative z-20 max-w-8xl mx-auto pt-16 md:pt-30 min-h-screen flex flex-col justify-center py-20"
+                className="relative z-20 max-w-8xl mx-auto pt-14 md:pt-30 min-h-[90vh] md:min-h-screen flex flex-col justify-start md:justify-center pb-10 md:py-20"
             >
 
                 {/* HEADER */}
-                <div className="flex flex-col items-center space-y-4 mb-10">
+                <div className="flex flex-col items-center space-y-0.5 md:space-y-4 mb-6 md:mb-10 mt-10 md:mt-0">
                     <span className="text-campana-secondary font-bold tracking-widest text-sm uppercase text-center">
                         {highlight}
                     </span>
 
-                    <h2 className="text-campana-primary text-6xl md:text-[92px] font-black tracking-tight leading-[0.9] uppercase text-center">
+                    <h2 className="text-campana-primary text-5xl md:text-8xl font-black tracking-tight leading-[0.9] uppercase text-center">
                         {title}
                     </h2>
 
                     <p
-                        className="text-campana-primary text-xl leading-6 px-6 md:px-32 text-center mt-4"
+                        className="text-campana-primary text-lg md:text-xl leading-4 md:leading-6 px-6 md:px-32 text-center mt-4"
+                        style={{
+                            textAlign: "justify",
+                            textAlignLast: "left",
+                            textJustify: "inter-word"
+                        }}
                         dangerouslySetInnerHTML={{ __html: description || "" }}
                     />
                 </div>
@@ -217,7 +252,7 @@ export default function InvestmentSection({
                 </motion.div>
 
                 {/* MOBILE CAROUSEL */}
-                <div className="lg:hidden relative w-full flex justify-center items-center pb-[10px]">
+                <div className="lg:hidden relative w-full flex justify-center items-center pb-0">
 
                     <div className="relative flex items-center justify-center w-full max-w-[360px]">
 
@@ -293,7 +328,7 @@ export default function InvestmentSection({
                     </div>
                 </div>
 
-                <div className="flex items-center justify-center mt-10">
+                <div className="flex items-center justify-center mt-0 md:mt-10">
                     {cta && (
                         <Button
                             className="px-6 py-6 rounded-full bg-campana-primary hover:bg-campana-secondary text-white mt-4"

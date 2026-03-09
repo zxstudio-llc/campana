@@ -191,7 +191,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             ref={overlayRef}
                             className="absolute inset-0 z-10 pointer-events-none"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/40 to-transparent z-10" />
+                        <div className="absolute inset-0 bg-linear-to-r from-black/95 via-black/40 to-transparent z-10" />
                     </div>
                 ) : photo?.url && (
                     <div className="relative w-full h-full">
@@ -208,7 +208,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             ref={overlayRef}
                             className="absolute inset-0 z-10 pointer-events-none"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent z-0" />
+                        <div className="absolute inset-0 bg-linear-to-r from-black/90 via-black/40 to-transparent z-0" />
                     </div>
                 )}
             </div>
