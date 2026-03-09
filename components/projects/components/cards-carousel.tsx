@@ -434,10 +434,13 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
             playsInline
             preload="auto"
             maxResolution="2160p"
-            className="absolute inset-0 z-10 object-cover pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
             style={{
+              width: '100vw',
+              height: '100vh',
+              background: 'transparent',
+              minWidth: '100%',
               "--controls": "none",
-              background: "transparent",
             } as any}
           />
         ) : (
