@@ -51,9 +51,9 @@ export function MobileNav({
           className={cn(
             'flex items-center justify-center p-2',
             'w-10 h-10 rounded-full',
-            'bg-campana-primary hover:bg-campana-primary-hover',
-            'border border-campana-secondary/20',
-            'shadow-[0_4px_20px_rgba(0,0,0,0.4)]',
+            'bg-transparent hover:bg-transparent',
+            'border-none',
+            'shadow-none',
             'transition-all duration-300',
             open
               ? 'opacity-0 scale-90 pointer-events-none'
@@ -61,8 +61,7 @@ export function MobileNav({
           )}
         >
           <Menu
-            className="w-6 h-6 transition-transform duration-300"
-            style={{ color: '#b5934a' }}
+            className="w-6 h-6 transition-transform duration-300 text-white"
           />
           <span className="sr-only">Toggle menu</span>
         </Button>
@@ -100,7 +99,7 @@ export function MobileNav({
                     "px-4 py-3 rounded-xl text-base transition-all duration-300",
                     isActive
                       ? "bg-campana-primary text-white shadow-lg hover:text-campana-secondary"
-                      : "text-white hover:text-campana-primary hover:text-campana-secondary"
+                      : "text-white hover:text-campana-primary"
                   )}
                 >
                   {item.label}

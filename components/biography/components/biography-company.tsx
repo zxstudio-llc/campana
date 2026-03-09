@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useLayoutEffect, useState } from "react"
+import { useRef, useLayoutEffect, useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Modal, ModalBody, ModalContent, ModalTrigger } from "../../ui/animated-modal"
@@ -71,18 +71,30 @@ export default function BiographyCompany({ highlight, short_description, descrip
         playerRef.current.currentTime += seconds;
     };
 
-    // Manejo de responsividad técnica
-    useLayoutEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768)
-        handleResize()
-        window.addEventListener("resize", handleResize)
-        return () => window.removeEventListener("resize", handleResize)
-    }, [])
+    useEffect(() => {
+        const mql = window.matchMedia("(max-width: 1024px)");
+        const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
+            setIsMobile(e.matches);
+        };
+        onChange(mql);
+        mql.addEventListener("change", onChange);
+        return () => mql.removeEventListener("change", onChange);
+    }, []);
+
+    const bgPlaybackId = isMobile
+        ? (biography.acf.mux_playback_mobile_id || biography.acf.mux_playback_web_id)
+        : (biography.acf.mux_playback_web_id || biography.acf.mux_playback_mobile_id);
 
     useLayoutEffect(() => {
         if (!sectionRef.current || !textRef.current || !imageRef.current || !extraRef.current) return
 
-        const ctx = gsap.context(() => {
+        let mm = gsap.matchMedia();
+
+        mm.add({
+            isDesktop: "(min-width: 768px)",
+            isMobile: "(max-width: 767px)"
+        }, (context) => {
+            const { isMobile } = context.conditions as any;
 
             const tl = gsap.timeline({
                 scrollTrigger: {
@@ -96,9 +108,6 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 },
             })
 
-            // Force refresh when biography is ready
-            ScrollTrigger.refresh();
-
             gsap.set(textRef.current, { opacity: 0, y: isMobile ? 120 : 180 })
             gsap.set(extraRef.current, { opacity: 0, y: isMobile ? 80 : 120 })
             gsap.set(overlayRef.current, { backdropFilter: "blur(0px)", opacity: 0 })
@@ -108,10 +117,9 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 backdropFilter: "blur(10px)",
                 opacity: 1,
                 backgroundColor: "rgba(0,0,0,0.55)",
-                duration: 1,
+                duration: 4, // Increased from 1 to 4 for a slower "Apple-like" fade
                 ease: "none"
             })
-
                 // Biografia entra
                 .to(textRef.current, {
                     opacity: 1,
@@ -119,10 +127,8 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     duration: 1,
                     ease: "power3.out"
                 })
-
                 // Biografia se mantiene
                 .to({}, { duration: 1.2 })
-
                 // Biografia sale
                 .to(textRef.current, {
                     opacity: 0,
@@ -131,7 +137,6 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     duration: 0.9,
                     ease: "power2.inOut"
                 })
-
                 // Quienes somos entra
                 .to(extraRef.current, {
                     opacity: 1,
@@ -139,10 +144,8 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     duration: 1,
                     ease: "power3.out"
                 })
-
                 // Quienes somos se mantiene
                 .to({}, { duration: 1.2 })
-
                 // salida final
                 .to([extraRef.current, imageRef.current], {
                     opacity: 0,
@@ -151,40 +154,61 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     duration: 1,
                     ease: "power2.out"
                 })
+        });
 
-        }, sectionRef)
-
-        return () => ctx.revert()
-
-    }, [isMobile])
+        return () => mm.revert()
+    }, [])
 
     return (
         <section
             ref={sectionRef}
-            className="relative w-full h-screen overflow-hidden bg-black flex items-center"
+            className="relative w-full h-screen overflow-hidden bg-black flex items-center z-20"
         >
             <div
                 ref={imageRef}
-                className="absolute inset-0 w-full h-full z-0 overflow-hidden lg:left-auto lg:right-0 lg:w-1/2"
+                className="absolute inset-0 w-full h-full z-0 overflow-hidden"
             >
-                {photo?.url && (
+                {bgPlaybackId ? (
+                    <div className="relative w-full h-full">
+                        <MuxPlayer
+                            playbackId={bgPlaybackId}
+                            streamType="on-demand"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                            maxResolution="2160p"
+                            className={`absolute bottom-0 left-1/2 min-w-full min-h-full -translate-x-1/2 pointer-events-none`}
+                            style={{
+                                width: '200vw',
+                                height: '100vh',
+                                "--controls": "none",
+                                background: 'transparent',
+                            } as any}
+                        />
+                        <div
+                            ref={overlayRef}
+                            className="absolute inset-0 z-10 pointer-events-none"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/40 to-transparent z-10" />
+                    </div>
+                ) : photo?.url && (
                     <div className="relative w-full h-full">
                         <Image
                             src={photo.url}
                             alt={photo.alt || data.name}
                             fill
                             priority
-                            className="object-contain object-right-bottom lg:object-contain lg:object-right-bottom"
+                            sizes="100vw"
+                            quality={85}
+                            className="object-contain object-bottom-right lg:object-contain lg:object-bottom-right"
                         />
                         <div
                             ref={overlayRef}
                             className="absolute inset-0 z-10 pointer-events-none"
                         />
                         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent z-0" />
-                        <div
-                            ref={overlayRef}
-                            className="absolute inset-0 z-10 pointer-events-none"
-                        />
                     </div>
                 )}
             </div>
@@ -193,7 +217,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-12 items-center">
 
                     <div className="lg:col-span-7 relative flex items-center min-h-[60vh]">
-                        {/* 1️⃣ BLOCK 1: PRIMARY BIOGRAPHY */}
+                        {/*BLOCK 1: PRIMARY BIOGRAPHY */}
                         <div
                             ref={textRef}
                             className="flex flex-col text-white py-10 pointer-events-auto max-w-2xl"
@@ -201,7 +225,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             <motion.span
                                 initial={{ opacity: 0 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                                className="text-campana-secondary font-bold tracking-[0.2em] uppercase block mb-4 opacity-80 text-center md:text-left"
+                                className="text-campana-secondary font-bold tracking-[0.2em] uppercase block mb-4 text-center md:text-left"
                             >
                                 {data.highlight}
                             </motion.span>
@@ -210,7 +234,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.2 }}
-                                className="text-5xl md:text-8xl lg:text-8xl font-black tracking-tighter leading-[0.85] uppercase mb-10 transition-all text-center md:text-left"
+                                className="text-5xl md:text-8xl lg:text-8xl font-black tracking-tighter leading-[0.85] uppercase mb-10 text-center md:text-left"
                             >
                                 {data.title}
                             </motion.h2>
@@ -219,7 +243,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.4 }}
-                                className="text-neutral-300 text-base md:text-lg leading-[1.5] space-y-4 reveal-description font-light opacity-90"
+                                className="text-neutral-300 text-base md:text-lg leading-normal space-y-4 reveal-description font-light"
                                 style={{
                                     textAlign: "justify",
                                     textAlignLast: "left",
@@ -237,7 +261,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                 <p className="text-2xl font-bold mb-2 italic text-white leading-none">
                                     {data.name}
                                 </p>
-                                <p className="text-campana-secondary text-sm md:text-sm uppercase font-bold italic opacity-80">
+                                <p className="text-campana-secondary text-sm md:text-sm uppercase font-bold italic">
                                     {data.role}
                                 </p>
                             </motion.div>
@@ -336,15 +360,15 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             </motion.div>
                         </div>
 
-                        {/* 2️⃣ BLOCK 2: EXTRA FIELDS (AFTER BIOGRAPHY) */}
+                        {/* BLOCK 2: EXTRA FIELDS (AFTER BIOGRAPHY) */}
                         <div
                             ref={extraRef}
-                            className="absolute inset-0 flex flex-col justify-center gap-4 text-white max-w-2xl pointer-events-none"
+                            className="absolute inset-0 flex flex-col justify-center text-white max-w-2xl pointer-events-none"
                         >
                             <motion.span
                                 initial={{ opacity: 0 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                                className="text-campana-secondary font-bold tracking-[0.2em] uppercase block mb-4 opacity-80 text-center md:text-left"
+                                className="text-campana-secondary font-bold tracking-[0.2em] uppercase block mb-4 text-center md:text-left"
                             >
                                 {highlight}
                             </motion.span>
@@ -353,7 +377,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.2 }}
-                                className="text-3xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.85] uppercase mb-10 transition-all text-center md:text-left"
+                                className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.85] uppercase mb-10 text-center md:text-left"
                             >
                                 {short_description}
                             </motion.h2>
@@ -363,7 +387,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.4 }}
-                                className="text-neutral-300 text-base md:text-lg leading-[1.5] space-y-4 reveal-description font-light opacity-90"
+                                className="text-neutral-300 text-base md:text-lg leading-normal space-y-4 reveal-description font-light"
                                 style={{
                                     textAlign: "justify",
                                     textAlignLast: "left",

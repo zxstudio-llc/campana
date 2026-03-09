@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import MuxPlayer, { MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Modal, ModalBody, ModalContent, ModalTrigger } from "@/components/ui/animated-modal";
@@ -47,6 +47,16 @@ export function VideoVipSection({ playbackId }: VideoVipProps) {
         playerRef.current.currentTime += seconds;
     };
 
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const mql = window.matchMedia("(max-width: 768px)");
+        const onChange = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+        onChange(mql);
+        mql.addEventListener("change", onChange);
+        return () => mql.removeEventListener("change", onChange);
+    }, []);
+
     if (!playbackId) return null;
 
     return (
@@ -55,22 +65,28 @@ export function VideoVipSection({ playbackId }: VideoVipProps) {
                 <motion.div
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    className="relative group w-[100%] rounded-3xl border p-2 border-neutral-800 bg-neutral-900 shadow-2xl overflow-hidden"
+                    className="relative group w-full rounded-3xl border p-2 border-neutral-800 bg-neutral-900 shadow-2xl overflow-hidden"
                 >
-                    <div className="relative w-full h-full aspect-video bg-black flex items-center justify-center">
+                    <div className="relative w-full h-[75vh] md:h-[65vh] lg:h-[65vh] bg-black flex items-center justify-center">
                         <MuxPlayer
                             ref={playerRef}
                             playbackId={playbackId}
                             streamType="on-demand"
-                            className={`absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none`}
+                            loop
+                            muted
+                            autoPlay
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full object-cover pointer-events-none"
                             metadata={{
                                 video_title: "Video VIP Campana",
                             }}
                             onLoadedMetadata={handleLoadedMetadata}
                             onCanPlay={handleCanPlay}
                             style={{
-                                width: '200vw',
+                                width: '100vw',
                                 height: '100vh',
+
+                                background: 'transparent',
+                                minWidth: '100%',
                                 "--controls": "none",
                                 "--bottom-controls": "none",
                             } as any}

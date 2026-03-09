@@ -123,6 +123,9 @@ export interface Projects {
   slug: string
   acf: {
     photos: {
+      primary_mux_playback_web_id: string
+      primary_mux_playback_mobile_id: string
+      secondary_mux_playback_web_id: string
       primary: {
         url: string
         alt?: string
@@ -197,6 +200,8 @@ export interface Biography {
         large: string
       }
     }
+    mux_playback_web_id?: string
+    mux_playback_mobile_id?: string
     biography: {
       highlight: string
       name: string
@@ -266,6 +271,7 @@ export interface AboutSection {
   subtitle?: string
   video_link?: string
   mux_playback_id?: string
+  mux_playback_mobile_id?: string
 }
 
 export interface OurValuesSection {

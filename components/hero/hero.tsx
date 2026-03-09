@@ -18,7 +18,10 @@ export async function Hero({ page }: HeroProps) {
   if (hero.hero_type === 'slider' && typeof hero.hero_slider === 'number') {
     const slider = await getSliderById(hero.hero_slider)
 
-    if (!slider || !slider.acf.desktop_version || !slider.acf.mobile_version) return null
+    // Allow rendering if we have Mux playback IDs OR legacy desktop_version
+    if (!slider || (!slider.acf.mux_playback_web_id && !slider.acf.desktop_version)) {
+      return null;
+    }
 
     return (
       <HeroScroll

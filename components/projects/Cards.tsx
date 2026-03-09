@@ -53,6 +53,12 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
               url: photos?.primary?.sizes?.large ?? "/placeholder.jpg",
               alt: photos?.primary?.alt ?? "Imagen"
             },
+
+            mux: {
+              primary_mux_playback_web_id: photos?.primary_mux_playback_web_id,
+              primary_mux_playback_mobile_id: photos?.primary_mux_playback_mobile_id,
+              secondary_mux_playback_web_id: photos?.secondary_mux_playback_web_id,
+            },
             title: p.title,
             category: p.highlight,
             content: (

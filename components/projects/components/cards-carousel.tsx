@@ -11,6 +11,7 @@ import { AnimatePresence, motion, useInView } from "framer-motion";
 import Image, { ImageProps } from "next/image";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { ChevronLeft, ChevronRight, X, Play, Pause, RotateCcw } from "lucide-react";
+import MuxPlayer from "@mux/mux-player-react"
 
 const AUTO_PLAY_DURATION = 5000;
 
@@ -23,9 +24,16 @@ type Card = {
     url: string
     alt?: string
   }
-  title: string;
-  category: string;
-  content: React.ReactNode;
+
+  mux?: {
+    primary_mux_playback_web_id?: string
+    primary_mux_playback_mobile_id?: string
+    secondary_mux_playback_web_id?: string
+  }
+
+  title: string
+  category: string
+  content: React.ReactNode
 };
 
 export const CarouselContext = createContext<{
@@ -350,6 +358,27 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
     onCardClose(index);
   };
 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1024px)")
+    const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsMobile(e.matches)
+    }
+
+    onChange(mql)
+    mql.addEventListener("change", onChange)
+
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
+  const playbackId =
+    isMobile
+      ? card.mux?.primary_mux_playback_mobile_id ||
+      card.mux?.primary_mux_playback_web_id
+      : card.mux?.primary_mux_playback_web_id ||
+      card.mux?.primary_mux_playback_mobile_id
+
   return (
     <>
       <AnimatePresence>
@@ -366,11 +395,11 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
             <motion.div
               ref={containerRef}
               layoutId={layout ? `card-${card.title}` : undefined}
-              className="relative z-[60] w-full max-w-7xl rounded-[32px] bg-[#030b14] overflow-hidden h-[90vh] md:h-[80vh] flex flex-col md:flex-row mt-8 md:mt-20"
+              className="relative z-60 w-full max-w-7xl rounded-[32px] bg-[#030b14] overflow-hidden h-[90vh] md:h-[80vh] flex flex-col md:flex-row mt-8 md:mt-20"
             >
               {/* Botón Cerrar */}
               <button
-                className="absolute top-6 right-6 h-10 w-10 flex items-center justify-center rounded-full bg-[#001D3D] backdrop-blur-md text-[#f1ba0a] z-[70] hover:bg-[#f1ba0a] hover:text-white transition-colors"
+                className="absolute top-6 right-6 h-10 w-10 flex items-center justify-center rounded-full bg-[#001D3D] backdrop-blur-md text-[#f1ba0a] z-70 hover:bg-[#f1ba0a] hover:text-white transition-colors"
                 onClick={handleClose}
               >
                 <X size={20} />
@@ -390,12 +419,35 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
         onClick={() => setOpen(true)}
         className="relative group h-[500px] w-[300px] md:h-[700px] md:w-[1200px] flex flex-col items-start justify-start overflow-hidden rounded-[32px] bg-neutral-900"
       >
-        <div className="absolute inset-0 z-20 bg-gradient-to-b from-black/80 via-transparent to-black/20" />
+        <div className="absolute inset-0 z-20 bg-linear-to-b from-black/80 via-transparent to-black/20" />
         <div className="relative z-30 p-10 md:p-14 text-left">
           <p className="font-bold text-campana-secondary text-sm md:text-base uppercase tracking-[0.2em] mb-3">{card.category}</p>
           <p className="text-3xl md:text-5xl font-bold text-white leading-[0.95] tracking-tighter max-w-lg">{card.title}</p>
         </div>
-        <BlurImage src={card.src.url} alt={card.src.alt || "Imagen"} fill className="absolute inset-0 z-10 object-cover transition-transform duration-700 group-hover:scale-105" />
+        {playbackId ? (
+          <MuxPlayer
+            playbackId={playbackId}
+            streamType="on-demand"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            maxResolution="2160p"
+            className="absolute inset-0 z-10 object-cover pointer-events-none"
+            style={{
+              "--controls": "none",
+              background: "transparent",
+            } as any}
+          />
+        ) : (
+          <BlurImage
+            src={card.src.url}
+            alt={card.src.alt || "Imagen"}
+            fill
+            className="absolute inset-0 z-10 object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        )}
       </motion.button>
     </>
   );
@@ -403,6 +455,7 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
 
 export const BlurImage = ({ src, className, alt, fill, ...rest }: ImageProps) => {
   const [isLoading, setLoading] = useState(true);
+
   return (
     <Image
       className={cn("transition duration-300", isLoading ? "blur-sm" : "blur-0", className)}

@@ -171,7 +171,9 @@ export default function InvestmentSection({
                         alt={photo?.alt || title || "Investment image"}
                         fill
                         priority
-                        className="object-contain object-right-bottom"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        quality={85}
+                        className="object-contain object-bottom-right"
                     />
                 </div>
             )}
@@ -183,7 +185,7 @@ export default function InvestmentSection({
 
                 {/* HEADER */}
                 <div className="flex flex-col items-center space-y-4 mb-10">
-                    <span className="text-campana-secondary font-bold tracking-[0.1em] text-sm uppercase text-center">
+                    <span className="text-campana-secondary font-bold tracking-widest text-sm uppercase text-center">
                         {highlight}
                     </span>
 
@@ -197,9 +199,7 @@ export default function InvestmentSection({
                     />
                 </div>
 
-                {/* ======================= */}
                 {/* DESKTOP GRID */}
-                {/* ======================= */}
                 <motion.div
                     className="hidden lg:grid grid-cols-3 gap-6 w-[68%] pl-30 mt-10"
                     variants={containerVariants}
@@ -216,9 +216,7 @@ export default function InvestmentSection({
                     ))}
                 </motion.div>
 
-                {/* ======================= */}
                 {/* MOBILE CAROUSEL */}
-                {/* ======================= */}
                 <div className="lg:hidden relative w-full flex justify-center items-center pb-[10px]">
 
                     <div className="relative flex items-center justify-center w-full max-w-[360px]">
@@ -310,9 +308,7 @@ export default function InvestmentSection({
     );
 }
 
-/* ============================= */
 /* CARD CONTENT */
-/* ============================= */
 
 const CardContent = ({ item }: { item: Investment }) => (
     <div className="h-full flex flex-col relative z-10">
@@ -343,9 +339,7 @@ const CardContent = ({ item }: { item: Investment }) => (
     </div>
 );
 
-/* ============================= */
 /* CARD APPLE */
-/* ============================= */
 
 const CardApple = ({ children, index }: { children: React.ReactNode; index: number }) => {
     const mouseX = useMotionValue(0);
@@ -358,10 +352,10 @@ const CardApple = ({ children, index }: { children: React.ReactNode; index: numb
                 mouseX.set(e.clientX - left);
                 mouseY.set(e.clientY - top);
             }}
-            className="group relative w-[320px] md:w-full h-[300px] md:h-[350px] p-6 md:p-10 rounded-3xl md:rounded-[2rem] bg-neutral-900 border border-white/10 overflow-hidden"
+            className="group relative w-[320px] md:w-full h-[300px] md:h-[350px] p-6 md:p-10 rounded-3xl md:rounded-4xl bg-neutral-900 border border-white/10 overflow-hidden"
         >
             <motion.div
-                className="pointer-events-none absolute -inset-px rounded-[2rem] opacity-0 group-hover:opacity-100 transition duration-500"
+                className="pointer-events-none absolute -inset-px rounded-4xl opacity-0 group-hover:opacity-100 transition duration-500"
                 style={{
                     background: useMotionTemplate`
             radial-gradient(400px circle at ${mouseX}px ${mouseY}px, rgba(181,147,74,0.08), transparent 80%)

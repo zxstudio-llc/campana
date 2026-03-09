@@ -47,7 +47,7 @@ export function LanguageSelector({ languages }: { languages: Language[] }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="unstyled"
-          className="flex items-center gap-2 px-0 w-16 md:w-32 rounded-full bg-campana-primary hover:bg-campana-primary-hover text-campana-secondary hover:text-campana-secondary"
+          className="flex items-center gap-2 px-0 w-16 md:w-32 rounded-full bg-transparent hover:bg-transparent md:bg-campana-primary md:hover:bg-campana-primary-hover text-white hover:text-white md:text-campana-secondary md:hover:text-campana-secondary"
         >
           <Image
             src={currentLanguage.flag}

@@ -34,7 +34,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                             <h2 className="text-5xl md:text-8xl font-black text-[#001D3D] tracking-tighter leading-none uppercase">
                                 {title}
                             </h2>
-                            <p className="text-gray-700 text-2xl lg:text-xl max-w-2xl mx-auto lg:mx-0 leading-[1.3]"
+                            <p className="text-gray-700 text-xl lg:text-xl max-w-2xl mx-auto lg:mx-0 leading-[1.3]"
                                 style={{
                                     textAlign: "justify",
                                     textAlignLast: "left",
@@ -46,7 +46,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                         </div>
 
                         {/* Detalles de contacto rápidos - Centrados en mobile */}
-                        <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-6 pt-4">
+                        <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 md:gap-6 pt-4">
                             <div className="flex items-center justify-center lg:justify-start gap-3">
                                 <div className="w-10 h-10 rounded-full bg-[#001D3D]/5 flex items-center justify-center">
                                     <Mail className="w-5 h-5 text-[#001D3D]" />

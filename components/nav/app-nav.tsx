@@ -36,8 +36,8 @@ export default function AppNav({ menuItems, cta, languages, siteInfo }: AppNavPr
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 w-full transition-all duration-500",
       isScrolled
-        ? "md:bg-campana-bg-hover/60 md:backdrop-blur-lg md:shadow-2xl bg-transparent"
-        : "bg-transparent md:bg-campana-primary/40 md:backdrop-blur-lg"
+        ? "bg-campana-bg-hover/60 backdrop-blur-lg shadow-2xl "
+        : "bg-campana-primary/40 backdrop-blur-lg"
     )}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         {/* LOGO */}

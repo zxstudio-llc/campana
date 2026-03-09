@@ -23,16 +23,15 @@ export default function HeroScroll({ mux_playback_web_id, mux_playback_mobile_id
     const [isMobile, setIsMobile] = useState(false);
 
     useLayoutEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    useLayoutEffect(() => {
         if (!sectionRef.current || !maskLogoRef.current) return;
 
-        const ctx = gsap.context(() => {
+        let mm = gsap.matchMedia();
+
+        mm.add({
+            isDesktop: "(min-width: 768px)",
+            isMobile: "(max-width: 767px)"
+        }, (context) => {
+            const { isMobile } = context.conditions as any;
             const logo = maskLogoRef.current?.logoGroup;
             if (!logo) return;
 
@@ -42,10 +41,10 @@ export default function HeroScroll({ mux_playback_web_id, mux_playback_mobile_id
 
             const scaleX = vw / bbox.width;
             const scaleY = vh / bbox.height;
-            const coverScale = isMobile ? scaleX * 0.9 : Math.max(scaleX, scaleY);
+            const coverScale = Math.max(scaleX, scaleY) * (isMobile ? 15 : 12);
             const overflowMultiplier = isMobile ? 2480 : 90;
             const startScale = coverScale * overflowMultiplier;
-            const targetWidth = isMobile ? 1980 : 1230;
+            const targetWidth = isMobile ? 1880 : 1230;
             const endScale = targetWidth / bbox.width;
 
             gsap.set(logo, { scale: startScale, transformOrigin: "50% 50%" });
@@ -56,53 +55,65 @@ export default function HeroScroll({ mux_playback_web_id, mux_playback_mobile_id
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=500%",
-                    scrub: 1.8, // Apple M5 chip style inertia
+                    end: "+=1000%", // Significantly longer for premium slow-mo feel
+                    scrub: 3,      // Heavy inertia (Apple style)
                     pin: true,
                     pinSpacing: true,
                     anticipatePin: 1,
                 },
             });
+            tl.to(logo, { scale: endScale, ease: "power4.inOut" });
 
-            // Force refresh when hero is ready
-            ScrollTrigger.refresh();
-
-            // Phase 1: Logo Zoom Out (The mask expands)
-            tl.to(logo, { scale: endScale, ease: "none" });
-
-            // Phase 2: Transición de "Atravesar" (The video fades and zooms in while white logo appears)
             tl.to(playerRef.current, {
-                opacity: 0, // M5-style depth zoom
-                ease: "none"
-            }, 0.3); // Perfect sync with logo scale endpoint
+                opacity: 0,
+                ease: "power2.inOut"
+            }, 0.3);
 
             tl.set(whiteLogoRef.current, { opacity: 1 }, 0.5);
-            tl.to(whiteLogoRef.current, { scale: 1, ease: "none" });
+            tl.to(whiteLogoRef.current, { scale: 1, duration: 0.1, ease: "power4.out" });
 
-            tl.set(maskLogoRef.current?.container, { autoAlpha: 0 });
-
-            // Final: Exit Fade
             tl.to([whiteLogoRef.current], {
-                opacity: 1,
-                scale: 0.9,
-                filter: "blur(20px)",
-                duration: 0.2,
+                opacity: 0,
+                scale: 0.95,
+                filter: "blur(12px)",
+                duration: 0.05, // Making it instant as requested
                 ease: "none",
             });
-        }, sectionRef);
+        });
 
-        return () => ctx.revert();
-    }, [isMobile]);
+        return () => mm.revert();
+    }, []);
 
-    const playbackId = isMobile ? (mux_playback_mobile_id ?? null) : (mux_playback_web_id ?? null);
+    useEffect(() => {
+        const mql = window.matchMedia("(max-width: 767px)");
+        const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
+            setIsMobile(e.matches);
+        };
+        onChange(mql);
+        mql.addEventListener("change", onChange);
+        return () => mql.removeEventListener("change", onChange);
+    }, []);
+
+    const playbackId = isMobile
+        ? (mux_playback_mobile_id || mux_playback_web_id)
+        : (mux_playback_web_id || mux_playback_mobile_id);
 
     const handleCanPlay = () => {
         setIsVideoReady(true);
-        // console.log(`HERO VIDEO: Ready in ${(performance.now() / 1000).toFixed(2)}s from navigation start`);
     };
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (!isVideoReady) {
+                console.log("HERO: Force showing hero after timeout");
+                setIsVideoReady(true);
+            }
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, [isVideoReady]);
+
     return (
-        <section ref={sectionRef} className="relative ">
+        <section ref={sectionRef} className="relative z-30">
             <div className="h-screen overflow-hidden relative transition-opacity duration-700 " style={{ opacity: isVideoReady ? 1 : 0 }}>
                 <div className="absolute inset-0 bg-gradient-to-b from-campana-bg-hover to-black"></div>
                 {playbackId && (

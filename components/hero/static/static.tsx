@@ -31,6 +31,8 @@ export function StaticHero({ hero }: StaticHeroProps) {
           alt={background.alt ?? ''}
           fill
           priority
+          sizes="100vw"
+          quality={85}
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}
