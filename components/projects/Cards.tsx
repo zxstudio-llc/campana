@@ -126,14 +126,12 @@ const Content = ({
   const formatText = (text: string) => {
     if (!text) return null;
 
-    // Dividimos el texto por saltos de línea reales
     const lines = text.split(/\r?\n/);
 
     return lines.map((line, index) => {
       const trimmedLine = line.trim();
-      if (!trimmedLine) return <div key={index} className="h-4" />; // Espacio entre bloques
+      if (!trimmedLine) return <div key={index} className="h-4" />;
 
-      // VALIDACIÓN 1: ¿Es una viñeta/lista?
       if (trimmedLine.startsWith("-")) {
         const bulletContent = trimmedLine.substring(1).trim();
         const formatted = bulletContent.replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#001D3D] font-bold">$1</strong>');
