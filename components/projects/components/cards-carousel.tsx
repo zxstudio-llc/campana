@@ -175,14 +175,12 @@ export const Carousel = ({ items }: CarouselProps) => {
 
         <div className="flex w-full overflow-x-scroll snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" ref={carouselRef} onScroll={handleScroll}>
           <div className="flex flex-row gap-4 px-[5%] md:px-[10%] mb-4">
-            {items.map((item, index) => {
-              const isNeighbor = Math.abs(index - currentIndex) <= 1;
-              return (
-                <div key={"card-container-" + index} className="snap-center shrink-0">
-                  {isNeighbor ? item : <div className="h-[500px] w-[300px] md:h-[700px] md:w-[1240px] bg-[#0a0a0a] rounded-[32px] animate-pulse border border-neutral-800" />}
-                </div>
-              );
-            })}
+            {items.map((item, index) => (
+              /* Eliminamos la lógica de isNeighbor aquí para que todos los items se mantengan montados */
+              <div key={"card-container-" + index} className="snap-center shrink-0">
+                {item}
+              </div>
+            ))}
           </div>
         </div>
 
@@ -235,6 +233,7 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
   const { currentIndex, onCardClose } = useContext(CarouselContext);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const isActive = currentIndex === index;
 
   useOutsideClick(containerRef, () => handleClose());
@@ -249,7 +248,17 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // playbackId ahora contiene la URL de Supabase desde WordPress
+  // Control manual de play/pause para asegurar sincronía perfecta
+  useEffect(() => {
+    if (!videoRef.current) return;
+    if (isActive) {
+      videoRef.current.play().catch(() => { });
+    } else {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0; // Reinicia el video al salir para que siempre empiece de cero
+    }
+  }, [isActive]);
+
   const playbackId = isMobile
     ? card.mux?.primary_mux_playback_mobile_id || card.mux?.primary_mux_playback_web_id
     : card.mux?.primary_mux_playback_web_id || card.mux?.primary_mux_playback_mobile_id;
@@ -273,7 +282,7 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
         onClick={() => setOpen(true)}
         className="relative group h-[500px] w-[300px] md:h-[700px] md:w-[1240px] flex flex-col items-start justify-start overflow-hidden rounded-[32px] bg-neutral-900"
       >
-        <div className="absolute inset-0 z-20 bg-gradient-to-b from-black/80 via-transparent to-black/20" />
+        <div className="absolute inset-0 z-20 bg-linear-to-b from-black/80 via-transparent to-black/20" />
         <div className="relative z-30 p-10 md:p-14 text-left">
           <p className="font-bold text-campana-secondary text-sm md:text-base uppercase tracking-[0.2em] mb-3">{card.category}</p>
           <p className="text-3xl md:text-5xl font-bold text-white leading-[0.95] tracking-tighter max-w-lg">{card.title}</p>
@@ -281,8 +290,8 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
 
         {playbackId ? (
           <video
+            ref={videoRef}
             src={playbackId}
-            autoPlay
             loop
             muted
             playsInline

@@ -24,79 +24,83 @@ export default function AppNav({ menuItems, cta, languages, siteInfo }: AppNavPr
   const pathname = usePathname()
   const locale = pathname.split("/")[1] || "en"
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [isHidden, setIsHidden] = React.useState(false)
 
   useEffect(() => {
+    let lastScroll = 0
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      const currentScroll = window.scrollY
+
+      if (currentScroll <= 0) {
+        setIsHidden(false)
+        return
+      }
+
+      if (currentScroll > lastScroll && currentScroll > 80) {
+        // scrolling down
+        setIsHidden(true)
+      } else if (currentScroll < lastScroll) {
+        // scrolling up
+        setIsHidden(false)
+      }
+
+      lastScroll = currentScroll
+    }
+
+    window.addEventListener("scroll", handleScroll)
+
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
   return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 w-full transition-all duration-500",
-      isScrolled
-        ? "bg-campana-bg-hover/60 backdrop-blur-lg shadow-2xl "
-        : "bg-campana-primary/40 backdrop-blur-lg"
-    )}>
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 w-full transition-transform duration-500",
+        isHidden ? "-translate-y-full" : "translate-y-0"
+      )}
+    >
+      <div className="mx-auto flex h-20 max-w-screen items-center justify-between px-6 md:px-20">
         {/* LOGO */}
         <div
-          className={cn(
-            "flex items-center transition-opacity duration-300",
-            mobileOpen ? "opacity-0 pointer-events-none md:opacity-100" : "opacity-100"
-          )}
+          className="flex items-center z-50 transition-opacity duration-300"
         >
-          <SiteLogo siteInfo={siteInfo} />
+          <div className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
+            <SiteLogo siteInfo={siteInfo} />
+          </div>
         </div>
+        <div className="flex items-center gap-3">
+          <div className="items-center gap-0 md:gap-3 flex z-50">
+            <LanguageSelector languages={languages} />
 
-        {/* DESKTOP MENU */}
-        <nav className="hidden items-center gap-2 md:flex">
-          {menuItems.map((item) => (
-            <Button
-              key={item.id}
-              asChild
-              variant="ghost"
-              className="rounded-full font-semibold text-campana-secondary hover:bg-campana-secondary-hover"
-            >
-              <Link href={item.url}>{item.label}</Link>
-            </Button>
-          ))}
-        </nav>
-
-        {/* DESKTOP ACTIONS */}
-        <div className="hidden items-center gap-3 md:flex">
-          <LanguageSelector languages={languages} />
-
-          {cta?.enabled !== false && cta?.title && cta?.url && (
-            <Button
-              asChild
-              className="rounded-full px-6 font-semibold"
-              variant="secondary"
-            >
-              <Link
-                href={cta.url}
-                target={cta.newTab ? '_blank' : undefined}
+            {cta?.enabled !== false && cta?.title && cta?.url && (
+              <Button
+                asChild
+                className="hidden md:block rounded-full px-6 font-semibold text-campana-primary bg-campana-secondary hover:bg-campana-secondary hover:drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+                variant="secondary"
               >
-                {cta.title}
-              </Link>
-            </Button>
-          )}
-        </div>
+                <Link
+                  href={cta.url}
+                  target={cta.newTab ? '_blank' : undefined}
+                >
+                  {cta.title}
+                </Link>
+              </Button>
+            )}
+          </div>
 
-        {/* MOBILE */}
-        <div className="flex items-center gap-2 md:hidden">
-          <LanguageSelector languages={languages} />
-          <MobileNav
-            open={mobileOpen}
-            setOpen={setMobileOpen}
-            menuItems={menuItems}
-            cta={cta}
-            languages={languages}
-            siteInfo={siteInfo}
-          />
+          {/* DESKTOP ACTIONS */}
+          <div className="items-center  flex ">
+            <MobileNav
+              open={mobileOpen}
+              setOpen={setMobileOpen}
+              menuItems={menuItems}
+              cta={cta}
+              languages={languages}
+              siteInfo={siteInfo}
+            />
+          </div>
         </div>
       </div>
-    </header>
+    </header >
   )
 }

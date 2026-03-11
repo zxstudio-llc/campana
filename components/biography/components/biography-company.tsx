@@ -9,7 +9,6 @@ import { Biography } from "@/lib/wordpress.d"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { AnimatePresence, motion, useInView } from "motion/react"
-import MuxPlayer, { MuxPlayerRefAttributes } from "@mux/mux-player-react"
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger)
@@ -26,6 +25,8 @@ export default function BiographyCompany({ highlight, short_description, descrip
     const sectionRef = useRef<HTMLDivElement>(null)
     const textRef = useRef<HTMLDivElement>(null)
     const imageRef = useRef<HTMLDivElement>(null)
+    const videoContainerRef = useRef<HTMLDivElement>(null) // Referencia al video
+    const photoContainerRef = useRef<HTMLDivElement>(null) // Referencia a la foto
     const overlayRef = useRef<HTMLDivElement>(null)
 
     const extraRef = useRef<HTMLDivElement>(null)
@@ -41,7 +42,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
         canPlayTime: 0,
     });
 
-    const playerRef = useRef<MuxPlayerRefAttributes>(null);
+    const playerRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -85,6 +86,10 @@ export default function BiographyCompany({ highlight, short_description, descrip
         ? (biography.acf.mux_playback_mobile_id || biography.acf.mux_playback_web_id)
         : (biography.acf.mux_playback_web_id || biography.acf.mux_playback_mobile_id);
 
+    const photoPlaybackId = isMobile
+        ? (biography.acf.photo_mobile || biography.acf.photo)
+        : (biography.acf.photo || biography.acf.photo_mobile);
+
     useLayoutEffect(() => {
         if (!sectionRef.current || !textRef.current || !imageRef.current || !extraRef.current) return
 
@@ -112,21 +117,40 @@ export default function BiographyCompany({ highlight, short_description, descrip
             gsap.set(extraRef.current, { opacity: 0, y: isMobile ? 80 : 120 })
             gsap.set(overlayRef.current, { backdropFilter: "blur(0px)", opacity: 0 })
 
+            gsap.set(videoContainerRef.current, { opacity: 1, scale: 1 })
+            gsap.set(photoContainerRef.current, { opacity: 0, scale: 1.1 })
+            gsap.set(photoContainerRef.current, { willChange: "transform, opacity" })
+
             // Overlay
             tl.to(overlayRef.current, {
                 backdropFilter: "blur(10px)",
                 opacity: 1,
-                backgroundColor: "rgba(0,0,0,0.55)",
-                duration: 4, // Increased from 1 to 4 for a slower "Apple-like" fade
+                backgroundColor: "rgba(0,0,0,0.65)",
+                duration: 3,
                 ease: "none"
             })
-                // Biografia entra
+                // Transición Video -> Imagen (Zoom In/Out Effect)
+                .to(videoContainerRef.current, {
+                    scale: 1.15,
+                    opacity: 0,
+                    duration: 2,
+                    ease: "none"
+                }, "-=1")
+
+                .to(photoContainerRef.current, {
+                    scale: 1,
+                    opacity: 1,
+                    filter: "blur(0px)",
+                    duration: 2,
+                    ease: "none"
+                }, "<")
                 .to(textRef.current, {
                     opacity: 1,
                     y: 0,
-                    duration: 1,
+                    duration: 1.5,
                     ease: "power3.out"
-                })
+                }, "-=1")
+                .to({}, { duration: 1.5 })
                 // Biografia se mantiene
                 .to({}, { duration: 1.2 })
                 // Biografia sale
@@ -147,13 +171,19 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 // Quienes somos se mantiene
                 .to({}, { duration: 1.2 })
                 // salida final
-                .to([extraRef.current, imageRef.current], {
+                .to(extraRef.current, {
                     opacity: 0,
+                    y: -80,
                     filter: "blur(10px)",
-                    scale: 0.50,
                     duration: 1,
                     ease: "power2.out"
                 })
+                .to(imageRef.current, {
+                    opacity: 0,
+                    filter: "blur(10px)",
+                    duration: 1,
+                    ease: "power2.out"
+                }, "<")
         });
 
         return () => mm.revert()
@@ -162,55 +192,42 @@ export default function BiographyCompany({ highlight, short_description, descrip
     return (
         <section
             ref={sectionRef}
-            className="relative w-full h-screen overflow-hidden bg-black flex items-center z-20"
+            className="relative w-full min-h-svh overflow-hidden bg-black flex items-center z-20"
         >
             <div
                 ref={imageRef}
                 className="absolute inset-0 w-full h-full z-0 overflow-hidden"
             >
-                {bgPlaybackId ? (
-                    <div className="relative w-full h-full">
-                        <MuxPlayer
-                            playbackId={bgPlaybackId}
-                            streamType="on-demand"
+                {bgPlaybackId && (
+                    <div ref={videoContainerRef} className="absolute inset-0 w-full h-full">
+                        <video
+                            src={bgPlaybackId}
                             autoPlay
                             loop
                             muted
                             playsInline
-                            preload="auto"
-                            maxResolution="2160p"
-                            className={`absolute bottom-0 left-1/2 min-w-full min-h-full -translate-x-1/2 pointer-events-none`}
-                            style={{
-                                width: '200vw',
-                                height: '100vh',
-                                "--controls": "none",
-                                background: 'transparent',
-                            } as any}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
+                            style={{ width: '100%', height: '100%', background: 'transparent' }}
                         />
-                        <div
-                            ref={overlayRef}
-                            className="absolute inset-0 z-10 pointer-events-none"
-                        />
-                        {/* <div className="absolute inset-0 bg-linear-to-r from-black/95 via-black/40 to-transparent z-10" /> */}
-                    </div>
-                ) : photo?.url && (
-                    <div className="relative w-full h-full">
-                        <Image
-                            src={photo.url}
-                            alt={photo.alt || data.name}
-                            fill
-                            priority
-                            sizes="100vw"
-                            quality={85}
-                            className="object-contain object-bottom-right lg:object-contain lg:object-bottom-right"
-                        />
-                        <div
-                            ref={overlayRef}
-                            className="absolute inset-0 z-10 pointer-events-none"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-r from-black/90 via-black/40 to-transparent z-0" />
                     </div>
                 )}
+                {photoPlaybackId && (
+                    <div ref={photoContainerRef} className="absolute inset-0 w-full h-full">
+                        <Image
+                            src={photoPlaybackId}
+                            alt={photoPlaybackId}
+                            fill
+                            priority
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
+                            style={{ width: '100%', height: '100%', background: 'transparent' }}
+                        />
+                    </div>
+                )}
+
+                <div
+                    ref={overlayRef}
+                    className="absolute inset-0 z-10 pointer-events-none"
+                />
             </div>
 
             <div className="relative z-20 w-full px-6 md:px-20">
@@ -294,20 +311,15 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                         <ModalBody>
                                             <ModalContent className="relative w-[95vw] max-w-6xl rounded-3xl overflow-hidden bg-black shadow-2xl">
                                                 <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-                                                    <MuxPlayer
+                                                    <video
                                                         ref={playerRef}
-                                                        playbackId={data.mux_playback_id}
-                                                        streamType="on-demand"
-                                                        className="w-full h-full block"
-                                                        metadata={{
-                                                            video_title: "Video VIP Campana",
-                                                        }}
+                                                        src={data.mux_playback_id}
+                                                        className="w-full h-full object-cover"
+                                                        preload="metadata"
+                                                        playsInline
+                                                        controls={false}
                                                         onLoadedMetadata={handleLoadedMetadata}
                                                         onCanPlay={handleCanPlay}
-                                                        style={{
-                                                            "--controls": "none",
-                                                            "--bottom-controls": "none",
-                                                        } as any}
                                                         onPlay={() => setIsPlaying(true)}
                                                         onPause={() => setIsPlaying(false)}
                                                     />

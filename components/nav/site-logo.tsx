@@ -25,16 +25,16 @@ export default function SiteLogo({ siteInfo }: { siteInfo: SiteInfo | null }) {
     <Link
       href={homePath}
       onClick={handleClick}
-      className="mr-2 w-50 h-full flex items-center"
+      className="flex items-center h-full"
     >
       <Image
         src={siteInfo.logo.url}
         alt={siteInfo.logo.alt || "Logo"}
-        width={200}
-        height={50}
+        width={300}
+        height={120}
         priority
         fetchPriority="high"
-        className="object-contain"
+        className="h-10 md:h-18 w-auto object-contain"
       />
     </Link>
   );

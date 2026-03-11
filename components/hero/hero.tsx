@@ -2,6 +2,7 @@ import { getSliderById } from '@/lib/wordpress'
 import type { Page } from '@/lib/wordpress.d'
 import { StaticHero } from '@/components/hero/static/static'
 import HeroScroll from './components/hero-scroll'
+import HeroLogo from './components/hero-logo'
 
 interface HeroProps {
   page: Page
@@ -19,14 +20,16 @@ export async function Hero({ page }: HeroProps) {
     const slider = await getSliderById(hero.hero_slider)
 
     // Allow rendering if we have Mux playback IDs OR legacy desktop_version
-    if (!slider || (!slider.acf.mux_playback_web_id && !slider.acf.desktop_version)) {
+    if (!slider || (!slider.acf.mux_playback_web_id)) {
       return null;
     }
 
     return (
-      <HeroScroll
+      <HeroLogo
         mux_playback_web_id={slider.acf.mux_playback_web_id}
         mux_playback_mobile_id={slider.acf.mux_playback_mobile_id}
+        video_scroll_web={slider.acf.video_scroll_web}
+        video_scroll_mobile={slider.acf.video_scroll_mobile}
       />
     )
   }

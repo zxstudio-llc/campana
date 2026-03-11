@@ -62,7 +62,7 @@ export default async function Home({
 
   return (
     <Section>
-      {/* <Preloader /> */}
+      <Preloader />
       <Container>
         <Hero page={page} />
 

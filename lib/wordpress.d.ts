@@ -92,10 +92,10 @@ export interface Slider {
   id: number
   slug: string
   acf: {
-    desktop_version?: string
     mux_playback_web_id?: string
     mux_playback_mobile_id?: string
-    mobile_version?: string
+    video_scroll_web?: string
+    video_scroll_mobile?: string
   }
 }
 
@@ -126,24 +126,6 @@ export interface Projects {
       primary_mux_playback_web_id: string
       primary_mux_playback_mobile_id: string
       secondary_mux_playback_web_id: string
-      primary: {
-        url: string
-        alt?: string
-        sizes?: {
-          thumbnail: string
-          medium: string
-          large: string
-        }
-      }
-      secondary: {
-        url: string
-        alt?: string
-        sizes?: {
-          thumbnail: string
-          medium: string
-          large: string
-        }
-      }
     }
     project: {
       highlight: string
@@ -191,15 +173,8 @@ export interface Biography {
   id: number
   slug: string
   acf: {
-    photo: {
-      url: string
-      alt?: string
-      sizes?: {
-        thumbnail: string
-        medium: string
-        large: string
-      }
-    }
+    photo?: string
+    photo_mobile?: string
     mux_playback_web_id?: string
     mux_playback_mobile_id?: string
     biography: {

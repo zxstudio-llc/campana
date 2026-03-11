@@ -1,26 +1,13 @@
 'use client'
 
-import * as React from 'react'
-import Link from 'next/link'
+import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu } from 'lucide-react'
-
+import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from '@/components/ui/sheet'
-
-import SiteLogo from '@/components/nav/site-logo'
-
 import type { AppMenuItem, GlobalCTA, SiteInfo } from '@/lib/wordpress.d'
 import type { WpLanguage } from '@/lib/wordpress'
+import Link from 'next/link'
 
 type MobileNavProps = {
   open: boolean
@@ -34,61 +21,88 @@ type MobileNavProps = {
 export function MobileNav({
   menuItems,
   cta,
-  languages,
-  siteInfo,
   open,
   setOpen,
 }: MobileNavProps) {
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false)
+    }
+
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [setOpen])
+
   const pathname = usePathname()
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-
-      <SheetTrigger asChild>
-        <Button
-          variant="unstyled"
-          className={cn(
-            'flex items-center justify-center p-2',
-            'w-10 h-10 rounded-full',
-            'bg-transparent hover:bg-transparent',
-            'border-none',
-            'shadow-none',
-            'transition-all duration-300',
-            open
-              ? 'opacity-0 scale-90 pointer-events-none'
-              : 'opacity-100 scale-100'
-          )}
-        >
-          <Menu
-            className="w-6 h-6 transition-transform duration-300 text-white"
-          />
-          <span className="sr-only">Toggle menu</span>
-        </Button>
-      </SheetTrigger>
-
-      <SheetContent
-        side="right"
+    <>
+      {/* MENU BUTTON */}
+      <Button
+        variant="unstyled"
+        onClick={() => setOpen(!open)}
         className={cn(
-          'w-[300px] p-0',
-          'bg-campana-primary/50 backdrop-blur-md',
-          'border-l border-none',
-          'shadow-2xl flex flex-col',
+          "flex items-center justify-center z-50",
+          "md:h-14 md:w-14",
+          "h-8 w-8",
+          "rounded-full",
+          "bg-transparent hover:bg-transparent",
+          "border-none shadow-none cursor-pointer",
+          "transition-all duration-300"
         )}
       >
-        {/* HEADER */}
-        <SheetHeader className="flex flex-col items-center justify-center pt-6 pb-6 border-b border-campana-secondary/20">
-          <SheetTitle>
-            <SiteLogo siteInfo={siteInfo} />
-          </SheetTitle>
-        </SheetHeader>
+        <div className="relative w-8 h-8 md:w-10 md:h-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+          <div className="relative w-8 h-8 md:w-10 md:h-10">
 
-        {/* CONTENIDO SCROLL */}
-        <div className="flex-1 px-6 py-6">
-          <nav className="flex flex-col gap-3">
+            <Menu
+              className={cn(
+                "absolute inset-0 w-8 h-8 md:w-10 md:h-10 transition-all duration-300",
+                open
+                  ? "opacity-0 rotate-90 scale-75"
+                  : "opacity-100 rotate-0 scale-100"
+              )}
+            />
+
+            <X
+              className={cn(
+                "absolute inset-0 w-8 h-8 md:w-10 md:h-10 transition-all duration-300",
+                open
+                  ? "opacity-100 rotate-0 scale-100"
+                  : "opacity-0 -rotate-90 scale-75"
+              )}
+            />
+
+          </div>
+        </div>
+      </Button>
+
+      {/* OVERLAY */}
+      <div
+        onClick={() => setOpen(false)}
+        className="fixed inset-0 z-30 h-screen transition-opacity duration-500"
+      >
+
+        {/* SIDEBAR */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className={cn(
+            "absolute left-0 top-0 h-screen shadow-2xl z-40",
+            "w-screen max-w-[900px]",
+            "flex flex-col justify-center",
+            "px-10 py-20",
+            "transition-transform duration-700 ease-out",
+            open ? "translate-x-0" : "-translate-x-full",
+
+            "fixed inset-0 bg-black/20 backdrop-blur-sm"
+          )}
+        >
+          <div className="absolute right-0 h-52 w-2 bg-black/80 rounded-full hidden md:block" />
+          {/* NAV */}
+          <nav className="flex flex-col gap-4 text-right">
             {menuItems.map((item) => {
 
-              const isActive = pathname === item.url
+              const active = pathname === item.url
 
               return (
                 <MobileLink
@@ -96,43 +110,37 @@ export function MobileNav({
                   href={item.url}
                   onOpenChange={setOpen}
                   className={cn(
-                    "px-4 py-3 rounded-xl text-base transition-all duration-300",
-                    isActive
-                      ? "bg-campana-primary text-white shadow-lg hover:text-campana-secondary"
-                      : "text-white hover:text-campana-primary"
+                    "text-lg tracking-wide uppercase",
+                    active ? "text-white" : "text-white"
                   )}
                 >
                   {item.label}
                 </MobileLink>
               )
             })}
-
-
           </nav>
-        </div>
-        <SheetFooter>
+
+
           {cta?.enabled !== false && cta?.title && cta?.url && (
-            <div className="pb-8 pt-4 px-6">
-              <Button
-                asChild
-                variant="unstyled"
-                className="w-full h-12 rounded-xl font-semibold text-white hover:text-campana-primary bg-campana-primary hover:bg-campana-secondary-hover transition-all duration-300"
+            <Button
+              asChild
+              className="block md:hidden rounded-full px-6 font-semibold text-campana-primary bg-campana-secondary hover:bg-campana-secondary hover:drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+              variant="secondary"
+            >
+              <Link
+                href={cta.url}
+                target={cta.newTab ? '_blank' : undefined}
               >
-                <Link
-                  href={cta.url}
-                  onClick={() => setOpen(false)}
-                >
-                  {cta.title}
-                </Link>
-              </Button>
-            </div>
+                {cta.title}
+              </Link>
+            </Button>
           )}
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+
+        </div>
+      </div>
+    </>
   )
 }
-
 
 interface MobileLinkProps {
   href: string
@@ -147,6 +155,7 @@ function MobileLink({
   className,
   children,
 }: MobileLinkProps) {
+
   const router = useRouter()
 
   return (
@@ -156,7 +165,7 @@ function MobileLink({
         onOpenChange?.(false)
       }}
       className={cn(
-        'text-left font-medium text-white transition-colors duration-300 hover:text-[#b5934a]',
+        "text-right font-medium transition-colors duration-300 hover:text-campana-secondary cursor-pointer",
         className
       )}
     >

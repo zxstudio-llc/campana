@@ -18,7 +18,6 @@ interface Props {
 }
 
 interface ContentProps {
-  currentIndex: number
   index: number
   category: string
   title: string
@@ -30,58 +29,57 @@ interface ContentProps {
 }
 
 export function ProjectsCardsSection({ title, description, projects }: Props) {
+  useEffect(() => {
+    if (!projects) return;
+
+    projects.forEach((project) => {
+      const url = project.acf.photos?.secondary_mux_playback_web_id;
+      if (url && url !== "/placeholder.jpg") {
+        const img = new window.Image();
+        img.src = url;
+      }
+    });
+  }, [projects]);
+
   if (!projects?.length) return null
 
   const cards = projects.map((project, index) => {
     const p = project.acf.project
     const photos = project.acf.photos
 
+    const secondaryImageUrl = photos?.secondary_mux_playback_web_id || "/placeholder.jpg";
+
     return (
-      <>
-        <Head>
-          <link
-            rel="preload"
-            as="image"
-            href={photos?.secondary?.sizes?.large ?? ""}
-          />
-        </Head>
-        <Card
-          key={project.id}
-          index={index}
-          card={{
-            src: {
-              url: photos?.primary?.sizes?.large ?? "/placeholder.jpg",
-              alt: photos?.primary?.alt ?? "Imagen"
-            },
+      <Card
+        key={project.id}
+        index={index}
+        card={{
+          src: {
+            url: secondaryImageUrl,
+            alt: p.title
+          },
 
-            mux: {
-              primary_mux_playback_web_id: photos?.primary_mux_playback_web_id,
-              primary_mux_playback_mobile_id: photos?.primary_mux_playback_mobile_id,
-              secondary_mux_playback_web_id: photos?.secondary_mux_playback_web_id,
-            },
-            title: p.title,
-            category: p.highlight,
-            content: (
-              <Content
-                currentIndex={index}
-                index={index}
-                category={p.highlight}
-                title={p.title}
-                description={p.description}
-                details={p.details}
-                ctaProject={p.cta}
-                urlProject={p.cta_url}
-                imageUrl={
-                  photos?.secondary?.sizes?.large ??
-                  photos?.primary?.sizes?.large ??
-                  "/placeholder.jpg"
-                }
-              />
-            ),
-          }}
-        />
-
-      </>
+          mux: {
+            primary_mux_playback_web_id: photos?.primary_mux_playback_web_id,
+            primary_mux_playback_mobile_id: photos?.primary_mux_playback_mobile_id,
+            secondary_mux_playback_web_id: photos?.secondary_mux_playback_web_id,
+          },
+          title: p.title,
+          category: p.highlight,
+          content: (
+            <Content
+              index={index}
+              category={p.highlight}
+              title={p.title}
+              description={p.description}
+              details={p.details}
+              ctaProject={p.cta}
+              urlProject={p.cta_url}
+              imageUrl={secondaryImageUrl}
+            />
+          ),
+        }}
+      />
     )
   })
 
@@ -105,7 +103,6 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
 }
 
 const Content = ({
-  currentIndex,
   index,
   category,
   title,
@@ -114,14 +111,7 @@ const Content = ({
   ctaProject,
   urlProject,
   imageUrl,
-}: ContentProps) => {
-
-  useEffect(() => {
-    if (index === currentIndex + 1) {
-      const img = new window.Image()
-      img.src = imageUrl
-    }
-  }, [currentIndex, index, imageUrl])
+}: Omit<ContentProps, "currentIndex">) => {
 
   const formatText = (text: string) => {
     if (!text) return null;
@@ -220,12 +210,12 @@ const Content = ({
       <div className="flex-1 relative min-h-[250px] md:h-full">
         <Image
           src={imageUrl}
-          alt="Unidad de Negocio"
+          alt={title}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover object-bottom"
-          priority={currentIndex === index}
-          loading="eager"
+          priority
+          unoptimized={imageUrl.startsWith('http')}
         />
         <div className="absolute inset-0 bg-linear-to-l from-black/20 to-transparent hidden md:block" />
       </div>
