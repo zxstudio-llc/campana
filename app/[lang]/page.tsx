@@ -60,11 +60,26 @@ export default async function Home({
   const sections: PageSection[] =
     page.acf?.default?.page_sections ?? [];
 
+  // Obtener URLs de videos de biografía para precarga proactiva en el Hero
+  const biographyBlock = sections.find(s => s.acf_fc_layout === "biography") as BiographySection | undefined;
+  let biographyPreloadVideos: string[] = [];
+
+  if (biographyBlock) {
+    const bioIds = (biographyBlock.biography || []).map((b: any) => b.ID || b.id || b).filter(Boolean);
+    const biographies = await getBiographyById(bioIds);
+    if (biographies?.length) {
+      const bio = biographies[0];
+      if (bio.acf.mux_playback_web_id) biographyPreloadVideos.push(bio.acf.mux_playback_web_id);
+      if (bio.acf.mux_playback_mobile_id) biographyPreloadVideos.push(bio.acf.mux_playback_mobile_id);
+      if (bio.acf.biography.mux_playback_id) biographyPreloadVideos.push(bio.acf.biography.mux_playback_id);
+    }
+  }
+
   return (
     <Section>
       <Preloader />
       <Container>
-        <Hero page={page} />
+        <Hero page={page} biographyPreloadVideos={biographyPreloadVideos} />
 
         <BlocksRenderer sections={sections} />
       </Container>

@@ -11,6 +11,7 @@ interface Props {
     mux_playback_mobile_id?: string | null;
     video_scroll_web?: string | null;
     video_scroll_mobile?: string | null;
+    biographyPreloadVideos?: string[];
 }
 
 export default function HeroLogo({
@@ -18,6 +19,7 @@ export default function HeroLogo({
     mux_playback_mobile_id,
     video_scroll_web,
     video_scroll_mobile,
+    biographyPreloadVideos = []
 }: Props) {
 
     const sectionRef = useRef<HTMLDivElement>(null);
@@ -167,6 +169,11 @@ export default function HeroLogo({
                         }}
                     />
                 )}
+
+                {/* PRECARGA DINÁMICA DE VIDEOS DE BIOGRAFIA */}
+                {biographyPreloadVideos.map((url, index) => (
+                    <video key={index} preload="auto" muted className="hidden" src={url} />
+                ))}
 
             </div>
         </section>

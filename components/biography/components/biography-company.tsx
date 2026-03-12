@@ -3,14 +3,12 @@
 import { useRef, useLayoutEffect, useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Modal, ModalBody, ModalContent, ModalTrigger } from "../../ui/animated-modal"
-import { Maximize2, Pause, Play, RotateCcw, RotateCw } from "lucide-react"
+import { Play } from "lucide-react"
 import { Biography } from "@/lib/wordpress.d"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { AnimatePresence, motion, useInView } from "motion/react"
-import ModalPortal from "./video-modal"
-import VideoModal from "./video-modal"
+import { motion, useInView } from "motion/react"
+import { Modal, ModalBody, ModalContent, ModalTrigger } from "@/components/ui/animated-modal"
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger)
@@ -27,52 +25,28 @@ export default function BiographyCompany({ highlight, short_description, descrip
     const sectionRef = useRef<HTMLDivElement>(null)
     const textRef = useRef<HTMLDivElement>(null)
     const imageRef = useRef<HTMLDivElement>(null)
-    const videoContainerRef = useRef<HTMLDivElement>(null) // Referencia al video
-    const photoContainerRef = useRef<HTMLDivElement>(null) // Referencia a la foto
+    const videoContainerRef = useRef<HTMLDivElement>(null)
+    const photoContainerRef = useRef<HTMLDivElement>(null)
     const overlayRef = useRef<HTMLDivElement>(null)
-
     const extraRef = useRef<HTMLDivElement>(null)
+
     const [isMobile, setIsMobile] = useState(false)
     const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
 
     const data = biography.acf.biography
     const photo = biography.acf.photo
 
-    const [loadMetrics, setLoadMetrics] = useState({
-        startTime: performance.now(),
-        metadataTime: 0,
-        canPlayTime: 0,
-    });
-
-    const playerRef = useRef<HTMLVideoElement>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-
-    const handleLoadedMetadata = () => {
-        const time = performance.now() - loadMetrics.startTime;
-        setLoadMetrics(prev => ({ ...prev, metadataTime: time }));
-        // console.log(`VIDEO METRICS: Metadata loaded in ${(time / 1000).toFixed(2)}s`);
-    };
-
-    const handleCanPlay = () => {
-        const time = performance.now() - loadMetrics.startTime;
-        setLoadMetrics(prev => ({ ...prev, canPlayTime: time }));
-        // console.log(`VIDEO METRICS: Ready to play (CanPlay) in ${(time / 1000).toFixed(2)}s`);
-    };
-
-    const togglePlay = () => {
-        if (!playerRef.current) return;
-        if (isPlaying) {
-            playerRef.current.pause();
-        } else {
-            playerRef.current.play();
-        }
-    };
-
-    const seek = (seconds: number) => {
-        if (!playerRef.current) return;
-        playerRef.current.currentTime += seconds;
-    };
+    useEffect(() => {
+        const handleGlobalClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            console.log("GLOBAL CLICK AT:", e.clientX, e.clientY,
+                "Target Tag:", target?.tagName,
+                "Target Classes:", target?.className,
+                "PointerEvents Style:", window.getComputedStyle(target).pointerEvents);
+        };
+        window.addEventListener("click", handleGlobalClick);
+        return () => window.removeEventListener("click", handleGlobalClick);
+    }, []);
 
     useEffect(() => {
         const mql = window.matchMedia("(max-width: 1024px)");
@@ -91,8 +65,6 @@ export default function BiographyCompany({ highlight, short_description, descrip
     const photoPlaybackId = isMobile
         ? (biography.acf.photo_mobile || biography.acf.photo)
         : (biography.acf.photo || biography.acf.photo_mobile);
-
-    const [videoOpen, setVideoOpen] = useState(false)
 
     useLayoutEffect(() => {
         if (!sectionRef.current || !textRef.current || !imageRef.current || !extraRef.current) return
@@ -117,15 +89,13 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 },
             })
 
-            gsap.set(textRef.current, { opacity: 0, y: isMobile ? 120 : 180 })
-            gsap.set(extraRef.current, { opacity: 0, y: isMobile ? 80 : 120 })
+            gsap.set(textRef.current, { opacity: 0, y: isMobile ? 120 : 180, pointerEvents: "auto" })
+            gsap.set(extraRef.current, { opacity: 0, y: isMobile ? 80 : 120, pointerEvents: "none" })
             gsap.set(overlayRef.current, { backdropFilter: "blur(0px)", opacity: 0 })
 
             gsap.set(videoContainerRef.current, { opacity: 1, scale: 1 })
             gsap.set(photoContainerRef.current, { opacity: 0, scale: 1.1 })
-            gsap.set(photoContainerRef.current, { willChange: "transform, opacity" })
 
-            // Overlay
             tl.to(overlayRef.current, {
                 backdropFilter: "blur(10px)",
                 opacity: 1,
@@ -133,14 +103,12 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 duration: 3,
                 ease: "none"
             })
-                // Transición Video -> Imagen (Zoom In/Out Effect)
                 .to(videoContainerRef.current, {
                     scale: 1.15,
                     opacity: 0,
                     duration: 2,
                     ease: "none"
                 }, "-=1")
-
                 .to(photoContainerRef.current, {
                     scale: 1,
                     opacity: 1,
@@ -155,30 +123,28 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     ease: "power3.out"
                 }, "-=1")
                 .to({}, { duration: 1.5 })
-                // Biografia se mantiene
                 .to({}, { duration: 1.2 })
-                // Biografia sale
                 .to(textRef.current, {
                     opacity: 0,
                     y: isMobile ? -60 : -100,
                     filter: "blur(10px)",
+                    pointerEvents: "none",
                     duration: 0.9,
                     ease: "power2.inOut"
                 })
-                // Quienes somos entra
                 .to(extraRef.current, {
                     opacity: 1,
                     y: 0,
+                    pointerEvents: "auto",
                     duration: 1,
                     ease: "power3.out"
                 })
-                // Quienes somos se mantiene
                 .to({}, { duration: 1.2 })
-                // salida final
                 .to(extraRef.current, {
                     opacity: 0,
                     y: -80,
                     filter: "blur(10px)",
+                    pointerEvents: "none",
                     duration: 1,
                     ease: "power2.out"
                 })
@@ -196,34 +162,34 @@ export default function BiographyCompany({ highlight, short_description, descrip
     return (
         <section
             ref={sectionRef}
-            className="relative w-full min-h-svh overflow-hidden bg-black flex items-center z-20 isolate"
+            className="relative w-full min-h-svh overflow-hidden bg-black flex items-center z-50"
         >
             <div
                 ref={imageRef}
                 className="absolute inset-0 w-full h-full z-0 overflow-hidden"
             >
                 {bgPlaybackId && (
-                    <div ref={videoContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
+                    <div ref={videoContainerRef} className="absolute inset-0 w-full h-full">
                         <video
                             src={bgPlaybackId}
                             autoPlay
                             loop
                             muted
                             playsInline
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
+                            preload="auto"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover"
                             style={{ width: '100%', height: '100%', background: 'transparent' }}
                         />
                     </div>
                 )}
                 {photoPlaybackId && (
-                    <div ref={photoContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
+                    <div ref={photoContainerRef} className="absolute inset-0 w-full h-full">
                         <Image
                             src={photoPlaybackId}
-                            alt={photoPlaybackId}
+                            alt="CEO Background"
                             fill
                             priority
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
-                            style={{ width: '100%', height: '100%', background: 'transparent' }}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover"
                         />
                     </div>
                 )}
@@ -241,7 +207,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                         {/*BLOCK 1: PRIMARY BIOGRAPHY */}
                         <div
                             ref={textRef}
-                            className="flex flex-col text-white py-10 pointer-events-auto max-w-2xl"
+                            className="flex flex-col text-white py-10 max-w-2xl relative z-40"
                         >
                             <motion.span
                                 initial={{ opacity: 0 }}
@@ -288,35 +254,42 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             </motion.div>
 
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                                initial={{ opacity: 0 }}
+                                animate={isVisible ? { opacity: 1 } : {}}
                                 transition={{ delay: 0.6 }}
                                 className="mt-8 flex flex-col sm:flex-row items-center gap-10"
                             >
                                 {data.cta && data.mux_playback_id && (
-                                    <>
-                                        <Button
-                                            type="button"
-                                            onClick={() => setVideoOpen(true)}
-                                            className="
-        px-6 py-6 hover:bg-campana-secondary group rounded-full 
-        bg-white w-full md:w-fit transition-all hover:scale-105 
-        active:scale-95 flex items-center justify-center gap-4 
-        cursor-pointer text-campana-primary hover:text-white pointer-events-auto
-      "
-                                        >
-                                            <span className="font-semibold">{data.cta}</span>
-                                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-campana-primary text-white">
-                                                <Play size={16} fill="currentColor" />
-                                            </div>
-                                        </Button>
-
-                                        <VideoModal
-                                            open={videoOpen}
-                                            onClose={() => setVideoOpen(false)}
-                                            src={data.mux_playback_id}
-                                        />
-                                    </>
+                                    <Modal>
+                                        <ModalTrigger asChild>
+                                            <Button
+                                                type="button"
+                                                className="
+                                                    px-6 py-6 hover:bg-campana-secondary group rounded-full 
+                                                    bg-white w-full md:w-fit transition-all hover:scale-105 
+                                                    active:scale-95 flex items-center justify-center gap-4 
+                                                    cursor-pointer text-campana-primary hover:text-white
+                                                "
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <span className="font-semibold">{data.cta}</span>
+                                                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-campana-primary text-white">
+                                                        <Play size={16} fill="currentColor" />
+                                                    </div>
+                                                </div>
+                                            </Button>
+                                        </ModalTrigger>
+                                        <ModalBody>
+                                            <ModalContent className="max-w-6xl p-0 overflow-hidden bg-black flex flex-col rounded-3xl">
+                                                <video
+                                                    src={data.mux_playback_id}
+                                                    autoPlay
+                                                    controls
+                                                    className="w-full aspect-video object-cover"
+                                                />
+                                            </ModalContent>
+                                        </ModalBody>
+                                    </Modal>
                                 )}
                             </motion.div>
                         </div>
@@ -324,7 +297,8 @@ export default function BiographyCompany({ highlight, short_description, descrip
                         {/* BLOCK 2: EXTRA FIELDS (AFTER BIOGRAPHY) */}
                         <div
                             ref={extraRef}
-                            className="absolute inset-0 flex flex-col justify-center text-white max-w-2xl pointer-events-none"
+                            onClick={() => console.log("Click captured by EXTRA BLOCK (Bloque 2) - This is blocking the CTA")}
+                            className="absolute inset-0 flex flex-col justify-center text-white max-w-2xl z-30"
                         >
                             <motion.span
                                 initial={{ opacity: 0 }}
