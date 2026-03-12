@@ -39,7 +39,7 @@ export function LanguageSelector({ languages }: { languages: Language[] }) {
       segments.splice(1, 0, langCode)
     }
 
-    router.push(segments.join('/'))
+    window.location.href = segments.join('/')
   }
 
   return (
