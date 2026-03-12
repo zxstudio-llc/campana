@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getVideoUrl } from "@/lib/video";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -84,7 +85,7 @@ export default function HeroLogo({
                         // precarga del video
                         onEnter: () => {
                             if (scroll && scrollSrc && !scroll.src) {
-                                scroll.src = scrollSrc;
+                                scroll.src = getVideoUrl(scrollSrc);
                                 scroll.load();
                             }
                         }
@@ -149,7 +150,7 @@ export default function HeroLogo({
                             objectFit: "cover",
                         }}
                     >
-                        <source src={introSrc} type="video/mp4" />
+                        <source src={getVideoUrl(introSrc)} type="video/mp4" />
                     </video>
                 )}
 
@@ -170,9 +171,9 @@ export default function HeroLogo({
                     />
                 )}
 
-                {/* PRECARGA DINÁMICA DE VIDEOS DE BIOGRAFIA */}
+                {/* PRECARGA DINÁMICA DE VIDEOS DE BIOGRAFIA A TRAVÉS DEL PROXY CON VERSIONADO */}
                 {biographyPreloadVideos.map((url, index) => (
-                    <video key={index} preload="auto" muted className="hidden" src={url} />
+                    <video key={index} preload="auto" muted className="hidden" src={getVideoUrl(url)} />
                 ))}
 
             </div>

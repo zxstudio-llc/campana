@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { getVideoUrl } from "@/lib/video";
 
 export const Preloader = () => {
 
@@ -44,7 +45,7 @@ export const Preloader = () => {
                         className="absolute inset-0 w-full h-full object-cover"
                     >
                         <source
-                            src="https://ykhbacjdlnooyrblnrxi.supabase.co/storage/v1/object/public/Campana/banner/isotipo_blanco.mp4"
+                            src={getVideoUrl("https://ykhbacjdlnooyrblnrxi.supabase.co/storage/v1/object/public/Campana/banner/isotipo_blanco.mp4")}
                             type="video/mp4"
                         />
                     </video>

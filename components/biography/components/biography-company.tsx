@@ -9,6 +9,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { motion, useInView } from "motion/react"
 import { Modal, ModalBody, ModalContent, ModalTrigger } from "@/components/ui/animated-modal"
+import { getVideoUrl } from "@/lib/video"
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger)
@@ -58,9 +59,11 @@ export default function BiographyCompany({ highlight, short_description, descrip
         return () => mql.removeEventListener("change", onChange);
     }, []);
 
-    const bgPlaybackId = isMobile
+    const bgPlaybackIdRaw = isMobile
         ? (biography.acf.mux_playback_mobile_id || biography.acf.mux_playback_web_id)
         : (biography.acf.mux_playback_web_id || biography.acf.mux_playback_mobile_id);
+
+    const bgPlaybackId = getVideoUrl(bgPlaybackIdRaw);
 
     const photoPlaybackId = isMobile
         ? (biography.acf.photo_mobile || biography.acf.photo)
@@ -169,7 +172,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 className="absolute inset-0 w-full h-full z-0 overflow-hidden"
             >
                 {bgPlaybackId && (
-                    <div ref={videoContainerRef} className="absolute inset-0 w-full h-full">
+                    <div ref={videoContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
                         <video
                             src={bgPlaybackId}
                             autoPlay
@@ -177,19 +180,19 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             muted
                             playsInline
                             preload="auto"
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
                             style={{ width: '100%', height: '100%', background: 'transparent' }}
                         />
                     </div>
                 )}
                 {photoPlaybackId && (
-                    <div ref={photoContainerRef} className="absolute inset-0 w-full h-full">
+                    <div ref={photoContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
                         <Image
                             src={photoPlaybackId}
                             alt="CEO Background"
                             fill
                             priority
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
                         />
                     </div>
                 )}
@@ -268,7 +271,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                                     px-6 py-6 hover:bg-campana-secondary group rounded-full 
                                                     bg-white w-full md:w-fit transition-all hover:scale-105 
                                                     active:scale-95 flex items-center justify-center gap-4 
-                                                    cursor-pointer text-campana-primary hover:text-white
+                                                    cursor-pointer text-campana-primary hover:text-white relative z-50
                                                 "
                                             >
                                                 <div className="flex items-center gap-4">
@@ -282,7 +285,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                         <ModalBody>
                                             <ModalContent className="max-w-6xl p-0 overflow-hidden bg-black flex flex-col rounded-3xl">
                                                 <video
-                                                    src={data.mux_playback_id}
+                                                    src={getVideoUrl(data.mux_playback_id)}
                                                     autoPlay
                                                     controls
                                                     className="w-full aspect-video object-cover"
@@ -297,7 +300,6 @@ export default function BiographyCompany({ highlight, short_description, descrip
                         {/* BLOCK 2: EXTRA FIELDS (AFTER BIOGRAPHY) */}
                         <div
                             ref={extraRef}
-                            onClick={() => console.log("Click captured by EXTRA BLOCK (Bloque 2) - This is blocking the CTA")}
                             className="absolute inset-0 flex flex-col justify-center text-white max-w-2xl z-30"
                         >
                             <motion.span
