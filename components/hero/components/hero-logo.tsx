@@ -28,71 +28,7 @@ export default function HeroLogo({
     const [isVideoReady, setIsVideoReady] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
-    useLayoutEffect(() => {
-        if (!sectionRef.current) return;
 
-        const mm = gsap.matchMedia();
-
-        mm.add(
-            {
-                isDesktop: "(min-width: 768px)",
-                isMobile: "(max-width: 767px)",
-            },
-            () => {
-
-                gsap.set(videoIntroRef.current, { opacity: 1 });
-                gsap.set(videoScrollRef.current, { opacity: 0, y: 80 });
-
-                const tl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: sectionRef.current,
-                        start: "top top",
-                        end: "+=500%",
-                        scrub: 2,
-                        pin: true,
-                        anticipatePin: 1,
-
-                        onEnter: () => {
-                            if (videoScrollRef.current && scrollSrc) {
-                                const video = videoScrollRef.current
-
-                                if (!video.src) {
-                                    video.src = scrollSrc
-                                    video.load()
-                                }
-
-                                video.play().catch(() => { })
-                            }
-                        }
-                    },
-                });
-
-                // transición entre videos
-                tl.to(
-                    videoIntroRef.current,
-                    {
-                        opacity: 0,
-                        duration: 0.6,
-                        ease: "power2.out",
-                    },
-                    0.25
-                );
-
-                tl.to(
-                    videoScrollRef.current,
-                    {
-                        opacity: 1,
-                        y: 0,
-                        duration: 0.8,
-                        ease: "power3.out",
-                    },
-                    "<"
-                );
-            }
-        );
-
-        return () => mm.revert();
-    }, []);
 
     // detectar mobile
     useLayoutEffect(() => {
@@ -115,6 +51,72 @@ export default function HeroLogo({
     const scrollSrc = isMobile
         ? video_scroll_mobile || video_scroll_web
         : video_scroll_web || video_scroll_mobile;
+
+    useLayoutEffect(() => {
+        if (!sectionRef.current) return;
+
+        const mm = gsap.matchMedia();
+
+        mm.add(
+            {
+                isDesktop: "(min-width: 768px)",
+                isMobile: "(max-width: 767px)",
+            },
+            () => {
+
+                const intro = videoIntroRef.current;
+                const scroll = videoScrollRef.current;
+
+                gsap.set(intro, { opacity: 1, scale: 1 });
+                gsap.set(scroll, { opacity: 0, y: 80, scale: 1.15 });
+
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: sectionRef.current,
+                        start: "top top",
+                        end: "+=500%",
+                        scrub: 2,
+                        pin: true,
+                        anticipatePin: 1,
+
+                        // precarga del video
+                        onEnter: () => {
+                            if (scroll && scrollSrc && !scroll.src) {
+                                scroll.src = scrollSrc;
+                                scroll.load();
+                            }
+                        }
+                    },
+                });
+
+                // fade + zoom del intro
+                tl.to(intro, {
+                    opacity: 0,
+                    scale: 1.1,
+                    duration: 1,
+                    ease: "power2.out"
+                }, 0.75);
+
+                // aparición del segundo video
+                tl.to(scroll, {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 1.2,
+                    ease: "power3.out",
+
+                    onStart: () => {
+                        if (scroll) {
+                            scroll.currentTime = 0;
+                            scroll.play().catch(() => { });
+                        }
+                    }
+                }, "<");
+            }
+        );
+
+        return () => mm.revert();
+    }, [scrollSrc]);
 
     return (
         <section ref={sectionRef} className="relative z-30">
@@ -153,11 +155,10 @@ export default function HeroLogo({
                 {scrollSrc && (
                     <video
                         ref={videoScrollRef}
-                        autoPlay
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="metadata"
                         className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                         style={{
                             width: "200vw",
