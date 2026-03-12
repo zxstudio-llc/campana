@@ -11,7 +11,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image, { ImageProps } from "next/image";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { ChevronLeft, ChevronRight, X, Play, Pause, RotateCcw } from "lucide-react";
-import { getVideoUrl } from "@/lib/video";
 
 const AUTO_PLAY_DURATION = 16000;
 
@@ -292,7 +291,7 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
         {playbackId ? (
           <video
             ref={videoRef}
-            src={getVideoUrl(playbackId)}
+            src={playbackId}
             loop
             muted
             playsInline

@@ -9,7 +9,6 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { motion, useInView } from "motion/react"
 import { Modal, ModalBody, ModalContent, ModalTrigger } from "@/components/ui/animated-modal"
-import { getVideoUrl } from "@/lib/video"
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger)
@@ -59,11 +58,9 @@ export default function BiographyCompany({ highlight, short_description, descrip
         return () => mql.removeEventListener("change", onChange);
     }, []);
 
-    const bgPlaybackIdRaw = isMobile
+    const bgPlaybackId = isMobile
         ? (biography.acf.mux_playback_mobile_id || biography.acf.mux_playback_web_id)
         : (biography.acf.mux_playback_web_id || biography.acf.mux_playback_mobile_id);
-
-    const bgPlaybackId = getVideoUrl(bgPlaybackIdRaw);
 
     const photoPlaybackId = isMobile
         ? (biography.acf.photo_mobile || biography.acf.photo)
@@ -285,7 +282,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                         <ModalBody>
                                             <ModalContent className="max-w-6xl p-0 overflow-hidden bg-black flex flex-col rounded-3xl">
                                                 <video
-                                                    src={getVideoUrl(data.mux_playback_id)}
+                                                    src={data.mux_playback_id}
                                                     autoPlay
                                                     controls
                                                     className="w-full aspect-video object-cover"
