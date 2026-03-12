@@ -192,7 +192,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             alt="CEO Background"
                             fill
                             priority
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
+                            className="object-cover pointer-events-none"
                         />
                     </div>
                 )}
