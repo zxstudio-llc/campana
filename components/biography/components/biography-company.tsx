@@ -9,6 +9,8 @@ import { Biography } from "@/lib/wordpress.d"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { AnimatePresence, motion, useInView } from "motion/react"
+import ModalPortal from "./video-modal"
+import VideoModal from "./video-modal"
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger)
@@ -89,6 +91,8 @@ export default function BiographyCompany({ highlight, short_description, descrip
     const photoPlaybackId = isMobile
         ? (biography.acf.photo_mobile || biography.acf.photo)
         : (biography.acf.photo || biography.acf.photo_mobile);
+
+    const [videoOpen, setVideoOpen] = useState(false)
 
     useLayoutEffect(() => {
         if (!sectionRef.current || !textRef.current || !imageRef.current || !extraRef.current) return
@@ -192,14 +196,14 @@ export default function BiographyCompany({ highlight, short_description, descrip
     return (
         <section
             ref={sectionRef}
-            className="relative w-full min-h-svh overflow-hidden bg-black flex items-center z-20"
+            className="relative w-full min-h-svh overflow-hidden bg-black flex items-center z-20 isolate"
         >
             <div
                 ref={imageRef}
                 className="absolute inset-0 w-full h-full z-0 overflow-hidden"
             >
                 {bgPlaybackId && (
-                    <div ref={videoContainerRef} className="absolute inset-0 w-full h-full">
+                    <div ref={videoContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
                         <video
                             src={bgPlaybackId}
                             autoPlay
@@ -212,7 +216,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     </div>
                 )}
                 {photoPlaybackId && (
-                    <div ref={photoContainerRef} className="absolute inset-0 w-full h-full">
+                    <div ref={photoContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
                         <Image
                             src={photoPlaybackId}
                             alt={photoPlaybackId}
@@ -226,11 +230,11 @@ export default function BiographyCompany({ highlight, short_description, descrip
 
                 <div
                     ref={overlayRef}
-                    className="absolute inset-0 z-10 pointer-events-none"
+                    className="absolute inset-0 z-0 pointer-events-none select-none"
                 />
             </div>
 
-            <div className="relative z-20 w-full px-6 md:px-20">
+            <div className="relative z-30 w-full px-6 md:px-20">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-12 items-center">
 
                     <div className="lg:col-span-7 relative flex items-center min-h-[60vh]">
@@ -290,84 +294,29 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                 className="mt-8 flex flex-col sm:flex-row items-center gap-10"
                             >
                                 {data.cta && data.mux_playback_id && (
-                                    <Modal>
-                                        <ModalTrigger asChild>
-                                            <Button
-                                                className="
-                                                    px-6 py-6 hover:bg-campana-secondary group rounded-full 
-                                                    bg-white w-full md:w-fit transition-all hover:scale-105 
-                                                    active:scale-95 flex items-center justify-center gap-4 
-                                                    cursor-pointer text-campana-primary hover:text-white
-                                                "
-                                            >
-                                                <>
-                                                    <span className="font-semibold">{data.cta}</span>
-                                                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-campana-primary text-white transition-transform group-hover:scale-110 group-hover:bg-white group-hover:text-campana-secondary shadow-lg">
-                                                        <Play size={16} fill="currentColor" />
-                                                    </div>
-                                                </>
-                                            </Button>
-                                        </ModalTrigger>
-                                        <ModalBody>
-                                            <ModalContent className="relative w-[95vw] max-w-6xl rounded-3xl overflow-hidden bg-black shadow-2xl">
-                                                <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-                                                    <video
-                                                        ref={playerRef}
-                                                        src={data.mux_playback_id}
-                                                        className="w-full h-full object-cover"
-                                                        preload="metadata"
-                                                        playsInline
-                                                        controls={false}
-                                                        onLoadedMetadata={handleLoadedMetadata}
-                                                        onCanPlay={handleCanPlay}
-                                                        onPlay={() => setIsPlaying(true)}
-                                                        onPause={() => setIsPlaying(false)}
-                                                    />
+                                    <>
+                                        <Button
+                                            type="button"
+                                            onClick={() => setVideoOpen(true)}
+                                            className="
+        px-6 py-6 hover:bg-campana-secondary group rounded-full 
+        bg-white w-full md:w-fit transition-all hover:scale-105 
+        active:scale-95 flex items-center justify-center gap-4 
+        cursor-pointer text-campana-primary hover:text-white pointer-events-auto
+      "
+                                        >
+                                            <span className="font-semibold">{data.cta}</span>
+                                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-campana-primary text-white">
+                                                <Play size={16} fill="currentColor" />
+                                            </div>
+                                        </Button>
 
-                                                    {/* TUS CONTROLES PERSONALIZADOS */}
-                                                    <AnimatePresence mode="wait">
-                                                        {(isHovered || !isPlaying) && (
-                                                            <motion.div
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                exit={{ opacity: 0 }}
-                                                                className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-300 rounded-2xl"
-                                                            >
-                                                                <div className="flex items-center gap-8 md:gap-16">
-                                                                    <button
-                                                                        onClick={() => seek(-10)}
-                                                                        className="text-white/80 hover:text-[#f1ba0a] transition-all hover:scale-110 cursor-pointer"
-                                                                    >
-                                                                        <RotateCcw size={32} />
-                                                                    </button>
-
-                                                                    <button
-                                                                        onClick={togglePlay}
-                                                                        className="w-20 h-20 bg-[#f1ba0a] rounded-full flex items-center justify-center shadow-xl text-white hover:scale-105 transition-transform cursor-pointer"
-                                                                    >
-                                                                        {isPlaying ? <Pause size={40} fill="currentColor" /> : <Play size={40} fill="currentColor" className="ml-2" />}
-                                                                    </button>
-
-                                                                    <button
-                                                                        onClick={() => seek(10)}
-                                                                        className="text-white/80 hover:text-[#f1ba0a] transition-all hover:scale-110 cursor-pointer"
-                                                                    >
-                                                                        <RotateCw size={32} />
-                                                                    </button>
-                                                                </div>
-
-                                                                <div className="absolute top-4 right-4">
-                                                                    <ModalTrigger className="bg-white/10 hover:bg-[#f1ba0a] border-none p-3 rounded-full transition-colors cursor-pointer block">
-                                                                        <Maximize2 size={20} className="text-white" />
-                                                                    </ModalTrigger>
-                                                                </div>
-                                                            </motion.div>
-                                                        )}
-                                                    </AnimatePresence>
-                                                </div>
-                                            </ModalContent>
-                                        </ModalBody>
-                                    </Modal>
+                                        <VideoModal
+                                            open={videoOpen}
+                                            onClose={() => setVideoOpen(false)}
+                                            src={data.mux_playback_id}
+                                        />
+                                    </>
                                 )}
                             </motion.div>
                         </div>

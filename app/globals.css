@@ -401,3 +401,7 @@
         max-width: 250px !important;
     }
 }
+
+[data-scroll-container] {
+    transform-style: preserve-3d;
+}
