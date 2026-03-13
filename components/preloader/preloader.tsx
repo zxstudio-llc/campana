@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import UniversalVideo from "../universal-video";
 
 interface PreloaderProps {
     preloadVideos?: string[];
@@ -10,6 +11,8 @@ interface PreloaderProps {
 export const Preloader = ({ preloadVideos = [] }: PreloaderProps) => {
 
     const [loading, setLoading] = useState(true);
+
+    const preloaderSrc = "https://ykhbacjdlnooyrblnrxi.supabase.co/storage/v1/object/public/Campana/banner/isotipo_blanco.mp4";
 
     useEffect(() => {
         console.log("Preloader: Critical Videos to Preload ->", preloadVideos);
@@ -47,20 +50,10 @@ export const Preloader = ({ preloadVideos = [] }: PreloaderProps) => {
                     }}
                     className="fixed inset-0 z-9999 overflow-hidden bg-[#030910]"
                 >
-
-                    <video
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        preload="auto"
-                        className="absolute inset-0 w-full h-full object-cover"
-                    >
-                        <source
-                            src="https://ykhbacjdlnooyrblnrxi.supabase.co/storage/v1/object/public/Campana/banner/isotipo_blanco.mp4"
-                            type="video/mp4"
-                        />
-                    </video>
+                    <UniversalVideo
+                        src={preloaderSrc}
+                        className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                    />
 
                     {/* ZONA DE PRECARGA INVISIBLE - Solo para videos de secciones futuras (evitamos colisión con Hero) */}
                     <div className="absolute opacity-0 pointer-events-none size-0 overflow-hidden">

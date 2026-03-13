@@ -63,7 +63,6 @@ export default function HeroLogo({
             }
         };
 
-        // Pequeño delay para asegurar que el DOM está listo
         const timer = setTimeout(playVideo, 100);
         return () => clearTimeout(timer);
     }, [introSrc]);
