@@ -31,6 +31,12 @@ export default function HeroLogo({
 
     const [isVideoReady, setIsVideoReady] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [debugLogs, setDebugLogs] = useState<string[]>([]);
+
+    const addLog = (msg: string) => {
+        const time = new Date().toLocaleTimeString();
+        setDebugLogs(prev => [`[${time}] ${msg}`, ...prev].slice(0, 10));
+    };
 
 
     // detectar mobile
@@ -168,14 +174,14 @@ export default function HeroLogo({
                         muted
                         playsInline
                         preload="auto"
-                        onLoadStart={() => console.log("HeroLogo: Video Intro LoadStart ->", introSrc)}
-                        onLoadedMetadata={() => console.log("HeroLogo: Video Intro Metadata Loaded")}
+                        onLoadStart={() => addLog("LoadStart...")}
+                        onLoadedMetadata={() => addLog("Metadata OK")}
                         onLoadedData={() => {
-                            console.log("HeroLogo: Video Intro Data Loaded (Ready)");
+                            addLog("Data Loaded (Can Play)");
                             setIsVideoReady(true);
                         }}
                         onPlay={() => {
-                            console.log("HeroLogo: Video Intro Playing");
+                            addLog("Video IS PLAYING");
                             setIsVideoReady(true);
                             // Notificamos al preloader solo cuando realmente está sonando
                             window.dispatchEvent(new Event("hero-video-ready"));
@@ -183,8 +189,11 @@ export default function HeroLogo({
                         onError={(e) => {
                             const video = videoIntroRef.current;
                             if (video && video.error) {
+                                addLog(`ERROR CODE: ${video.error.code}`);
                                 console.error("HeroLogo: [INTRO] Video Native Error Code ->", video.error.code);
                                 console.error("HeroLogo: [INTRO] Video Native Error Message ->", video.error.message);
+                            } else {
+                                addLog("Unknown Video Error");
                             }
                         }}
                         className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
@@ -228,6 +237,23 @@ export default function HeroLogo({
                         <source src={url} type="video/mp4" />
                     </video>
                 ))}
+
+                {/* DEBUG OVERLAY PARA IPHONE XR */}
+                <div
+                    className="fixed top-20 left-4 z-[99999] bg-black/80 text-green-400 p-2 text-[10px] font-mono rounded pointer-events-none"
+                    style={{ maxWidth: '80vw' }}
+                >
+                    <div className="font-bold border-b border-green-900 mb-1 flex justify-between">
+                        <span>DEBUG VIDEO</span>
+                        <span>{isMobile ? 'MOBILE' : 'DESKTOP'}</span>
+                    </div>
+                    {debugLogs.map((log, i) => (
+                        <div key={i} className="whitespace-nowrap overflow-hidden text-ellipsis">
+                            {log}
+                        </div>
+                    ))}
+                    {debugLogs.length === 0 && <div>Waiting for logs...</div>}
+                </div>
 
             </div>
         </section>
