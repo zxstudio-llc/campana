@@ -89,7 +89,7 @@ export default async function Home({
 
   return (
     <Section>
-      <Preloader preloadVideos={allCriticalVideos} />
+      <Preloader />
       <Container>
         <Hero page={page} />
 
