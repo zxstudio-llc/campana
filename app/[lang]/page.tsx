@@ -93,7 +93,7 @@ export default async function Home({
     <Section>
       <Preloader preloadVideos={allCriticalVideos} />
       <Container>
-        <Hero page={page} biographyPreloadVideos={biographyPreloadVideos} />
+        <Hero page={page} />
 
         <BlocksRenderer sections={sections} />
       </Container>
