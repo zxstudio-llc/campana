@@ -1,8 +1,9 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import UniversalVideo from "@/components/universal-video";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -35,7 +36,6 @@ export default function HeroLogo({
         ? video_scroll_mobile || video_scroll_web
         : video_scroll_web || video_scroll_mobile;
 
-    // detectar mobile
     useLayoutEffect(() => {
 
         const mq = window.matchMedia("(max-width: 767px)");
@@ -51,43 +51,31 @@ export default function HeroLogo({
 
     }, []);
 
-    // desbloquear autoplay iOS
-    useLayoutEffect(() => {
+    // Reinforce play and debug URLs
+    useEffect(() => {
+        if (introSrc) console.log("HeroIntro: Intentando cargar ->", introSrc);
 
-        const unlock = () => {
-            const v = scrollVideoRef.current;
-            if (!v) return;
-
-            v.play().then(() => {
-                v.pause();
-                v.currentTime = 0;
-            }).catch(() => { });
+        const playVideo = () => {
+            if (introVideoRef.current) {
+                introVideoRef.current.play().catch(err => {
+                    console.warn("HeroIntro: Auto-play bloqueado, reintentando...", err);
+                });
+            }
         };
 
-        window.addEventListener("touchstart", unlock, { once: true });
-
-        return () => window.removeEventListener("touchstart", unlock);
-
-    }, []);
+        // Pequeño delay para asegurar que el DOM está listo
+        const timer = setTimeout(playVideo, 100);
+        return () => clearTimeout(timer);
+    }, [introSrc]);
 
     useLayoutEffect(() => {
 
-        if (!sectionRef.current || !scrollVideoRef.current) return;
-
-        const video = scrollVideoRef.current;
+        if (!sectionRef.current) return;
 
         const ctx = gsap.context(() => {
 
             gsap.set(scrollVideoRef.current, { opacity: 0 });
             gsap.set(introVideoRef.current, { opacity: 1 });
-
-            let duration = 1;
-
-            const onLoaded = () => {
-                duration = video.duration || 1;
-            };
-
-            video.addEventListener("loadedmetadata", onLoaded);
 
             const tl = gsap.timeline({
                 scrollTrigger: {
@@ -100,7 +88,6 @@ export default function HeroLogo({
                 }
             });
 
-            // transición de videos
             tl.to(introVideoRef.current, {
                 opacity: 0,
                 duration: 0.6,
@@ -113,65 +100,41 @@ export default function HeroLogo({
                 ease: "none"
             }, 0.1);
 
-            // controlar video con scroll
-            tl.to(video, {
-                currentTime: () => duration,
-                ease: "none",
-            }, 0);
-
         }, sectionRef);
 
         return () => ctx.revert();
 
-    }, [scrollSrc]);
+    }, []);
 
     return (
         <section ref={sectionRef} className="relative z-30">
 
-            <div
-                className="h-screen overflow-hidden relative transition-opacity duration-700"
-                style={{ opacity: isReady ? 1 : 0 }}
-            >
+            <div className="h-screen overflow-hidden relative">
 
                 <div className="absolute inset-0 bg-linear-to-b from-campana-bg-hover to-black" />
 
                 {/* INTRO VIDEO */}
                 {introSrc && (
-                    <video
-                        ref={introVideoRef}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                        onLoadedData={() => setIsReady(true)}
-                        className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                        }}
-                    >
-                        <source src={introSrc} type="video/mp4" />
-                    </video>
+                    <div className="absolute inset-0">
+
+                        <UniversalVideo
+                            src={introSrc}
+                            className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                        />
+
+                    </div>
                 )}
 
                 {/* SCROLL VIDEO */}
                 {scrollSrc && (
-                    <video
-                        ref={scrollVideoRef}
-                        muted
-                        playsInline
-                        preload="metadata"
-                        className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                        }}
-                    >
-                        <source src={scrollSrc} type="video/mp4" />
-                    </video>
+                    <div className="absolute inset-0">
+
+                        <UniversalVideo
+                            src={scrollSrc}
+                            className="w-full h-full object-cover"
+                        />
+
+                    </div>
                 )}
 
             </div>

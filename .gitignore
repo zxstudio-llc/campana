@@ -43,3 +43,10 @@ RAILWAY-SETUP.md
 
 # large video files
 public/video/Website_Main_NoText.mp4
+
+# next-video
+videos/*
+!videos/*.json
+!videos/*.js
+!videos/*.ts
+public/_next-video
