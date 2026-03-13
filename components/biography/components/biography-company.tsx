@@ -171,7 +171,6 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 {bgPlaybackId && (
                     <div ref={videoContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
                         <video
-                            src={bgPlaybackId}
                             autoPlay
                             loop
                             muted
@@ -179,7 +178,9 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             preload="auto"
                             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
                             style={{ width: '100%', height: '100%', background: 'transparent' }}
-                        />
+                        >
+                            <source src={bgPlaybackId} type="video/mp4" />
+                        </video>
                     </div>
                 )}
                 {photoPlaybackId && (
@@ -282,11 +283,13 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                         <ModalBody>
                                             <ModalContent className="max-w-6xl p-0 overflow-hidden bg-black flex flex-col rounded-3xl">
                                                 <video
-                                                    src={data.mux_playback_id}
                                                     autoPlay
                                                     controls
+                                                    playsInline
                                                     className="w-full aspect-video object-cover"
-                                                />
+                                                >
+                                                    <source src={data.mux_playback_id} type="video/mp4" />
+                                                </video>
                                             </ModalContent>
                                         </ModalBody>
                                     </Modal>

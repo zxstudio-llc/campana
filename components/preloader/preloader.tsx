@@ -3,22 +3,35 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
-export const Preloader = () => {
+interface PreloaderProps {
+    preloadVideos?: string[];
+}
+
+export const Preloader = ({ preloadVideos = [] }: PreloaderProps) => {
 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log("Preloader: Critical Videos to Preload ->", preloadVideos);
+    }, [preloadVideos]);
 
+    useEffect(() => {
         const handleHeroReady = () => {
             setTimeout(() => setLoading(false), 50);
         };
 
         window.addEventListener("hero-video-ready", handleHeroReady);
 
+        // Seguridad: Si después de 15 segundos el video no ha cargado (especialmente para archivos de 34MB), quitamos el preloader
+        const backupTimeout = setTimeout(() => {
+            setLoading(false);
+            console.log("Preloader: Backup timeout reached (15s)");
+        }, 15000);
+
         return () => {
             window.removeEventListener("hero-video-ready", handleHeroReady);
+            clearTimeout(backupTimeout);
         };
-
     }, []);
 
     return (
@@ -49,10 +62,17 @@ export const Preloader = () => {
                         />
                     </video>
 
+                    {/* ZONA DE PRECARGA INVISIBLE - Solo para videos de secciones futuras (evitamos colisión con Hero) */}
+                    <div className="absolute opacity-0 pointer-events-none size-0 overflow-hidden">
+                        {preloadVideos.length > 2 && preloadVideos.slice(2).map((url, idx) => (
+                            <video key={idx} preload="auto" muted playsInline>
+                                <source src={url} type="video/mp4" />
+                            </video>
+                        ))}
+                    </div>
+
                 </motion.div>
             )}
         </AnimatePresence>
     );
-
-
 };

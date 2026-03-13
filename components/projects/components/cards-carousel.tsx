@@ -291,14 +291,15 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
         {playbackId ? (
           <video
             ref={videoRef}
-            src={playbackId}
             loop
             muted
             playsInline
             preload="auto"
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
             style={{ width: '100%', height: '100%', background: 'transparent' }}
-          />
+          >
+            <source src={playbackId} type="video/mp4" />
+          </video>
         ) : (
           <BlurImage src={card.src.url} alt={card.src.alt || "Imagen"} fill className="absolute inset-0 z-10 object-cover transition-transform duration-700 group-hover:scale-105" />
         )}

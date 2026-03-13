@@ -1,5 +1,5 @@
 import { Section, Container } from "@/components/craft";
-import { getPageBySlug, getOurValuesById, getActivoEstrategicoById, getProjectsByIds, getTimelineByIds, getInvestmentById, getBiographyById, getFaqById } from "@/lib/wordpress";
+import { getPageBySlug, getOurValuesById, getActivoEstrategicoById, getProjectsByIds, getTimelineByIds, getInvestmentById, getBiographyById, getFaqById, getSliderById } from "@/lib/wordpress";
 import Link from "next/link";
 import { File, Pen, Tag, Diamond, User, Folder } from "lucide-react";
 import { Hero } from "@/components/hero/hero";
@@ -60,7 +60,19 @@ export default async function Home({
   const sections: PageSection[] =
     page.acf?.default?.page_sections ?? [];
 
-  // Obtener URLs de videos de biografía para precarga proactiva en el Hero
+  const heroVideos: string[] = [];
+  const heroBlock = page.acf?.default?.hero;
+  if (heroBlock?.hero_type === 'slider' && typeof heroBlock.hero_slider === 'number') {
+    const slider = await getSliderById(heroBlock.hero_slider);
+    if (slider) {
+      if (slider.acf.mux_playback_web_id) heroVideos.push(slider.acf.mux_playback_web_id);
+      if (slider.acf.mux_playback_mobile_id) heroVideos.push(slider.acf.mux_playback_mobile_id);
+      if (slider.acf.video_scroll_web) heroVideos.push(slider.acf.video_scroll_web);
+      if (slider.acf.video_scroll_mobile) heroVideos.push(slider.acf.video_scroll_mobile);
+    }
+  }
+
+  // Obtener URLs de videos de biografía para precarga proactiva
   const biographyBlock = sections.find(s => s.acf_fc_layout === "biography") as BiographySection | undefined;
   let biographyPreloadVideos: string[] = [];
 
@@ -75,9 +87,11 @@ export default async function Home({
     }
   }
 
+  const allCriticalVideos = [...heroVideos, ...biographyPreloadVideos];
+
   return (
     <Section>
-      <Preloader />
+      <Preloader preloadVideos={allCriticalVideos} />
       <Container>
         <Hero page={page} biographyPreloadVideos={biographyPreloadVideos} />
 
