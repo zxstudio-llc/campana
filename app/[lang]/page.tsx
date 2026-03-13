@@ -64,12 +64,7 @@ export default async function Home({
   const heroBlock = page.acf?.default?.hero;
   if (heroBlock?.hero_type === 'slider' && typeof heroBlock.hero_slider === 'number') {
     const slider = await getSliderById(heroBlock.hero_slider);
-    if (slider) {
-      if (slider.acf.mux_playback_web_id) heroVideos.push(slider.acf.mux_playback_web_id);
-      if (slider.acf.mux_playback_mobile_id) heroVideos.push(slider.acf.mux_playback_mobile_id);
-      if (slider.acf.video_scroll_web) heroVideos.push(slider.acf.video_scroll_web);
-      if (slider.acf.video_scroll_mobile) heroVideos.push(slider.acf.video_scroll_mobile);
-    }
+
   }
 
   // Obtener URLs de videos de biografía para precarga proactiva

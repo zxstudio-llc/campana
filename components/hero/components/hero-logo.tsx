@@ -21,12 +21,11 @@ export default function HeroLogo({
 }: Props) {
 
     const sectionRef = useRef<HTMLDivElement>(null);
+    const introVideoRef = useRef<HTMLVideoElement>(null);
+    const scrollVideoRef = useRef<HTMLVideoElement>(null);
 
-    const videoIntroRef = useRef<HTMLVideoElement>(null);
-    const videoScrollRef = useRef<HTMLVideoElement>(null);
-
-    const [isVideoReady, setIsVideoReady] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isReady, setIsReady] = useState(false);
 
     const introSrc = isMobile
         ? mux_playback_mobile_id || mux_playback_web_id
@@ -36,148 +35,147 @@ export default function HeroLogo({
         ? video_scroll_mobile || video_scroll_web
         : video_scroll_web || video_scroll_mobile;
 
-    useLayoutEffect(() => {
-        if (!sectionRef.current) return;
-
-        const mm = gsap.matchMedia();
-
-        mm.add(
-            {
-                isDesktop: "(min-width: 768px)",
-                isMobile: "(max-width: 767px)",
-            },
-            () => {
-
-                gsap.set(videoIntroRef.current, { opacity: 1 });
-                gsap.set(videoScrollRef.current, { opacity: 0 });
-
-                const tl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: sectionRef.current,
-                        start: "top top",
-                        end: "+=500%",
-                        scrub: 2,
-                        pin: true,
-                        anticipatePin: 1,
-
-                        onEnter: () => {
-                            if (videoScrollRef.current && scrollSrc) {
-                                const video = videoScrollRef.current
-                                if (!video.src) {
-                                    video.src = scrollSrc
-                                    video.load()
-                                }
-                                video.play().catch(() => { })
-                            }
-                        }
-                    },
-                });
-
-                // transición entre videos suave (seamless)
-                tl.to(
-                    videoIntroRef.current,
-                    {
-                        opacity: 0,
-                        duration: 0.8,
-                        ease: "none",
-                    },
-                    0.2
-                );
-
-                tl.to(
-                    videoScrollRef.current,
-                    {
-                        opacity: 1,
-                        duration: 0.8,
-                        ease: "none",
-                    },
-                    0.2
-                );
-
-                // Tiempo extra de espera (hold) al final
-                tl.to({}, { duration: 1.5 });
-            }
-        );
-
-        return () => mm.revert();
-    }, [introSrc, scrollSrc, isMobile]);
-
     // detectar mobile
     useLayoutEffect(() => {
-        const mql = window.matchMedia("(max-width: 767px)");
+
+        const mq = window.matchMedia("(max-width: 767px)");
 
         const update = (e: MediaQueryListEvent | MediaQueryList) => {
             setIsMobile(e.matches);
         };
 
-        update(mql);
-        mql.addEventListener("change", update);
+        update(mq);
+        mq.addEventListener("change", update);
 
-        return () => mql.removeEventListener("change", update);
+        return () => mq.removeEventListener("change", update);
+
     }, []);
 
-
-    // Forzar carga en Safari Intro
+    // desbloquear autoplay iOS
     useLayoutEffect(() => {
-        if (videoIntroRef.current && introSrc) {
-            const video = videoIntroRef.current;
-            if (!video.src || !video.src.includes(introSrc)) {
-                video.src = introSrc;
-                video.load();
-            }
-        }
-    }, [introSrc]);
+
+        const unlock = () => {
+            const v = scrollVideoRef.current;
+            if (!v) return;
+
+            v.play().then(() => {
+                v.pause();
+                v.currentTime = 0;
+            }).catch(() => { });
+        };
+
+        window.addEventListener("touchstart", unlock, { once: true });
+
+        return () => window.removeEventListener("touchstart", unlock);
+
+    }, []);
+
+    useLayoutEffect(() => {
+
+        if (!sectionRef.current || !scrollVideoRef.current) return;
+
+        const video = scrollVideoRef.current;
+
+        const ctx = gsap.context(() => {
+
+            gsap.set(scrollVideoRef.current, { opacity: 0 });
+            gsap.set(introVideoRef.current, { opacity: 1 });
+
+            let duration = 1;
+
+            const onLoaded = () => {
+                duration = video.duration || 1;
+            };
+
+            video.addEventListener("loadedmetadata", onLoaded);
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top top",
+                    end: "+=500%",
+                    scrub: true,
+                    pin: true,
+                    anticipatePin: 1,
+                }
+            });
+
+            // transición de videos
+            tl.to(introVideoRef.current, {
+                opacity: 0,
+                duration: 0.6,
+                ease: "none"
+            }, 0.1);
+
+            tl.to(scrollVideoRef.current, {
+                opacity: 1,
+                duration: 0.6,
+                ease: "none"
+            }, 0.1);
+
+            // controlar video con scroll
+            tl.to(video, {
+                currentTime: () => duration,
+                ease: "none",
+            }, 0);
+
+        }, sectionRef);
+
+        return () => ctx.revert();
+
+    }, [scrollSrc]);
 
     return (
         <section ref={sectionRef} className="relative z-30">
+
             <div
                 className="h-screen overflow-hidden relative transition-opacity duration-700"
-                style={{ opacity: isVideoReady ? 1 : 0 }}
+                style={{ opacity: isReady ? 1 : 0 }}
             >
 
                 <div className="absolute inset-0 bg-linear-to-b from-campana-bg-hover to-black" />
 
-                {/* VIDEO INTRO */}
+                {/* INTRO VIDEO */}
                 {introSrc && (
                     <video
-                        ref={videoIntroRef}
+                        ref={introVideoRef}
                         autoPlay
-                        loop
                         muted
+                        loop
                         playsInline
                         preload="auto"
-                        onLoadedData={() => {
-                            setIsVideoReady(true);
-                            window.dispatchEvent(new Event("hero-video-ready"));
-                        }}
+                        onLoadedData={() => setIsReady(true)}
                         className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                         style={{
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
                         }}
-                    />
+                    >
+                        <source src={introSrc} type="video/mp4" />
+                    </video>
                 )}
 
-                {/* VIDEO SCROLL (ANTES ERA EL SVG) */}
+                {/* SCROLL VIDEO */}
                 {scrollSrc && (
                     <video
-                        ref={videoScrollRef}
-                        autoPlay
-                        loop
+                        ref={scrollVideoRef}
                         muted
                         playsInline
-                        preload="none"
+                        preload="metadata"
                         className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                         style={{
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
                         }}
-                    />
+                    >
+                        <source src={scrollSrc} type="video/mp4" />
+                    </video>
                 )}
 
             </div>
+
         </section>
     );
 }
