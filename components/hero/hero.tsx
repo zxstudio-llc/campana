@@ -6,10 +6,9 @@ import HeroLogo from './components/hero-logo'
 
 interface HeroProps {
   page: Page
-  biographyPreloadVideos?: string[]
 }
 
-export async function Hero({ page, biographyPreloadVideos }: HeroProps) {
+export async function Hero({ page }: HeroProps) {
   const acf = page.acf
 
   if (!acf || acf.page_template !== 'default') return null
@@ -31,7 +30,6 @@ export async function Hero({ page, biographyPreloadVideos }: HeroProps) {
         mux_playback_mobile_id={slider.acf.mux_playback_mobile_id}
         video_scroll_web={slider.acf.video_scroll_web}
         video_scroll_mobile={slider.acf.video_scroll_mobile}
-        biographyPreloadVideos={biographyPreloadVideos}
       />
     )
   }

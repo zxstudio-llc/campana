@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -11,7 +11,6 @@ interface Props {
     mux_playback_mobile_id?: string | null;
     video_scroll_web?: string | null;
     video_scroll_mobile?: string | null;
-    biographyPreloadVideos?: string[];
 }
 
 export default function HeroLogo({
@@ -19,10 +18,7 @@ export default function HeroLogo({
     mux_playback_mobile_id,
     video_scroll_web,
     video_scroll_mobile,
-    biographyPreloadVideos = []
 }: Props) {
-
-    console.log("HeroLogo: Props Received ->", { mux_playback_web_id, mux_playback_mobile_id, video_scroll_web, video_scroll_mobile });
 
     const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -31,28 +27,6 @@ export default function HeroLogo({
 
     const [isVideoReady, setIsVideoReady] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [debugLogs, setDebugLogs] = useState<string[]>([]);
-
-    const addLog = (msg: string) => {
-        const time = new Date().toLocaleTimeString();
-        setDebugLogs(prev => [`[${time}] ${msg}`, ...prev].slice(0, 10));
-    };
-
-
-    // detectar mobile
-    useLayoutEffect(() => {
-        const mql = window.matchMedia("(max-width: 767px)");
-
-        const update = (e: MediaQueryListEvent | MediaQueryList) => {
-            console.log("HeroLogo: isMobile update ->", e.matches);
-            setIsMobile(e.matches);
-        };
-
-        update(mql);
-        mql.addEventListener("change", update);
-
-        return () => mql.removeEventListener("change", update);
-    }, []);
 
     const introSrc = isMobile
         ? mux_playback_mobile_id || mux_playback_web_id
@@ -74,11 +48,8 @@ export default function HeroLogo({
             },
             () => {
 
-                const intro = videoIntroRef.current;
-                const scroll = videoScrollRef.current;
-
-                gsap.set(intro, { opacity: 1, scale: 1 });
-                gsap.set(scroll, { opacity: 0, y: 80, scale: 1.15 });
+                gsap.set(videoIntroRef.current, { opacity: 1 });
+                gsap.set(videoScrollRef.current, { opacity: 0 });
 
                 const tl = gsap.timeline({
                     scrollTrigger: {
@@ -89,76 +60,79 @@ export default function HeroLogo({
                         pin: true,
                         anticipatePin: 1,
 
-                        // No es necesario cargar manualmente el src ya que se precarga globalmente
                         onEnter: () => {
-                            if (scroll) {
-                                scroll.load();
+                            if (videoScrollRef.current && scrollSrc) {
+                                const video = videoScrollRef.current
+                                if (!video.src) {
+                                    video.src = scrollSrc
+                                    video.load()
+                                }
+                                video.play().catch(() => { })
                             }
                         }
                     },
                 });
 
-                // fade + zoom del intro
-                tl.to(intro, {
-                    opacity: 0,
-                    scale: 1.1,
-                    duration: 1,
-                    ease: "power2.out"
-                }, 0.75);
+                // transición entre videos suave (seamless)
+                tl.to(
+                    videoIntroRef.current,
+                    {
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "none",
+                    },
+                    0.2
+                );
 
-                // aparición del segundo video
-                tl.to(scroll, {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    duration: 1.2,
-                    ease: "power3.out",
+                tl.to(
+                    videoScrollRef.current,
+                    {
+                        opacity: 1,
+                        duration: 0.8,
+                        ease: "none",
+                    },
+                    0.2
+                );
 
-                    onStart: () => {
-                        if (scroll) {
-                            scroll.currentTime = 0;
-                            scroll.play().catch(() => { });
-                        }
-                    }
-                }, "<");
+                // Tiempo extra de espera (hold) al final
+                tl.to({}, { duration: 1.5 });
             }
         );
 
         return () => mm.revert();
-    }, [scrollSrc]);
+    }, [introSrc, scrollSrc, isMobile]);
 
-    // Forzar carga en Safari/iOS con manejo de errores mejorado
-    useEffect(() => {
-        let playTimeout: NodeJS.Timeout;
+    // detectar mobile
+    useLayoutEffect(() => {
+        const mql = window.matchMedia("(max-width: 767px)");
 
+        const update = (e: MediaQueryListEvent | MediaQueryList) => {
+            setIsMobile(e.matches);
+        };
+
+        update(mql);
+        mql.addEventListener("change", update);
+
+        return () => mql.removeEventListener("change", update);
+    }, []);
+
+
+    // Forzar carga en Safari Intro
+    useLayoutEffect(() => {
         if (videoIntroRef.current && introSrc) {
-            console.log("HeroLogo: Attempting to load video (with cache bust) ->", introSrc);
             const video = videoIntroRef.current;
-
-            // Aplicamos el cache buster directamente al DOM para no romper la hidratación de React
-            const buster = Date.now();
-            const bustedSrc = `${introSrc}${introSrc.includes('?') ? '&' : '?'}v=${buster}`;
-            video.src = bustedSrc;
-
-            // Safari a veces falla si se llama a play() inmediatamente después de load()
-            video.load();
-
-            playTimeout = setTimeout(() => {
-                video.play().catch(err => {
-                    if (err.name !== "AbortError") {
-                        console.warn("HeroLogo: Play attempt failed ->", err.name, err.message);
-                    }
-                });
-            }, 100);
+            if (!video.src || !video.src.includes(introSrc)) {
+                video.src = introSrc;
+                video.load();
+            }
         }
-
-        return () => clearTimeout(playTimeout);
     }, [introSrc]);
 
     return (
         <section ref={sectionRef} className="relative z-30">
             <div
                 className="h-screen overflow-hidden relative transition-opacity duration-700"
+                style={{ opacity: isVideoReady ? 1 : 0 }}
             >
 
                 <div className="absolute inset-0 bg-linear-to-b from-campana-bg-hover to-black" />
@@ -166,94 +140,42 @@ export default function HeroLogo({
                 {/* VIDEO INTRO */}
                 {introSrc && (
                     <video
-                        key={`intro-${introSrc}`}
                         ref={videoIntroRef}
-                        src={introSrc}
                         autoPlay
                         loop
                         muted
                         playsInline
                         preload="auto"
-                        onLoadStart={() => addLog("LoadStart...")}
-                        onLoadedMetadata={() => addLog("Metadata OK")}
                         onLoadedData={() => {
-                            addLog("Data Loaded (Can Play)");
                             setIsVideoReady(true);
-                        }}
-                        onPlay={() => {
-                            addLog("Video IS PLAYING");
-                            setIsVideoReady(true);
-                            // Notificamos al preloader solo cuando realmente está sonando
                             window.dispatchEvent(new Event("hero-video-ready"));
-                        }}
-                        onError={(e) => {
-                            const video = videoIntroRef.current;
-                            if (video && video.error) {
-                                addLog(`ERROR CODE: ${video.error.code}`);
-                                console.error("HeroLogo: [INTRO] Video Native Error Code ->", video.error.code);
-                                console.error("HeroLogo: [INTRO] Video Native Error Message ->", video.error.message);
-                            } else {
-                                addLog("Unknown Video Error");
-                            }
                         }}
                         className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                         style={{
-                            width: "200vw",
-                            height: "100vh",
+                            width: "100%",
+                            height: "100%",
                             objectFit: "cover",
                         }}
                     />
                 )}
 
-                {/* VIDEO SCROLL (LOGO BLANCO) */}
+                {/* VIDEO SCROLL (ANTES ERA EL SVG) */}
                 {scrollSrc && (
                     <video
-                        key={`scroll-${scrollSrc}`}
                         ref={videoScrollRef}
-                        src={scrollSrc}
+                        autoPlay
                         loop
                         muted
                         playsInline
-                        preload="metadata"
-                        onError={(e) => {
-                            const video = videoScrollRef.current;
-                            if (video && video.error) {
-                                console.error("HeroLogo: [SCROLL] Video Native Error Code ->", video.error.code);
-                                console.error("HeroLogo: [SCROLL] Video Native Error Message ->", video.error.message);
-                            }
-                        }}
+                        preload="none"
                         className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                         style={{
-                            width: "200vw",
-                            height: "100vh",
+                            width: "100%",
+                            height: "100%",
                             objectFit: "cover",
                         }}
                     />
                 )}
-
-                {/* PRECARGA DINÁMICA DE VIDEOS DE BIOGRAFIA */}
-                {biographyPreloadVideos.map((url, index) => (
-                    <video key={index} preload="auto" muted className="hidden">
-                        <source src={url} type="video/mp4" />
-                    </video>
-                ))}
-
-                {/* DEBUG OVERLAY PARA IPHONE XR */}
-                <div
-                    className="fixed top-20 left-4 z-[99999] bg-black/80 text-green-400 p-2 text-[10px] font-mono rounded pointer-events-none"
-                    style={{ maxWidth: '80vw' }}
-                >
-                    <div className="font-bold border-b border-green-900 mb-1 flex justify-between">
-                        <span>DEBUG VIDEO</span>
-                        <span>{isMobile ? 'MOBILE' : 'DESKTOP'}</span>
-                    </div>
-                    {debugLogs.map((log, i) => (
-                        <div key={i} className="whitespace-nowrap overflow-hidden text-ellipsis">
-                            {log}
-                        </div>
-                    ))}
-                    {debugLogs.length === 0 && <div>Waiting for logs...</div>}
-                </div>
 
             </div>
         </section>
