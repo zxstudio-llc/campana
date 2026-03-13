@@ -1,7 +1,6 @@
 import { Section, Container } from "@/components/craft";
 import { getPageBySlug, getOurValuesById, getActivoEstrategicoById, getProjectsByIds, getTimelineByIds, getInvestmentById, getBiographyById, getFaqById, getSliderById } from "@/lib/wordpress";
 import Link from "next/link";
-import { File, Pen, Tag, Diamond, User, Folder } from "lucide-react";
 import { Hero } from "@/components/hero/hero";
 import { AboutUsSection } from "@/components/about/about";
 import { ActivosSection } from "@/components/activos/activos";
@@ -65,8 +64,8 @@ export default async function Home({
   if (heroBlock?.hero_type === 'slider' && typeof heroBlock.hero_slider === 'number') {
     const slider = await getSliderById(heroBlock.hero_slider);
     if (slider) {
-      if (slider.acf.mux_playback_web_id) heroVideos.push(slider.acf.mux_playback_web_id);
-      if (slider.acf.mux_playback_mobile_id) heroVideos.push(slider.acf.mux_playback_mobile_id);
+      if (slider.acf.bg_photo_desktop) heroVideos.push(slider.acf.bg_photo_desktop);
+      if (slider.acf.bg_photo_mobile) heroVideos.push(slider.acf.bg_photo_mobile);
     }
   }
 

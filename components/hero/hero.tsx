@@ -19,17 +19,14 @@ export async function Hero({ page }: HeroProps) {
   if (hero.hero_type === 'slider' && typeof hero.hero_slider === 'number') {
     const slider = await getSliderById(hero.hero_slider)
 
-    // Allow rendering if we have Mux playback IDs OR legacy desktop_version
-    if (!slider || (!slider.acf.mux_playback_web_id)) {
+    if (!slider || (!slider.acf.bg_photo_desktop || !slider.acf.bg_photo_mobile)) {
       return null;
     }
 
     return (
       <HeroLogo
-        mux_playback_web_id={slider.acf.mux_playback_web_id}
-        mux_playback_mobile_id={slider.acf.mux_playback_mobile_id}
-        video_scroll_web={slider.acf.video_scroll_web}
-        video_scroll_mobile={slider.acf.video_scroll_mobile}
+        bg_photo_desktop={slider.acf.bg_photo_desktop}
+        bg_photo_mobile={slider.acf.bg_photo_mobile}
       />
     )
   }

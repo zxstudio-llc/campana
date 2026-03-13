@@ -92,10 +92,8 @@ export interface Slider {
   id: number
   slug: string
   acf: {
-    mux_playback_web_id?: string
-    mux_playback_mobile_id?: string
-    video_scroll_web?: string
-    video_scroll_mobile?: string
+    bg_photo_desktop: string
+    bg_photo_mobile: string
   }
 }
 

@@ -1,40 +1,30 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, useEffect } from "react";
+import Image from "next/image"
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import UniversalVideo from "@/components/universal-video";
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface Props {
-    mux_playback_web_id?: string | null;
-    mux_playback_mobile_id?: string | null;
-    video_scroll_web?: string | null;
-    video_scroll_mobile?: string | null;
+    bg_photo_desktop?: string | null;
+    bg_photo_mobile?: string | null;
 }
 
 export default function HeroLogo({
-    mux_playback_web_id,
-    mux_playback_mobile_id,
-    video_scroll_web,
-    video_scroll_mobile,
+    bg_photo_desktop,
+    bg_photo_mobile,
 }: Props) {
 
     const sectionRef = useRef<HTMLDivElement>(null);
-    const introVideoRef = useRef<HTMLVideoElement>(null);
-    const scrollVideoRef = useRef<HTMLVideoElement>(null);
-
+    const introRef = useRef<HTMLDivElement>(null);
+    const scrollOverlayRef = useRef<HTMLDivElement>(null);
     const [isMobile, setIsMobile] = useState(false);
-    const [isReady, setIsReady] = useState(false);
 
     const introSrc = isMobile
-        ? mux_playback_mobile_id || mux_playback_web_id
-        : mux_playback_web_id || mux_playback_mobile_id;
-
-    const scrollSrc = isMobile
-        ? video_scroll_mobile || video_scroll_web
-        : video_scroll_web || video_scroll_mobile;
+        ? bg_photo_mobile || bg_photo_desktop
+        : bg_photo_desktop || bg_photo_mobile;
 
     useLayoutEffect(() => {
 
@@ -51,59 +41,43 @@ export default function HeroLogo({
 
     }, []);
 
-    // Reinforce play and debug URLs
-    useEffect(() => {
-        if (introSrc) console.log("HeroIntro: Intentando cargar ->", introSrc);
-
-        const playVideo = () => {
-            if (introVideoRef.current) {
-                introVideoRef.current.play().catch(err => {
-                    console.warn("HeroIntro: Auto-play bloqueado, reintentando...", err);
-                });
-            }
-        };
-
-        const timer = setTimeout(playVideo, 100);
-        return () => clearTimeout(timer);
-    }, [introSrc]);
-
     useLayoutEffect(() => {
 
         if (!sectionRef.current) return;
 
         const ctx = gsap.context(() => {
 
-            gsap.set(scrollVideoRef.current, { opacity: 0 });
-            gsap.set(introVideoRef.current, { opacity: 1 });
+            gsap.set(scrollOverlayRef.current, { opacity: 0 });
+            gsap.set(introRef.current, { scale: 1 });
 
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=500%",
+                    end: "+=300%",
                     scrub: true,
                     pin: true,
                     anticipatePin: 1,
                 }
             });
 
-            tl.to(introVideoRef.current, {
-                opacity: 0,
-                duration: 0.6,
+            tl.to(introRef.current, {
+                scale: 1.15,
+                duration: 1,
                 ease: "none"
-            }, 0.1);
+            }, 0);
 
-            tl.to(scrollVideoRef.current, {
+            tl.to(scrollOverlayRef.current, {
                 opacity: 1,
-                duration: 0.6,
-                ease: "none"
+                duration: 0.8,
+                ease: "power2.inOut"
             }, 0.1);
 
         }, sectionRef);
 
         return () => ctx.revert();
 
-    }, []);
+    }, [introSrc]);
 
     return (
         <section ref={sectionRef} className="relative z-30">
@@ -112,29 +86,24 @@ export default function HeroLogo({
 
                 <div className="absolute inset-0 bg-linear-to-b from-campana-bg-hover to-black" />
 
-                {/* INTRO VIDEO */}
+                {/* SINGLE HERO IMAGE */}
                 {introSrc && (
-                    <div className="absolute inset-0">
-
-                        <UniversalVideo
+                    <div ref={introRef} className="absolute inset-0">
+                        <Image
                             src={introSrc}
-                            className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                            alt="Hero Background"
+                            fill
+                            priority
+                            className="object-cover pointer-events-none"
                         />
-
                     </div>
                 )}
 
-                {/* SCROLL VIDEO */}
-                {scrollSrc && (
-                    <div className="absolute inset-0">
-
-                        <UniversalVideo
-                            src={scrollSrc}
-                            className="w-full h-full object-cover"
-                        />
-
-                    </div>
-                )}
+                {/* ANIMATED OVERLAY */}
+                <div
+                    ref={scrollOverlayRef}
+                    className="absolute inset-0 z-10 pointer-events-none bg-black/60"
+                />
 
             </div>
 
