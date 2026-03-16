@@ -1,6 +1,6 @@
 import "../globals.css";
 
-import { Inter as FontSans } from "next/font/google";
+import { inter, robotoMono, anton, raleway } from '@/lib/fonts';
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
 import { siteConfig } from "@/site.config";
@@ -13,11 +13,9 @@ import AppTheme from "@/components/theme/app-theme";
 import { getMainMenu, getGlobalCTA, getActiveLanguages, getSiteInfo } from "@/lib/wordpress";
 import { SwiperStyles } from "@/components/theme/SwiperStyles";
 import Footer from "@/components/nav/footer";
+import SmoothScroller from "@/components/smooth-scroller";
 
-const font = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteInfo = await getSiteInfo();
 
@@ -53,9 +51,9 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang={lang} suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${robotoMono.variable} ${anton.variable} ${raleway.variable}`}>
       <head />
-      <body className={cn("min-h-screen bg-gradient-to-b from-black to-campana-bg-hover text-foreground antialiased", font.variable)}>
+      <body className={cn("min-h-screen bg-linear-to-b from-black to-campana-bg-hover text-foreground antialiased")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -65,10 +63,12 @@ export default async function RootLayout({
           <AppTheme>
             <SwiperStyles />
             <AppNav menuItems={menuItems} cta={cta} languages={wpLanguages} siteInfo={siteInfo} />
-            <main className="relative flex flex-col min-h-screen">
-              {children}
-            </main>
-            <Footer />
+            <SmoothScroller>
+              <main className="relative flex flex-col min-h-screen">
+                {children}
+              </main>
+              <Footer />
+            </SmoothScroller>
           </AppTheme>
         </ThemeProvider>
         <Analytics />

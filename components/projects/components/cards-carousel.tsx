@@ -16,6 +16,7 @@ const AUTO_PLAY_DURATION = 16000;
 
 interface CarouselProps {
   items: JSX.Element[];
+  active?: boolean;
 }
 
 type Card = {
@@ -44,7 +45,7 @@ export const CarouselContext = createContext<{
   currentIndex: 0,
 });
 
-export const Carousel = ({ items }: CarouselProps) => {
+export const Carousel = ({ items, active = true }: CarouselProps) => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [cardOpen, setCardOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -86,7 +87,7 @@ export const Carousel = ({ items }: CarouselProps) => {
   }, [controlsVisible]);
 
   useEffect(() => {
-    if (!controlsVisible || !isPlaying || cardOpen) return;
+    if (!active || !controlsVisible || !isPlaying || cardOpen) return;
     const duration = getCurrentDuration();
     const interval = setInterval(() => {
       if (currentIndex === items.length - 1) {
@@ -97,7 +98,7 @@ export const Carousel = ({ items }: CarouselProps) => {
       }
     }, duration);
     return () => clearInterval(interval);
-  }, [controlsVisible, isPlaying, currentIndex, cardOpen, items]);
+  }, [active, controlsVisible, isPlaying, currentIndex, cardOpen, items]);
 
   useEffect(() => {
     const handleVisibility = () => {

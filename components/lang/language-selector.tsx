@@ -47,7 +47,7 @@ export function LanguageSelector({ languages }: { languages: Language[] }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="unstyled"
-          className="flex items-center gap-0 md:gap-2 px-0 w-16 md:w-36 rounded-full bg-transparent hover:bg-transparent md:bg-black md:hover:bg-black text-white hover:text-white md:text-campana-secondary md:hover:text-campana-secondary"
+          className="flex items-center gap-0 md:gap-2 px-0 w-16 md:w-36 rounded-full bg-transparent hover:bg-transparent md:bg-white/60 backdrop-blur-xl hover:backdrop-blur-xl md:hover:bg-white/60 text-white hover:text-white md:text-campana-primary md:hover:text-campana-primary"
         >
           <Image
             src={currentLanguage.flag}
@@ -60,11 +60,11 @@ export function LanguageSelector({ languages }: { languages: Language[] }) {
             {currentLanguage.name}
           </span>
 
-          <ChevronDown className="h-7 w-7 text-campana-secondary" />
+          <ChevronDown className="h-7 w-7 text-campana-primary" />
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="min-w-[160px] bg-campana-primary hover:bg-campana-primary-hover text-campana-secondary hover:text-campana-secondary border-none">
+      <DropdownMenuContent align="end" className="min-w-[160px] bg-white/60 backdrop-blur-xl hover:bg-white/60 hover:backdrop-blur-xl text-campana-primary hover:text-campana-primary border-none">
         {languages.map((lang) => {
           const isActive = lang.code === currentLang
 

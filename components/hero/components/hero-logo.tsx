@@ -26,6 +26,12 @@ export default function HeroLogo({
         ? bg_photo_mobile || bg_photo_desktop
         : bg_photo_desktop || bg_photo_mobile;
 
+    // useEffect(() => {
+    //     if (introSrc && !introSrc.startsWith('http') && !introSrc.startsWith('/')) {
+    //         console.warn(`[Hero] introSrc detectado como hash/ID en lugar de URL: "${introSrc}". Esto provocará un error 404 si no es una ruta válida.`);
+    //     }
+    // }, [introSrc]);
+
     useLayoutEffect(() => {
 
         const mq = window.matchMedia("(max-width: 767px)");
@@ -54,15 +60,18 @@ export default function HeroLogo({
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=300%",
+                    end: "+=200%",
                     scrub: true,
                     pin: true,
+                    pinSpacing: false,
                     anticipatePin: 1,
+                    pinType: "transform"
                 }
             });
 
             tl.to(introRef.current, {
                 scale: 1.15,
+                filter: "blur(20px)",
                 duration: 1,
                 ease: "none"
             }, 0);
@@ -80,13 +89,9 @@ export default function HeroLogo({
     }, [introSrc]);
 
     return (
-        <section ref={sectionRef} className="relative z-30">
-
+        <section ref={sectionRef} className="relative z-10 pointer-events-none">
             <div className="h-screen overflow-hidden relative">
-
                 <div className="absolute inset-0 bg-linear-to-b from-campana-bg-hover to-black" />
-
-                {/* SINGLE HERO IMAGE */}
                 {introSrc && (
                     <div ref={introRef} className="absolute inset-0">
                         <Image
@@ -94,19 +99,15 @@ export default function HeroLogo({
                             alt="Hero Background"
                             fill
                             priority
-                            className="object-cover pointer-events-none"
+                            className=" pointer-events-none"
                         />
                     </div>
                 )}
-
-                {/* ANIMATED OVERLAY */}
                 <div
                     ref={scrollOverlayRef}
-                    className="absolute inset-0 z-10 pointer-events-none bg-black/60"
+                    className="absolute inset-0 z-10 pointer-events-none bg-linear-to-b from-campana-bg-hover to-black"
                 />
-
             </div>
-
         </section>
     );
 }

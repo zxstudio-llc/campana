@@ -58,30 +58,44 @@ async function wordpressFetch<T>(
   path: string,
   query?: Record<string, any>,
   tags: string[] = ["wordpress"],
-  lang?: string
+  lang?: string,
+  retries: number = 2
 ): Promise<T> {
   if (!baseUrl) {
     throw new Error("WordPress URL not configured");
   }
 
   const finalQuery = lang ? { ...query, lang } : query;
-
   const url = `${baseUrl}${path}${finalQuery ? `?${querystring.stringify(finalQuery)}` : ""}`;
 
-  const response = await fetch(url, {
-    headers: { "User-Agent": USER_AGENT },
-    next: { tags, revalidate: CACHE_TTL },
-  });
+  let lastError: any;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const response = await fetch(url, {
+        headers: { "User-Agent": USER_AGENT },
+        next: { tags, revalidate: CACHE_TTL },
+      });
 
-  if (!response.ok) {
-    throw new WordPressAPIError(
-      `WordPress API request failed: ${response.statusText}`,
-      response.status,
-      url
-    );
+      if (!response.ok) {
+        throw new WordPressAPIError(
+          `WordPress API request failed: ${response.statusText}`,
+          response.status,
+          url
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+      if (i < retries) {
+        const delay = Math.pow(2, i) * 1000;
+        console.warn(`[WP API] Retry ${i + 1}/${retries} for ${url} after ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
 
-  return response.json();
+  throw lastError;
 }
 
 async function wordpressFetchGraceful<T>(
@@ -102,7 +116,8 @@ async function wordpressFetchGraceful<T>(
 async function wordpressFetchPaginated<T>(
   path: string,
   query?: Record<string, any>,
-  tags: string[] = ["wordpress"]
+  tags: string[] = ["wordpress"],
+  retries: number = 2
 ): Promise<WordPressResponse<T>> {
   if (!baseUrl) {
     throw new Error("WordPress URL not configured");
@@ -110,26 +125,40 @@ async function wordpressFetchPaginated<T>(
 
   const url = `${baseUrl}${path}${query ? `?${querystring.stringify(query)}` : ""}`;
 
-  const response = await fetch(url, {
-    headers: { "User-Agent": USER_AGENT },
-    next: { tags, revalidate: CACHE_TTL },
-  });
+  let lastError: any;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const response = await fetch(url, {
+        headers: { "User-Agent": USER_AGENT },
+        next: { tags, revalidate: CACHE_TTL },
+      });
 
-  if (!response.ok) {
-    throw new WordPressAPIError(
-      `WordPress API request failed: ${response.statusText}`,
-      response.status,
-      url
-    );
+      if (!response.ok) {
+        throw new WordPressAPIError(
+          `WordPress API request failed: ${response.statusText}`,
+          response.status,
+          url
+        );
+      }
+
+      return {
+        data: await response.json(),
+        headers: {
+          total: parseInt(response.headers.get("X-WP-Total") || "0", 10),
+          totalPages: parseInt(response.headers.get("X-WP-TotalPages") || "0", 10),
+        },
+      };
+    } catch (error) {
+      lastError = error;
+      if (i < retries) {
+        const delay = Math.pow(2, i) * 1000;
+        console.warn(`[WP API] Retry ${i + 1}/${retries} for ${url} (paginated) after ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
 
-  return {
-    data: await response.json(),
-    headers: {
-      total: parseInt(response.headers.get("X-WP-Total") || "0", 10),
-      totalPages: parseInt(response.headers.get("X-WP-TotalPages") || "0", 10),
-    },
-  };
+  throw lastError;
 }
 
 async function wordpressFetchPaginatedGraceful<T>(

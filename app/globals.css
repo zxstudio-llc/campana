@@ -5,12 +5,16 @@
 @theme {
     --font-sans: var(--font-inter);
     --font-brand: var(--font-raleway);
+    --font-anton: var(--font-anton);
+    --font-roboto-mono: var(--font-roboto-mono);
     --color-campana-primary: var(--campana-primary);
     --color-campana-primary-hover: var(--campana-primary-hover);
     --color-campana-primary-active: var(--campana-primary-active);
     --color-campana-secondary: var(--campana-secondary);
     --color-campana-secondary-hover: var(--campana-secondary-hover);
     --color-campana-secondary-active: var(--campana-secondary-active);
+    --color-campana-nav-bg: var(--campana-nav-bg);
+    --color-campana-nav-bg-hover: var(--campana-nav-bg-hover);
     --color-campana-bg: var(--campana-bg);
     --color-campana-bg-hover: var(--campana-bg-hover);
     --color-brand: var(--brand);
@@ -87,11 +91,13 @@
     :root {
         --font-size: 16px;
         --campana-primary: #00122d;
-        --campana-primary-hover: #001D3D;
+        --campana-primary-hover: #1d1d1f;
         --campana-primary-active: #001229;
         --campana-secondary: #f1ba0a;
         --campana-secondary-hover: #b5934a;
         --campana-secondary-active: #9a773d;
+        --campana-nav-bg: #00122d;
+        --campana-nav-bg-hover: #abadb4;
         --campana-bg: #ffffff;
         --campana-bg-hover: #1d1d1f;
         --background: #ffffff;
@@ -136,11 +142,13 @@
 
     .dark {
         --campana-primary: #00122d;
-        --campana-primary-hover: #001D3D;
+        --campana-primary-hover: #1d1d1f;
         --campana-primary-active: #001229;
         --campana-secondary: #f1ba0a;
         --campana-secondary-hover: #b5934a;
         --campana-secondary-active: #9a773d;
+        --campana-nav-bg: #00122d;
+        --campana-nav-bg-hover: #abadb4;
         --campana-bg: #ffffff;
         --campana-bg-hover: #1d1d1f;
         --background: oklch(19.689% 0.0016 16.521);

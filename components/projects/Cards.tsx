@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useLayoutEffect } from "react";
 import { Carousel, Card } from "@/components/projects/components/cards-carousel";
 import Image from "next/image";
 import { motion } from "motion/react";
@@ -10,6 +10,12 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Projects } from "@/lib/wordpress.d";
 import Head from "next/head";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface Props {
   title?: string
@@ -29,6 +35,10 @@ interface ContentProps {
 }
 
 export function ProjectsCardsSection({ title, description, projects }: Props) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const contentRevealRef = useRef<HTMLDivElement>(null);
+  const [isCarouselActive, setIsCarouselActive] = React.useState(false);
+
   useEffect(() => {
     if (!projects) return;
 
@@ -40,6 +50,65 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
       }
     });
   }, [projects]);
+
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+
+      gsap.set(contentRevealRef.current, {
+        opacity: 0,
+        scale: 1.08,
+        filter: "blur(10px)"
+      });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "+=130%",
+          scrub: 1.2,
+          pin: true,
+          pinSpacing: true,
+          anticipatePin: 1,
+          pinType: "transform",
+          onUpdate: (self) => {
+
+            if (self.isActive && self.progress > 0.35 && self.progress < 0.75) {
+              setIsCarouselActive(true);
+            } else {
+              setIsCarouselActive(false);
+            }
+
+          },
+          onToggle: (self) => {
+            if (!self.isActive) setIsCarouselActive(false);
+          }
+        }
+      });
+
+      tl.to(contentRevealRef.current, {
+        opacity: 1,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: 1,
+        ease: "power2.out"
+      }, 0);
+
+      tl.to({}, { duration: 1.2 });
+
+      tl.to(contentRevealRef.current, {
+        opacity: 0,
+        filter: "blur(0px)",
+        duration: 0.7,
+        ease: "power2.in"
+      });
+
+    }, sectionRef);
+
+    return () => ctx.revert();
+
+  }, []);
 
   if (!projects?.length) return null
 
@@ -84,20 +153,24 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
   })
 
   return (
-    <section className="w-full h-full py-20 bg-campana-bg">
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-16">
-        <h2 className="text-[#001D3D] text-5xl md:text-8xl font-black uppercase text-center">
-          {title}
-        </h2>
+    <section
+      ref={sectionRef}
+      className="w-screen h-screen py-20 bg-campana-bg flex items-center justify-center overflow-hidden z-60"
+    >
+      <div ref={contentRevealRef} className="w-full">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 mb-6">
+          {description && (
+            <p className="text-campana-secondary text-xl md:text-lg font-bold text-center uppercase">
+              {description}
+            </p>
+          )}
+          <h2 className="text-[#001D3D] text-5xl md:text-8xl font-black uppercase text-center">
+            {title}
+          </h2>
+        </div>
 
-        {description && (
-          <p className="text-[#001D3D] text-xl md:text-2xl font-bold text-center mt-6">
-            {description}
-          </p>
-        )}
+        <Carousel items={cards} active={isCarouselActive} />
       </div>
-
-      <Carousel items={cards} />
     </section>
   )
 }
@@ -137,10 +210,8 @@ const Content = ({
         );
       }
 
-      // VALIDACIÓN 2: ¿Es un título de sección (ej: **Impacto**)?
       const isHeader = trimmedLine.startsWith("**") && trimmedLine.endsWith("**");
 
-      // PROCESAMIENTO: Negritas normales dentro de párrafos (Caso Millenium)
       const formattedLine = trimmedLine.replace(/\*\*(.*?)\*\*/g, (match, p1) => {
         if (isHeader) {
           return `<strong class="text-[#001D3D] font-extrabold block text-lg leading-5 tracking-tight">${p1}</strong>`;
@@ -160,13 +231,11 @@ const Content = ({
 
   return (
     <div className="flex flex-col md:flex-row h-full w-full overflow-hidden">
-      {/* Columna de Texto - Ajustada para Scroll Perfecto */}
       <div className={cn(
         "flex-1 p-6 md:p-10 bg-[#f5f5f7] w-full md:max-w-[500px]",
-        "flex flex-col md:justify-center", // Centrado solo en desktop
-        "overflow-y-auto custom-scrollbar" // El scroll se aplica aquí
+        "flex flex-col md:justify-center",
+        "overflow-y-auto custom-scrollbar"
       )}>
-        {/* Contenedor interno para asegurar que el padding funcione con el scroll */}
         <div className="flex flex-col h-fit">
           <motion.span
             initial={{ opacity: 0, x: -20 }}

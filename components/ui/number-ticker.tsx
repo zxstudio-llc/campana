@@ -11,6 +11,7 @@ interface NumberTickerProps extends ComponentPropsWithoutRef<"span"> {
   direction?: "up" | "down"
   delay?: number
   decimalPlaces?: number
+  start?: boolean
 }
 
 export function NumberTicker({
@@ -20,6 +21,7 @@ export function NumberTicker({
   delay = 0,
   className,
   decimalPlaces = 0,
+  start,
   ...props
 }: NumberTickerProps) {
   const ref = useRef<HTMLSpanElement>(null)
@@ -29,15 +31,16 @@ export function NumberTicker({
     stiffness: 100,
   })
   const isInView = useInView(ref, { once: true, margin: "0px" })
+  const shouldStart = start !== undefined ? start : isInView;
 
   useEffect(() => {
-    if (isInView) {
+    if (shouldStart) {
       const timer = setTimeout(() => {
         motionValue.set(direction === "down" ? startValue : value)
       }, delay * 1000)
       return () => clearTimeout(timer)
     }
-  }, [motionValue, isInView, delay, value, direction, startValue])
+  }, [motionValue, shouldStart, delay, value, direction, startValue])
 
   useEffect(
     () =>

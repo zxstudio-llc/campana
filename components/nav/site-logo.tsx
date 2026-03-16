@@ -34,7 +34,7 @@ export default function SiteLogo({ siteInfo }: { siteInfo: SiteInfo | null }) {
         height={120}
         priority
         fetchPriority="high"
-        className="h-10 md:h-18 w-auto object-contain"
+        className=" h-9 md:h-9 w-auto object-contain"
       />
     </Link>
   );

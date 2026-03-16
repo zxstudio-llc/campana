@@ -8,6 +8,8 @@ import { Investment } from "@/lib/wordpress.d";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Cohete from "./cohete";
+import { HoverBorderGradient } from "../ui/hover-border-gradient";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -111,38 +113,98 @@ export default function InvestmentSection({
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const backdropRef = useRef<HTMLDivElement>(null);
+    const coheteRef = useRef<HTMLDivElement>(null);
+    const imageContainerRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
-        if (!sectionRef.current || !contentRef.current || !backdropRef.current) return;
+        if (!sectionRef.current || !contentRef.current || !backdropRef.current || !imageContainerRef.current) return;
 
         const mm = gsap.matchMedia();
 
         mm.add("(min-width: 1024px)", () => {
+
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=100%",
-                    scrub: 1,
+                    end: "+=650%",
+                    scrub: 2,
                     pin: true,
                     pinSpacing: true,
                     anticipatePin: 1,
                 },
             });
 
-            tl.fromTo(
-                backdropRef.current,
-                { opacity: 0, backdropFilter: "blur(0px)" },
-                { opacity: 1, backdropFilter: "blur(12px)", ease: "none", duration: 1 },
-                0
-            );
+            gsap.set(coheteRef.current, {
+                y: 800,
+                opacity: 0,
+                scale: 0.8,
+                filter: "blur(10px)"
+            });
 
-            tl.fromTo(
-                contentRef.current,
-                { y: 150, opacity: 0 },
-                { y: 0, opacity: 1, ease: "power2.out", duration: 1 },
-                0
-            );
+            gsap.set(imageContainerRef.current, {
+                opacity: 0,
+                y: 400
+            });
+
+            gsap.set(contentRef.current, {
+                opacity: 0,
+                y: 200,
+                filter: "blur(20px)"
+            });
+
+            gsap.set(backdropRef.current, {
+                opacity: 0
+            });
+
+            tl.to(coheteRef.current, {
+                opacity: 1,
+                y: 0,
+                scale: 1.8,
+                filter: "blur(0px)",
+                duration: 2,
+                ease: "power2.out"
+            }, 0);
+
+            tl.to(coheteRef.current, {
+                y: -120,
+                duration: 0.8,
+                ease: "power1.inOut"
+            }, 1.8);
+
+            tl.to(coheteRef.current, {
+                y: -2400,
+                x: 80,
+                rotation: 6,
+                scale: 2.4,
+                duration: 3.5,
+                ease: "none"
+            }, 2.6);
+
+            tl.to(imageContainerRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 1.5,
+                ease: "power2.out"
+            }, 2.6);
+
+            tl.to(backdropRef.current, {
+                opacity: 1,
+                backdropFilter: "blur(12px)",
+                duration: 1.2,
+                ease: "power2.out"
+            }, 3.2);
+
+            tl.to({}, { duration: 2 });
+
+            tl.to(contentRef.current, {
+                opacity: 1,
+                y: 0,
+                filter: "blur(0px)",
+                duration: 2,
+                ease: "power2.out"
+            });
+
         });
 
         mm.add("(max-width: 1023px)", () => {
@@ -150,7 +212,7 @@ export default function InvestmentSection({
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=100%",
+                    end: "+=400%",
                     scrub: 1,
                     pin: true,
                     pinSpacing: true,
@@ -158,19 +220,39 @@ export default function InvestmentSection({
                 },
             });
 
-            tl.fromTo(
-                backdropRef.current,
-                { opacity: 0, backdropFilter: "blur(0px)" },
-                { opacity: 1, backdropFilter: "blur(12px)", ease: "none", duration: 1 },
-                0
-            );
+            gsap.set(coheteRef.current, { y: 400, opacity: 0, scale: 0.7 });
+            gsap.set(contentRef.current, { opacity: 0, y: 50 });
+            gsap.set(imageContainerRef.current, { opacity: 0, y: 200 });
 
-            tl.fromTo(
-                contentRef.current,
-                { y: 70, opacity: 0 }, // 👈 más corto en mobile
-                { y: 0, opacity: 1, ease: "power2.out", duration: 1 },
-                0
-            );
+            tl.to(coheteRef.current, {
+                opacity: 1,
+                y: 0,
+                scale: 1.2,
+                duration: 1.2,
+                ease: "power2.out"
+            }, 0);
+
+            tl.to(coheteRef.current, {
+                y: -800,
+                opacity: 1,
+                scale: 0.8,
+                duration: 1.2,
+                ease: "power2.out"
+            }, 1.5);
+
+            tl.to(contentRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 1.2,
+                ease: "power2.out"
+            }, 2.0);
+
+            tl.to(imageContainerRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power2.out"
+            }, 1.7);
         });
 
         const timer = setTimeout(() => {
@@ -185,6 +267,9 @@ export default function InvestmentSection({
 
     return (
         <section ref={sectionRef} className="relative w-full overflow-hidden bg-campana-bg -mt-2">
+            <div className="absolute inset-0 pointer-events-none z-30">
+                <Cohete ref={coheteRef} />
+            </div>
 
             {/* Backdrop Blur layer (Initially hidden) */}
             <div
@@ -195,7 +280,11 @@ export default function InvestmentSection({
 
             {/* Fixed Background Image */}
             {imageUrl && (
-                <div className="absolute top-0 right-0 h-full w-full lg:w-1/2 z-0">
+                <div
+                    ref={imageContainerRef}
+                    className="absolute top-0 right-0 h-full w-full lg:w-1/2 z-0"
+                    style={{ opacity: 0 }}
+                >
                     <Image
                         src={imageUrl}
                         alt={photo?.alt || title || "Investment image"}
@@ -215,7 +304,7 @@ export default function InvestmentSection({
 
                 {/* HEADER */}
                 <div className="flex flex-col items-center space-y-0.5 md:space-y-4 mb-6 md:mb-10 mt-10 md:mt-0">
-                    <span className="text-campana-secondary font-bold tracking-widest text-sm uppercase text-center">
+                    <span className="text-campana-secondary text-xl md:text-lg font-bold text-center uppercase">
                         {highlight}
                     </span>
 
@@ -236,7 +325,7 @@ export default function InvestmentSection({
 
                 {/* DESKTOP GRID */}
                 <motion.div
-                    className="hidden lg:grid grid-cols-3 gap-6 w-[68%] pl-30 mt-10"
+                    className="hidden lg:grid grid-cols-3 gap-6 max-w-8xl mx-auto mt-10 px-20"
                     variants={containerVariants}
                     initial="hidden"
                     whileInView="show"
@@ -328,14 +417,16 @@ export default function InvestmentSection({
                     </div>
                 </div>
 
-                <div className="flex items-center justify-center mt-0 md:mt-10">
+                <div className="flex items-center justify-center mt-0 md:mt-4">
                     {cta && (
-                        <Button
-                            className="px-6 py-6 rounded-full bg-campana-primary hover:bg-campana-secondary text-white mt-4"
+                        <HoverBorderGradient
+                            containerClassName="rounded-full"
+                            as="button"
+                            className="bg-campana-secondary text-campana-primary flex items-center space-x-2 text-2xl md:text-2xl font-black px-12 py-4 rounded-full uppercase cursor-pointer"
                             onClick={() => window.open(cta_url, "_blank")}
                         >
                             {cta}
-                        </Button>
+                        </HoverBorderGradient>
                     )}
                 </div>
             </div>
@@ -355,7 +446,7 @@ const CardContent = ({ item }: { item: Investment }) => (
                 <div className="h-3 w-3 rounded-full bg-campana-secondary" />
             </header>
 
-            <h4 className="text-2xl md:text-3xl font-semibold text-white tracking-tight leading-[1.1]">
+            <h4 className="text-2xl md:text-3xl font-black text-white uppercase">
                 {item.acf.title}
             </h4>
         </div>

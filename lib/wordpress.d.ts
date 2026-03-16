@@ -171,10 +171,9 @@ export interface Biography {
   id: number
   slug: string
   acf: {
-    photo?: string
-    photo_mobile?: string
-    mux_playback_web_id?: string
-    mux_playback_mobile_id?: string
+    main_photo?: string
+    first_text?: string
+    second_text?: string
     biography: {
       highlight: string
       name: string
@@ -242,9 +241,10 @@ export interface AboutSection {
   acf_fc_layout: 'about'
   title?: string
   subtitle?: string
-  video_link?: string
   mux_playback_id?: string
   mux_playback_mobile_id?: string
+  background_desktop?: string
+  background_mobile?: string
 }
 
 export interface OurValuesSection {
@@ -285,6 +285,8 @@ export interface InvestmentsSection {
       large: string
     }
   }
+  main_photo?: string
+  secondary_photo?: string
   highlight?: string
   title?: string
   description?: string

@@ -75,7 +75,7 @@ export default function AppNav({ menuItems, cta, languages, siteInfo }: AppNavPr
             {cta?.enabled !== false && cta?.title && cta?.url && (
               <Button
                 asChild
-                className="hidden md:block rounded-full px-6 font-semibold text-campana-primary bg-campana-secondary hover:bg-campana-secondary hover:drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+                className="hidden md:block rounded-full px-6 font-semibold text-campana-primary bg-white/60 backdrop-blur-xl hover:bg-white/60 hover:backdrop-blur-xl"
                 variant="secondary"
               >
                 <Link

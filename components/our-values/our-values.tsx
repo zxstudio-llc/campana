@@ -4,6 +4,13 @@ import Marquee from "@/components/ui/marquee";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import type { OurValues } from "@/lib/wordpress.d";
+import { useRef, useLayoutEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+    gsap.registerPlugin(ScrollTrigger);
+}
 
 interface Props {
     title?: string;
@@ -48,49 +55,80 @@ export function OurValueSection({
     description,
     values,
 }: Props) {
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if (!sectionRef.current) return;
+
+        const ctx = gsap.context(() => {
+            gsap.set(contentRef.current, {
+                opacity: 0,
+                scale: 1.1,
+                filter: "blur(10px)"
+            });
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top 85%",
+                    toggleActions: "play none none reverse"
+                }
+            });
+
+            // Entrance reveal
+            tl.to(contentRef.current, {
+                opacity: 1,
+                scale: 1,
+                filter: "blur(0px)",
+                duration: 1.2,
+                ease: "power2.out"
+            });
+
+        }, sectionRef);
+
+        return () => ctx.revert();
+    }, []);
+
     return (
-        <section className="py-24 min-h-screen flex flex-col justify-center">
-            <div className="w-full max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-16 overflow-hidden">
+        <section
+            ref={sectionRef}
+            className="relative w-screen h-screen overflow-hidden flex items-center justify-center z-40 bg-transparent"
+        >
+            <div
+                ref={contentRef}
+                className="w-full h-full flex flex-col justify-center items-center"
+            >
+                <div className="w-full max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-16 overflow-hidden">
+                    {title && (
+                        <div className="w-full flex justify-center mb-8 md:mb-10">
+                            <h2 className="text-white text-center text-5xl md:text-8xl font-black uppercase">
+                                {title}
+                            </h2>
+                        </div>
+                    )}
 
-                {title && (
-                    <div className="w-full flex justify-center mb-8 md:mb-10">
-                        <h2 className="text-white text-center text-5xl md:text-8xl font-black uppercase">
-                            {title}
-                        </h2>
-                    </div>
-                )}
+                    {description && (
+                        <div className="w-full max-w-4xl mx-auto">
+                            <p className="text-white text-lg md:text-xl font-semibold text-center leading-relaxed">
+                                {description}
+                            </p>
+                        </div>
+                    )}
+                </div>
 
-                {description && (
-                    <div className="w-full max-w-4xl mx-auto">
-                        <p className="text-white text-lg md:text-xl font-semibold text-center">
-                            {description.split(" ").map((word, index) => (
-                                <motion.span
-                                    key={index}
-                                    initial={{ opacity: 0, filter: "blur(4px)" }}
-                                    whileInView={{ opacity: 1, filter: "blur(0px)" }}
-                                    transition={{
-                                        duration: 0.5,
-                                        delay: index * 0.03,
-                                    }}
-                                >
-                                    {word}{" "}
-                                </motion.span>
-                            ))}
-                        </p>
-                    </div>
-                )}
-            </div>
-
-            <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
-                <Marquee pauseOnHover className="[--duration:50s] py-4">
-                    {values.map((valor) => (
-                        <ValorCard
-                            key={valor.id}
-                            nombre={valor.acf.title}
-                            desc={valor.acf.description}
-                        />
-                    ))}
-                </Marquee>
+                <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
+                    <Marquee pauseOnHover className="[--duration:50s] py-4">
+                        {values.map((valor) => (
+                            <ValorCard
+                                key={valor.id}
+                                nombre={valor.acf.title}
+                                desc={valor.acf.description}
+                            />
+                        ))}
+                    </Marquee>
+                </div>
             </div>
         </section>
     );

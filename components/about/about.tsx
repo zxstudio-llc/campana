@@ -1,10 +1,9 @@
 "use client";
 
 import { motion, useInView } from "motion/react";
-import { VideoVipSection } from "./components/video-section";
 import { AboutSection } from "@/lib/wordpress.d";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
-import { ContainerScroll } from "./components/container-scroll-animation";
+import Image from "next/image"
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -21,91 +20,192 @@ export function AboutUsSection({ about }: AboutUsProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const pinRef = useRef<HTMLDivElement>(null);
 
-    const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
-    const [isMobileState, setIsMobileState] = useState(false);
+    const introRef = useRef<HTMLDivElement>(null);
+    const bgLayerRef = useRef<HTMLDivElement>(null);
+    const scrollOverlayRef = useRef<HTMLDivElement>(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    const subtitleRef = useRef<HTMLHeadingElement>(null);
+    const textGroupRef = useRef<HTMLDivElement>(null);
+    const videoContainerRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    const introSrc = isMobile
+        ? about.background_mobile || about.background_desktop
+        : about.background_desktop || about.background_mobile;
 
     useEffect(() => {
         const mql = window.matchMedia("(max-width: 1024px)");
         const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
-            setIsMobileState(e.matches);
+            setIsMobile(e.matches);
         };
         onChange(mql);
         mql.addEventListener("change", onChange);
         return () => mql.removeEventListener("change", onChange);
     }, []);
 
-    const selectedPlaybackId = isMobileState
+    const selectedPlaybackId = isMobile
         ? about.mux_playback_mobile_id || about.mux_playback_id
         : about.mux_playback_id || about.mux_playback_mobile_id;
 
     useLayoutEffect(() => {
-        if (!sectionRef.current || !pinRef.current) return;
+        if (!sectionRef.current) return;
 
         const ctx = gsap.context(() => {
-            gsap.timeline({
+            gsap.set(bgLayerRef.current, { opacity: 0 });
+            gsap.set(introRef.current, { scale: 1.1, filter: "blur(0px)" });
+
+            // Texto centrado por el flujo Flexbox
+            gsap.set(textGroupRef.current, {
+                opacity: 0,
+                y: 0
+            });
+
+            // Video oculto sin ocupar espacio al inicio
+            gsap.set(videoContainerRef.current, {
+                opacity: 0,
+                height: 0,
+                overflow: "hidden"
+            });
+
+            gsap.set(scrollOverlayRef.current, { opacity: 0 });
+
+            const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=120%",
-                    scrub: 1,
-                    pin: pinRef.current,
+                    end: "+=500%", // Tightened
+                    scrub: true,
+                    pin: true,
+                    pinSpacing: true,
                     anticipatePin: 1,
-                    invalidateOnRefresh: true,
-                },
+                    pinType: "transform"
+                }
             });
-        });
 
-        ScrollTrigger.refresh();
+            // PHASE 1: Entrance reveal
+            tl.to(bgLayerRef.current, { opacity: 0.5, duration: 0.5 }, 0)
+                .to(introRef.current, {
+                    scale: 1,
+                    filter: "blur(0px)",
+                    duration: 1,
+                    ease: "none"
+                }, 0);
+
+            // PHASE 2: Text Revelation
+            tl.to(textGroupRef.current, {
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out"
+            }, 0.6);
+
+            // PHASE 3: Video "Pushes" Text Up
+            console.log("About: Configurante Phase 3 Video Reveal", { selectedPlaybackId });
+            tl.to(videoContainerRef.current, {
+                opacity: 1,
+                height: "auto",
+                duration: 1.5,
+                ease: "power2.inOut",
+                onStart: () => console.log("About: Video Reveal Start"),
+                onComplete: () => console.log("About: Video Reveal Complete")
+            }, 1.4)
+                .to(introRef.current, {
+                    scale: 1.2,
+                    duration: 1.5,
+                    ease: "none"
+                }, 1.4)
+                .to(scrollOverlayRef.current, {
+                    opacity: 0.9,
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, 1.4);
+
+            // PHASE 4: Exit Phase (Transición hacia OurValues)
+            tl.to(contentRef.current, {
+                opacity: 0,
+                scale: 0.9,
+                filter: "blur(20px)",
+                duration: 1.5,
+                ease: "power2.inOut"
+            }, 2.9) // Started earlier
+                .to(bgLayerRef.current, {
+                    opacity: 1,
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, 2.9);
+
+        }, sectionRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [selectedPlaybackId, introSrc]);
 
     return (
         <section
             ref={sectionRef}
-            className="relative w-full min-h-screen bg-campana-bg"
+            className="relative w-full h-screen flex items-center overflow-hidden z-50"
         >
+            {/* BACKGROUND LAYER THAT FADES IN OVER BIO (SUBTLE) */}
             <div
-                ref={pinRef}
-                className="sticky top-0 h-screen flex items-center justify-center"
-            >
-                <div className="flex flex-col w-full max-w-7xl mx-auto">
-                    <ContainerScroll
-                        titleComponent={
-                            <div className="flex flex-col items-center">
-                                {about.subtitle && (
-                                    <motion.span
-                                        initial={{ opacity: 0 }}
-                                        animate={
-                                            isVisible
-                                                ? { opacity: 1, y: 0 }
-                                                : { opacity: 0, y: 50 }
-                                        }
-                                        className="text-campana-secondary font-bold tracking-[0.2em] uppercase text-center"
-                                    >
-                                        {about.subtitle}
-                                    </motion.span>
-                                )}
+                ref={bgLayerRef}
+                className="absolute inset-0 bg-black/20 backdrop-blur-sm z-1 pointer-events-none"
+            />
 
-                                <motion.h2
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={
-                                        isVisible
-                                            ? { opacity: 1, y: 0 }
-                                            : { opacity: 0, y: 50 }
-                                    }
-                                    transition={{ delay: 0.2 }}
-                                    className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase text-center text-campana-primary"
-                                >
-                                    {about.title}
-                                </motion.h2>
-                            </div>
-                        }
+            <div className="h-full w-full relative overflow-hidden flex items-center justify-center">
+                {/* BACKGROUND IMAGE LAYER */}
+                <div className="absolute inset-0 z-0">
+                    {introSrc && (
+                        <div ref={introRef} className="absolute inset-0">
+                            <Image
+                                src={introSrc}
+                                alt="About Background"
+                                fill
+                                priority
+                                className="object-cover"
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* OVERLAY LAYER FOR CONTENT READABILITY */}
+                <div
+                    ref={scrollOverlayRef}
+                    className="absolute inset-0 z-20 pointer-events-none bg-black/20 backdrop-blur-sm"
+                />
+
+                {/* CONTENT LAYER */}
+                <div
+                    ref={contentRef}
+                    className="relative z-30 flex flex-col items-center justify-center w-full max-w-8xl mx-auto h-full gap-8"
+                >
+                    <div
+                        ref={textGroupRef}
+                        className="flex flex-col items-center w-full text-center"
                     >
-                        {selectedPlaybackId && (
-                            <VideoVipSection playbackId={selectedPlaybackId} />
+                        {about.subtitle && (
+                            <h2
+                                ref={subtitleRef}
+                                className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase text-white"
+                            >
+                                {about.subtitle}
+                            </h2>
                         )}
-                    </ContainerScroll>
+                    </div>
+
+                    {selectedPlaybackId && (
+                        <div
+                            ref={videoContainerRef}
+                            className="w-full aspect-4500/1440 shadow-2xl overflow-hidden "
+                        >
+                            <video
+                                src={selectedPlaybackId}
+                                loop
+                                muted
+                                autoPlay
+                                playsInline
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </section>

@@ -80,7 +80,10 @@ export function MobileNav({
       {/* OVERLAY */}
       <div
         onClick={() => setOpen(false)}
-        className="fixed inset-0 z-30 h-screen transition-opacity duration-500"
+        className={cn(
+          "fixed inset-0 z-30 h-screen transition-opacity duration-500",
+          open ? "pointer-events-auto" : "pointer-events-none"
+        )}
       >
 
         {/* SIDEBAR */}
@@ -97,7 +100,7 @@ export function MobileNav({
             "fixed inset-0 bg-black/20 backdrop-blur-sm"
           )}
         >
-          <div className="absolute right-0 h-52 w-2 bg-black/80 rounded-full hidden md:block" />
+          <div className="absolute right-0 h-40 w-1 bg-campana-nav-bg-hover rounded-full hidden md:block" />
           {/* NAV */}
           <nav className="flex flex-col gap-4 text-right">
             {menuItems.map((item) => {

@@ -78,9 +78,6 @@ export default async function Home({
     const biographies = await getBiographyById(bioIds);
     if (biographies?.length) {
       const bio = biographies[0];
-      if (bio.acf.mux_playback_web_id) biographyPreloadVideos.push(bio.acf.mux_playback_web_id);
-      if (bio.acf.mux_playback_mobile_id) biographyPreloadVideos.push(bio.acf.mux_playback_mobile_id);
-      if (bio.acf.biography.mux_playback_id) biographyPreloadVideos.push(bio.acf.biography.mux_playback_id);
     }
   }
 
@@ -152,7 +149,7 @@ function GradientWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative bg-gradient-to-b from-black to-campana-bg-hover w-screen">
+    <div className="relative bg-linear-to-b from-black to-campana-bg-hover w-screen">
       {children}
     </div>
   );
