@@ -258,7 +258,8 @@ async function RenderBlock({
 
       return (
         <InvestmentSection
-          photo={data.photo}
+          main_photo={data.main_photo}
+          secondary_photo={data.secondary_photo}
           highlight={data.highlight}
           title={data.title}
           description={data.description}

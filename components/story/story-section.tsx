@@ -39,7 +39,7 @@ export function StoryTimelineSection({
     }))
 
     return (
-        <div className="relative w-full overflow-clip">
+        <div className="relative w-full overflow-clip bg-campana-bg">
             <TimelineComponent
                 heading={highlight}
                 description={description}

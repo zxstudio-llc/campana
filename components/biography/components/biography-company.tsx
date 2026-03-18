@@ -338,7 +338,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             {/* BLOCK 2: EXTRA FIELDS (AFTER BIOGRAPHY) */}
                             <div
                                 ref={extraRef}
-                                className="absolute inset-0 flex flex-col justify-center text-white max-w-5xl z-30 pointer-events-none"
+                                className="absolute inset-0 flex flex-col justify-center text-white max-w-6xl z-30 pointer-events-none"
                             >
                                 <motion.span
                                     initial={{ opacity: 0 }}
@@ -352,7 +352,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                     transition={{ delay: 0.2 }}
-                                    className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.85] uppercase mb-10 text-center md:text-left"
+                                    className="text-5xl md:text-6xl lg:text-7xl font-black leading-none uppercase mb-10 text-center md:text-left"
                                 >
                                     {short_description}
                                 </motion.h2>

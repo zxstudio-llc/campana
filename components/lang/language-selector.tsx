@@ -49,12 +49,14 @@ export function LanguageSelector({ languages }: { languages: Language[] }) {
           variant="unstyled"
           className="flex items-center gap-0 md:gap-2 px-0 w-16 md:w-36 rounded-full bg-transparent hover:bg-transparent md:bg-white/60 backdrop-blur-xl hover:backdrop-blur-xl md:hover:bg-white/60 text-white hover:text-white md:text-campana-primary md:hover:text-campana-primary"
         >
-          <Image
-            src={currentLanguage.flag}
-            alt={currentLanguage.name}
-            width={30}
-            height={20}
-          />
+          {currentLanguage.flag && (
+            <Image
+              src={currentLanguage.flag}
+              alt={currentLanguage.name}
+              width={30}
+              height={20}
+            />
+          )}
 
           <span className="hidden text-sm sm:inline">
             {currentLanguage.name}
@@ -77,12 +79,14 @@ export function LanguageSelector({ languages }: { languages: Language[] }) {
                 isActive && 'font-medium'
               )}
             >
-              <Image
-                src={lang.flag}
-                alt={lang.name}
-                width={20}
-                height={14}
-              />
+              {lang.flag && (
+                <Image
+                  src={lang.flag}
+                  alt={lang.name}
+                  width={20}
+                  height={14}
+                />
+              )}
 
               <span className="text-sm">{lang.name}</span>
 

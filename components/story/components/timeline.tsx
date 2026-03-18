@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
@@ -33,10 +33,13 @@ export const Timeline = ({
     const progressLineRef = useRef<HTMLDivElement>(null);
     const progressLineMobileRef = useRef<HTMLDivElement>(null);
     const mobileContainerRef = useRef<HTMLDivElement>(null);
-    const ref = useRef<HTMLDivElement>(null);
-    const inView = useInView(ref, {
+    const [showSubtitle, setShowSubtitle] = useState(false);
+
+    const subtitleRef = useRef<HTMLDivElement>(null);
+
+    const subtitleInView = useInView(subtitleRef, {
         once: true,
-        margin: "0px 0px -30% 0px",
+        margin: "-40% 0px -10% 0px"
     });
 
     useLayoutEffect(() => {
@@ -44,69 +47,65 @@ export const Timeline = ({
 
         const mm = gsap.matchMedia();
 
+        // DESKTOP
         mm.add("(min-width: 1024px)", () => {
-            const container = horizontalRef.current!;
-            const totalWidth = container.scrollWidth;
-            const viewportWidth = window.innerWidth;
-
-            const scrollDistance = totalWidth - viewportWidth;
 
             const ctx = gsap.context(() => {
+
+                const container = horizontalRef.current!;
+                const section = sectionRef.current!;
+
+                const totalWidth = container.scrollWidth;
+                const viewportWidth = window.innerWidth;
+
+                const scrollDistance = totalWidth - viewportWidth;
 
                 const firstMarkerPos = 180;
                 const lastMarkerPos = totalWidth - 180;
 
+                // primer nodo entra desde la derecha
                 const startX = viewportWidth * 0.75 - firstMarkerPos;
+
+                // último nodo termina centrado
                 const endX = viewportWidth / 2 - lastMarkerPos;
 
                 gsap.set(contentRevealRef.current, {
                     opacity: 0,
-                    scale: 1.08,
-                    filter: "blur(10px)"
+                    scale: 1.04,
+                    filter: "blur(6px)"
                 });
 
                 gsap.set(container, { x: startX });
 
                 const tl = gsap.timeline({
                     scrollTrigger: {
-                        trigger: sectionRef.current,
+                        trigger: section,
                         start: "top top",
-                        end: `+=${scrollDistance + viewportWidth * 0.5}`, // corregido
-                        scrub: 1.2,
+                        end: () => `+=${scrollDistance + viewportWidth * 0.5}`,
+                        scrub: 1.1,
                         pin: true,
                         anticipatePin: 1,
                         invalidateOnRefresh: true,
                     }
                 });
 
-                /*
-                PHASE 1 — REVEAL
-                */
-
+                // reveal rápido
                 tl.to(contentRevealRef.current, {
                     opacity: 1,
                     scale: 1,
                     filter: "blur(0px)",
-                    duration: 0.8,
+                    duration: 0.25,
                     ease: "power2.out"
                 }, 0);
 
-
-                /*
-                PHASE 2 — HORIZONTAL SCROLL
-                */
-
+                // movimiento horizontal
                 tl.to(container, {
                     x: endX,
                     duration: 4,
                     ease: "none",
-                }, 0.8);
+                }, 0.05);
 
-
-                /*
-                PROGRESS LINE
-                */
-
+                // línea progreso
                 if (progressLineRef.current) {
                     tl.fromTo(
                         progressLineRef.current,
@@ -116,49 +115,27 @@ export const Timeline = ({
                             ease: "none",
                             duration: 4
                         },
-                        0.8
+                        0.2
                     );
                 }
 
-
-                /*
-                PHASE 3 — EXIT
-                */
-
-                tl.to(contentRevealRef.current, {
-                    opacity: 0,
-                    scale: 0.92,
-                    filter: "blur(20px)",
-                    duration: 0.6,
-                    ease: "power2.in"
-                }, 4.8);
+                ScrollTrigger.create({
+                    trigger: section,
+                    start: "80% center",
+                    once: true,
+                    onEnter: () => setShowSubtitle(true),
+                });
 
             }, sectionRef);
 
-            mm.add("(max-width: 1023px)", () => {
-                const ctx = gsap.context(() => {
-                    gsap.fromTo(
-                        progressLineMobileRef.current,
-                        { height: "0%" },
-                        {
-                            height: "100%",
-                            ease: "none",
-                            scrollTrigger: {
-                                trigger: ".mobile-timeline-container",
-                                start: "top 20%",
-                                end: "bottom 80%",
-                                scrub: true,
-                            },
-                        }
-                    );
-                });
-                return () => ctx.revert();
-            });
+            ScrollTrigger.refresh();
 
             return () => ctx.revert();
         });
 
+        // TABLET / MOBILE
         mm.add("(max-width: 1023px)", () => {
+
             const container = mobileContainerRef.current;
             const progressLine = progressLineMobileRef.current;
 
@@ -166,7 +143,7 @@ export const Timeline = ({
 
             const ctx = gsap.context(() => {
 
-                // Línea vertical animada
+                // línea vertical animada
                 gsap.fromTo(
                     progressLine,
                     { height: "0%" },
@@ -182,7 +159,7 @@ export const Timeline = ({
                     }
                 );
 
-                // Animación de cada item
+                // animación de items
                 gsap.utils.toArray<HTMLElement>(".timeline-item").forEach((item) => {
                     gsap.from(item, {
                         opacity: 0,
@@ -203,12 +180,13 @@ export const Timeline = ({
         });
 
         return () => mm.revert();
+
     }, [data]);
 
     return (
         <section
             ref={sectionRef}
-            className="w-full h-screen bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-20"
+            className="w-full min-h-screen bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-60"
         >
             <div ref={contentRevealRef} className="w-full">
                 <div className="w-full mx-auto px-6 text-center">
@@ -330,17 +308,27 @@ export const Timeline = ({
                         </div>
                     </div>
                 </div>
-
-                {subtitle && (
-                    <div className="mt-12 text-center">
-                        <h2
-                            className="text-[#001D3D] text-3xl md:text-5xl font-black tracking-tighter uppercase lining-nums"
-                        >
-                            {subtitle}
-                        </h2>
-                    </div>
-                )}
             </div>
+
+            {subtitle && (
+                <motion.div
+                    className="mt-4 text-center"
+                    initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
+                    animate={
+                        showSubtitle
+                            ? { opacity: 1, y: 0, filter: "blur(0px)" }
+                            : { opacity: 0 }
+                    }
+                    transition={{
+                        duration: 0.6,
+                        ease: [0.22, 1, 0.36, 1]
+                    }}
+                >
+                    <h2 className="text-[#001D3D] text-3xl md:text-5xl font-black tracking-tighter uppercase lining-nums">
+                        {subtitle}
+                    </h2>
+                </motion.div>
+            )}
         </section>
     );
 };

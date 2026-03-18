@@ -70,11 +70,17 @@ async function wordpressFetch<T>(
 
   let lastError: any;
   for (let i = 0; i <= retries; i++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
     try {
       const response = await fetch(url, {
         headers: { "User-Agent": USER_AGENT },
         next: { tags, revalidate: CACHE_TTL },
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new WordPressAPIError(
@@ -85,11 +91,12 @@ async function wordpressFetch<T>(
       }
 
       return await response.json();
-    } catch (error) {
+    } catch (error: any) {
+      clearTimeout(timeoutId);
       lastError = error;
       if (i < retries) {
         const delay = Math.pow(2, i) * 1000;
-        console.warn(`[WP API] Retry ${i + 1}/${retries} for ${url} after ${delay}ms`);
+        console.warn(`[WP API] Retry ${i + 1}/${retries} for ${url} after ${delay}ms${error.name === 'AbortError' ? ' (Timeout)' : ''}`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
@@ -181,28 +188,12 @@ async function wordpressFetchPaginatedGraceful<T>(
 }
 
 export async function getGlobalCTA(): Promise<GlobalCTA | null> {
-  if (!baseUrl) return null;
-
-  try {
-    const res = await fetch(
-      `${baseUrl}/wp-json/site/v1/cta`,
-      { cache: 'no-store' }
-    )
-
-    if (!res.ok) return null
-
-    const raw = await res.json()
-
-    return {
-      enabled: raw.enabled,
-      title: raw.title,
-      url: raw.url,
-      newTab: raw.newTab,
-    }
-  } catch (error) {
-    console.error("[WP API] Error en getGlobalCTA:", error);
-    return null;
-  }
+  return wordpressFetchGraceful<GlobalCTA | null>(
+    "/wp-json/site/v1/cta",
+    null,
+    undefined,
+    ["wordpress", "cta"]
+  );
 }
 
 export async function getSliderById(id: number): Promise<Slider | null> {
@@ -474,20 +465,12 @@ export async function getPostById(id: number): Promise<Post> {
 }
 
 export async function getSiteInfo(): Promise<SiteInfo | null> {
-  if (!process.env.WORDPRESS_URL) return null;
-
-  try {
-    const res = await fetch(
-      `${process.env.WORDPRESS_URL}/wp-json/custom/v1/site-info`,
-      { next: { revalidate: 3600 } }
-    );
-
-    if (!res.ok) return null;
-
-    return await res.json();
-  } catch {
-    return null;
-  }
+  return wordpressFetchGraceful<SiteInfo | null>(
+    "/wp-json/site/v1/site",
+    null,
+    undefined,
+    ["wordpress", "site-info"]
+  );
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | undefined> {
@@ -724,10 +707,18 @@ export async function getActiveLanguages(): Promise<WpLanguage[]> {
   return wordpressFetchGraceful<WpLanguage[]>(
     "/wp-json/polylang/v2/languages",
     [
-      { code: "en", name: "English", locale: "en_US", flag: "" },
-      { code: "es", name: "Español", locale: "es_ES", flag: "" }
-    ]
-  );
+      { code: "en", name: "English", locale: "en_US", flag: "https://flagcdn.com/w40/us.png" },
+      { code: "es", name: "Español", locale: "es_ES", flag: "https://flagcdn.com/w40/es.png" }
+    ],
+    undefined,
+    ["wordpress", "languages"]
+  ).then(langs => {
+    // Si la API devuelve banderas vacías, forzar las de fallback
+    return langs.map(l => ({
+      ...l,
+      flag: l.flag || (l.code === 'es' ? "https://flagcdn.com/w40/es.png" : "https://flagcdn.com/w40/us.png")
+    }));
+  });
 }
 
 export { WordPressAPIError, type Timeline };

@@ -26,6 +26,7 @@ export function ActivosSection({
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const [canStartTicker, setCanStartTicker] = useState(false);
+    const [tickerKey, setTickerKey] = useState(0);
 
     useLayoutEffect(() => {
         if (!sectionRef.current) return;
@@ -39,7 +40,14 @@ export function ActivosSection({
                 filter: "blur(10px)"
             });
 
-            const tl = gsap.timeline({
+            // Animación visual de entrada
+            gsap.to(contentRef.current, {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                filter: "blur(0px)",
+                duration: 1.2,
+                ease: "power2.out",
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top 80%",
@@ -47,14 +55,29 @@ export function ActivosSection({
                 }
             });
 
-            tl.to(contentRef.current, {
-                opacity: 1,
-                scale: 1,
-                y: 0,
-                filter: "blur(0px)",
-                duration: 1.2,
-                ease: "power2.out",
-                onComplete: () => setCanStartTicker(true)
+            // Activación del ticker SOLO cuando la sección está centrada
+            ScrollTrigger.create({
+                trigger: sectionRef.current,
+                start: "top center",
+                end: "bottom center",
+
+                onEnter: () => {
+                    setTickerKey(prev => prev + 1);
+                    setCanStartTicker(true);
+                },
+
+                onEnterBack: () => {
+                    setTickerKey(prev => prev + 1);
+                    setCanStartTicker(true);
+                },
+
+                onLeave: () => {
+                    setCanStartTicker(false);
+                },
+
+                onLeaveBack: () => {
+                    setCanStartTicker(false);
+                }
             });
 
         }, sectionRef);
@@ -96,6 +119,7 @@ export function ActivosSection({
                         )}
 
                         <NumberTicker
+                            key={tickerKey}
                             value={numericValue}
                             start={canStartTicker}
                             className="text-[120px] md:text-[200px] font-bold tracking-tighter text-white leading-none"
@@ -121,7 +145,7 @@ export function ActivosSection({
     return (
         <section
             ref={sectionRef}
-            className="relative w-screen h-screen overflow-hidden flex items-center justify-center z-50 bg-transparent  md:px-28"
+            className="relative w-screen min-h-screen overflow-hidden flex items-center justify-center z-50 bg-transparent md:px-28"
         >
             <div
                 ref={contentRef}

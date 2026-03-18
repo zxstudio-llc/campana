@@ -53,7 +53,7 @@ export function AboutUsSection({ about }: AboutUsProps) {
 
         const ctx = gsap.context(() => {
             gsap.set(bgLayerRef.current, { opacity: 0 });
-            gsap.set(introRef.current, { scale: 1.1, filter: "blur(0px)" });
+            gsap.set(introRef.current, { scale: 1, filter: "blur(0px)" });
 
             // Texto centrado por el flujo Flexbox
             gsap.set(textGroupRef.current, {
@@ -63,7 +63,6 @@ export function AboutUsSection({ about }: AboutUsProps) {
 
             // Video oculto sin ocupar espacio al inicio
             gsap.set(videoContainerRef.current, {
-                opacity: 0,
                 height: 0,
                 overflow: "hidden"
             });
@@ -84,13 +83,7 @@ export function AboutUsSection({ about }: AboutUsProps) {
             });
 
             // PHASE 1: Entrance reveal
-            tl.to(bgLayerRef.current, { opacity: 0.5, duration: 0.5 }, 0)
-                .to(introRef.current, {
-                    scale: 1,
-                    filter: "blur(0px)",
-                    duration: 1,
-                    ease: "none"
-                }, 0);
+            tl.to(bgLayerRef.current, { opacity: 0.5, duration: 0.5 }, 0);
 
             // PHASE 2: Text Revelation
             tl.to(textGroupRef.current, {
@@ -99,40 +92,19 @@ export function AboutUsSection({ about }: AboutUsProps) {
                 ease: "power2.out"
             }, 0.6);
 
-            // PHASE 3: Video "Pushes" Text Up
-            console.log("About: Configurante Phase 3 Video Reveal", { selectedPlaybackId });
+            // PHASE 3: Video Reveal
             tl.to(videoContainerRef.current, {
-                opacity: 1,
                 height: "auto",
                 duration: 1.5,
                 ease: "power2.inOut",
-                onStart: () => console.log("About: Video Reveal Start"),
-                onComplete: () => console.log("About: Video Reveal Complete")
-            }, 1.4)
-                .to(introRef.current, {
-                    scale: 1.2,
-                    duration: 1.5,
-                    ease: "none"
-                }, 1.4)
-                .to(scrollOverlayRef.current, {
-                    opacity: 0.9,
-                    duration: 1.5,
-                    ease: "power2.inOut"
-                }, 1.4);
+            }, 1.4);
 
             // PHASE 4: Exit Phase (Transición hacia OurValues)
             tl.to(contentRef.current, {
-                opacity: 0,
-                scale: 0.9,
-                filter: "blur(20px)",
+                opacity: 1,
                 duration: 1.5,
                 ease: "power2.inOut"
-            }, 2.9) // Started earlier
-                .to(bgLayerRef.current, {
-                    opacity: 1,
-                    duration: 1.5,
-                    ease: "power2.inOut"
-                }, 2.9);
+            }, 2.9);
 
         }, sectionRef);
 
@@ -160,7 +132,6 @@ export function AboutUsSection({ about }: AboutUsProps) {
                                 alt="About Background"
                                 fill
                                 priority
-                                className="object-cover"
                             />
                         </div>
                     )}
@@ -169,7 +140,7 @@ export function AboutUsSection({ about }: AboutUsProps) {
                 {/* OVERLAY LAYER FOR CONTENT READABILITY */}
                 <div
                     ref={scrollOverlayRef}
-                    className="absolute inset-0 z-20 pointer-events-none bg-black/20 backdrop-blur-sm"
+                    className="absolute inset-0 z-20 pointer-events-none bg-black/40"
                 />
 
                 {/* CONTENT LAYER */}

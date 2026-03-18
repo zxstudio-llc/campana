@@ -58,6 +58,15 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
     return items[currentIndex]?.props.card?.duration || AUTO_PLAY_DURATION;
   };
 
+  useEffect(() => {
+    if (active) {
+      setCurrentIndex(0);
+      scrollTo(0, false); // Instant reset when becoming active
+      setIsPlaying(true);
+      setHasEnded(false);
+    }
+  }, [active]);
+
   const scrollTo = (index: number, smooth = true) => {
     if (!carouselRef.current) return;
     const container = carouselRef.current;
@@ -153,7 +162,7 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
               animate={{ opacity: 0.7, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
               onClick={() => { setIsPlaying(false); scrollTo(currentIndex - 1); }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-campana-primary flex items-center justify-center text-campana-secondary z-50 border border-campana-primary"
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-campana-primary flex items-center justify-center text-campana-secondary z-50 border border-campana-primary cursor-pointer"
             >
               <ChevronLeft size={22} />
             </motion.button>
@@ -167,7 +176,7 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
               animate={{ opacity: 0.7, x: 0 }}
               exit={{ opacity: 0, x: 12 }}
               onClick={() => { setIsPlaying(false); scrollTo(currentIndex + 1); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-campana-primary flex items-center justify-center text-campana-secondary z-50 border border-campana-primary"
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-campana-primary flex items-center justify-center text-campana-secondary z-50 border border-campana-primary cursor-pointer"
             >
               <ChevronRight size={22} />
             </motion.button>
@@ -177,7 +186,6 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
         <div className="flex w-full overflow-x-scroll snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" ref={carouselRef} onScroll={handleScroll}>
           <div className="flex flex-row gap-4 px-[5%] md:px-[10%] mb-4">
             {items.map((item, index) => (
-              /* Eliminamos la lógica de isNeighbor aquí para que todos los items se mantengan montados */
               <div key={"card-container-" + index} className="snap-center shrink-0">
                 {item}
               </div>
@@ -199,7 +207,7 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
                     <button
                       key={index}
                       onClick={() => { setIsPlaying(false); setHasEnded(false); scrollTo(index, false); }}
-                      className="relative h-1.5 bg-[#F1BA0A]/20 rounded-full overflow-hidden transition-all duration-300"
+                      className="relative h-1.5 bg-[#F1BA0A]/20 rounded-full overflow-hidden transition-all duration-300 cursor-pointer"
                       style={{ width: currentIndex === index ? "40px" : "8px" }}
                     >
                       {currentIndex === index && isPlaying && !hasEnded && (
@@ -218,7 +226,7 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
                   if (hasEnded) { scrollTo(0); setHasEnded(false); setIsPlaying(true); return; }
                   setIsPlaying(!isPlaying);
                 }}
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-[#00122D]/70 backdrop-blur-sm text-[#F1BA0A]"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-[#00122D]/70 backdrop-blur-sm text-[#F1BA0A] cursor-pointer"
               >
                 {hasEnded ? <RotateCcw size={18} /> : isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
               </motion.button>
@@ -281,7 +289,7 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
       <motion.button
         layoutId={layout ? `card-${card.title}` : undefined}
         onClick={() => setOpen(true)}
-        className="relative group h-[500px] w-[300px] md:h-[700px] md:w-[1240px] flex flex-col items-start justify-start overflow-hidden rounded-[32px] bg-neutral-900"
+        className="relative group h-[500px] w-[300px] md:h-[650px] md:w-[1200px] flex flex-col items-start justify-start overflow-hidden rounded-[32px] bg-neutral-900"
       >
         <div className="absolute inset-0 z-20 bg-linear-to-b from-black/80 via-transparent to-black/20" />
         <div className="relative z-30 p-10 md:p-14 text-left">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import type { AppMenuItem, GlobalCTA, SiteInfo } from '@/lib/wordpress.d'
 import type { WpLanguage } from '@/lib/wordpress'
 import Link from 'next/link'
+import gsap from "gsap"
 
 type MobileNavProps = {
   open: boolean
@@ -25,6 +26,15 @@ export function MobileNav({
   setOpen,
 }: MobileNavProps) {
 
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  const navRef = useRef<HTMLDivElement>(null)
+  const timelineRef = useRef<gsap.core.Timeline | null>(null)
+
+  const pathname = usePathname()
+
+  /**
+   * ESC KEY
+   */
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false)
@@ -34,7 +44,91 @@ export function MobileNav({
     return () => window.removeEventListener("keydown", handleKey)
   }, [setOpen])
 
-  const pathname = usePathname()
+  /**
+   * RESET ITEMS
+   */
+  const resetMenu = () => {
+
+    if (!navRef.current || !sidebarRef.current) return
+
+    const items = navRef.current.querySelectorAll("button")
+
+    gsap.set(sidebarRef.current, { x: "-100%" })
+    gsap.set(items, { x: -30, opacity: 0 })
+
+  }
+
+  useLayoutEffect(() => {
+    if (!sidebarRef.current || !navRef.current) return
+
+    const items = navRef.current.querySelectorAll("button")
+    const sidebarWidth = sidebarRef.current.offsetWidth
+
+    gsap.set(sidebarRef.current, {
+      x: -sidebarWidth
+    })
+
+    gsap.set(items, {
+      x: -sidebarWidth,
+      opacity: 0
+    })
+
+  }, [])
+
+  useEffect(() => {
+
+    if (!sidebarRef.current || !navRef.current) return
+
+    const items = navRef.current.querySelectorAll("button")
+
+    if (timelineRef.current) {
+      timelineRef.current.kill()
+    }
+
+    const sidebarWidth = sidebarRef.current.offsetWidth
+
+    const tl = gsap.timeline()
+
+    if (open) {
+
+      tl.to(sidebarRef.current, {
+        x: 0,
+        duration: 0.65,
+        ease: "expo.out"
+      })
+
+      tl.to(items, {
+        x: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: "expo.out",
+        stagger: 0.12
+      }, "-=0.35")
+
+    } else {
+
+      tl.to(items, {
+        x: -sidebarWidth,
+        opacity: 0,
+        duration: 0.45,
+        ease: "expo.in",
+        stagger: {
+          each: 0.1,
+          from: "end"
+        }
+      })
+
+      tl.to(sidebarRef.current, {
+        x: -sidebarWidth,
+        duration: 0.55,
+        ease: "expo.in"
+      }, "-=0.25")
+
+    }
+
+    timelineRef.current = tl
+
+  }, [open])
 
   return (
     <>
@@ -88,21 +182,24 @@ export function MobileNav({
 
         {/* SIDEBAR */}
         <div
+          ref={sidebarRef}
           onClick={(e) => e.stopPropagation()}
           className={cn(
             "absolute left-0 top-0 h-screen shadow-2xl z-40",
             "w-screen max-w-[900px]",
             "flex flex-col justify-center",
             "px-10 py-20",
-            "transition-transform duration-700 ease-out",
-            open ? "translate-x-0" : "-translate-x-full",
-
             "fixed inset-0 bg-black/20 backdrop-blur-sm"
           )}
         >
-          <div className="absolute right-0 h-40 w-1 bg-campana-nav-bg-hover rounded-full hidden md:block" />
+
+          <div className="absolute right-0 h-40 w-1 bg-gray-500 rounded-full hidden md:block" />
+
           {/* NAV */}
-          <nav className="flex flex-col gap-4 text-right">
+          <nav
+            ref={navRef}
+            className="flex flex-col gap-4 text-right"
+          >
             {menuItems.map((item) => {
 
               const active = pathname === item.url
@@ -123,11 +220,10 @@ export function MobileNav({
             })}
           </nav>
 
-
           {cta?.enabled !== false && cta?.title && cta?.url && (
             <Button
               asChild
-              className="block md:hidden rounded-full px-6 font-semibold text-campana-primary bg-campana-secondary hover:bg-campana-secondary hover:drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+              className="block md:hidden rounded-full px-6 font-semibold text-campana-primary bg-campana-secondary hover:bg-campana-secondary"
               variant="secondary"
             >
               <Link

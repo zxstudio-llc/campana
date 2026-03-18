@@ -65,25 +65,9 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top top",
-          end: "+=130%",
-          scrub: 1.2,
-          pin: true,
-          pinSpacing: true,
-          anticipatePin: 1,
-          pinType: "transform",
-          onUpdate: (self) => {
-
-            if (self.isActive && self.progress > 0.35 && self.progress < 0.75) {
-              setIsCarouselActive(true);
-            } else {
-              setIsCarouselActive(false);
-            }
-
-          },
-          onToggle: (self) => {
-            if (!self.isActive) setIsCarouselActive(false);
-          }
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+          onLeaveBack: () => setIsCarouselActive(false),
         }
       });
 
@@ -91,17 +75,9 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
         opacity: 1,
         scale: 1,
         filter: "blur(0px)",
-        duration: 1,
-        ease: "power2.out"
-      }, 0);
-
-      tl.to({}, { duration: 1.2 });
-
-      tl.to(contentRevealRef.current, {
-        opacity: 0,
-        filter: "blur(0px)",
-        duration: 0.7,
-        ease: "power2.in"
+        duration: 1.2,
+        ease: "power2.out",
+        onComplete: () => setIsCarouselActive(true)
       });
 
     }, sectionRef);
@@ -155,9 +131,9 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
   return (
     <section
       ref={sectionRef}
-      className="w-screen h-screen py-20 bg-campana-bg flex items-center justify-center overflow-hidden z-60"
+      className="w-screen h-auto py-20 bg-campana-bg flex items-center justify-center overflow-hidden z-60"
     >
-      <div ref={contentRevealRef} className="w-full">
+      <div ref={contentRevealRef} className="w-full ">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 mb-6">
           {description && (
             <p className="text-campana-secondary text-xl md:text-lg font-bold text-center uppercase">

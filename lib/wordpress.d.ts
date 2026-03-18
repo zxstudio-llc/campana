@@ -276,15 +276,6 @@ export interface ProjectsSection {
 
 export interface InvestmentsSection {
   acf_fc_layout: 'investment'
-  photo: {
-    url: string
-    alt?: string
-    sizes?: {
-      thumbnail: string
-      medium: string
-      large: string
-    }
-  }
   main_photo?: string
   secondary_photo?: string
   highlight?: string
