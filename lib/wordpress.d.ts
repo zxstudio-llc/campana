@@ -320,6 +320,7 @@ export interface ContactSection {
   mail: string | undefined;
   phone: string | undefined;
   subtitle: string | undefined;
+  highlight: string | undefined;
   title: string | undefined;
   instagram: string | undefined;
   facebook: string | undefined;
