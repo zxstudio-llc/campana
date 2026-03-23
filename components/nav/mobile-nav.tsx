@@ -25,54 +25,109 @@ export function MobileNav({
   open,
   setOpen,
 }: MobileNavProps) {
+
   const sidebarRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLDivElement>(null)
   const timelineRef = useRef<gsap.core.Timeline | null>(null)
+
   const pathname = usePathname()
 
-  // 1. Forzar el estado inicial apenas se monte para evitar saltos
+  /**
+   * ESC KEY
+   */
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false)
+    }
+
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [setOpen])
+
+  /**
+   * RESET ITEMS
+   */
+  const resetMenu = () => {
+
+    if (!navRef.current || !sidebarRef.current) return
+
+    const items = navRef.current.querySelectorAll("button")
+
+    gsap.set(sidebarRef.current, { x: "-100%" })
+    gsap.set(items, { x: -30, opacity: 0 })
+
+  }
+
   useLayoutEffect(() => {
     if (!sidebarRef.current || !navRef.current) return
 
     const items = navRef.current.querySelectorAll("button")
+    const sidebarWidth = sidebarRef.current.offsetWidth
 
-    // Usamos -100% para asegurar que esté fuera independientemente del ancho
-    gsap.set(sidebarRef.current, { xPercent: -100 })
-    gsap.set(items, { x: -20, opacity: 0 })
+    gsap.set(sidebarRef.current, {
+      x: -sidebarWidth
+    })
+
+    gsap.set(items, {
+      x: -sidebarWidth,
+      opacity: 0
+    })
+
   }, [])
 
   useEffect(() => {
+
     if (!sidebarRef.current || !navRef.current) return
+
     const items = navRef.current.querySelectorAll("button")
 
-    if (timelineRef.current) timelineRef.current.kill()
+    if (timelineRef.current) {
+      timelineRef.current.kill()
+    }
 
-    const tl = gsap.timeline({
-      defaults: { ease: "expo.out", duration: 0.6 }
-    })
+    const sidebarWidth = sidebarRef.current.offsetWidth
+
+    const tl = gsap.timeline()
 
     if (open) {
-      tl.to(sidebarRef.current, { xPercent: 0, duration: 0.8 })
-        .to(items, {
-          x: 0,
-          opacity: 1,
-          stagger: 0.1,
-        }, "-=0.5")
-    } else {
-      tl.to(items, {
-        x: -20,
-        opacity: 0,
-        stagger: { each: 0.05, from: "end" },
-        duration: 0.4
+
+      tl.to(sidebarRef.current, {
+        x: 0,
+        duration: 0.65,
+        ease: "expo.out"
       })
-        .to(sidebarRef.current, {
-          xPercent: -100,
-          ease: "expo.inOut",
-          duration: 0.5
-        }, "-=0.3")
+
+      tl.to(items, {
+        x: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: "expo.out",
+        stagger: 0.12
+      }, "-=0.35")
+
+    } else {
+
+      tl.to(items, {
+        x: -sidebarWidth,
+        opacity: 0,
+        duration: 0.45,
+        ease: "expo.in",
+        stagger: {
+          each: 0.1,
+          from: "end"
+        }
+      })
+
+      tl.to(sidebarRef.current, {
+        x: -sidebarWidth,
+        duration: 0.55,
+        ease: "expo.in"
+      }, "-=0.25")
+
     }
 
     timelineRef.current = tl
+
   }, [open])
 
   return (
@@ -121,7 +176,7 @@ export function MobileNav({
         onClick={() => setOpen(false)}
         className={cn(
           "fixed inset-0 z-30 h-screen transition-opacity duration-500",
-          open ? "bg-black/40 pointer-events-auto" : "bg-transparent pointer-events-none"
+          open ? "pointer-events-auto" : "pointer-events-none"
         )}
       >
 
@@ -130,10 +185,11 @@ export function MobileNav({
           ref={sidebarRef}
           onClick={(e) => e.stopPropagation()}
           className={cn(
-            "fixed left-0 top-0 h-screen shadow-2xl z-40",
-            "w-[90vw] max-w-[400px] bg-black backdrop-blur-md",
-            "flex flex-col justify-center px-10 py-20",
-            "translate-x-[-100%]"
+            "absolute left-0 top-0 h-screen shadow-2xl z-40",
+            "w-screen max-w-[900px]",
+            "flex flex-col justify-center",
+            "px-10 py-20",
+            "fixed inset-0 bg-black/20 backdrop-blur-sm"
           )}
         >
 
