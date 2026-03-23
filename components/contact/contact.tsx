@@ -64,7 +64,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                     }}
                     className="w-full mb-10 md:mb-20 max-w-3xl mx-auto text-center"
                 >
-                    <span className="bg-linear-to-b from-neutral-900 to-neutral-500 bg-clip-text text-transparent text-center text-2xl md:text-3xl font-sans font-normal tracking-tight leading-[1.1]">
+                    <span className="bg-linear-to-b from-[#001D3D] to-neutral-500 bg-clip-text text-transparent text-center text-xl md:text-3xl font-sans font-normal tracking-tight leading-[1.1]">
                         {subtitle && (() => {
                             const words = subtitle.split(" ");
                             const lastWord = words.pop();

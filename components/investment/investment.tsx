@@ -233,7 +233,7 @@ export default function InvestmentSection({
                     <div className="w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 pb-10">
 
                         {highlight && (
-                            <span className="text-campana-primary text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+                            <span className="text-campana-primary text-sm md:text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
                                 {highlight}
                             </span>
                         )}
@@ -243,7 +243,7 @@ export default function InvestmentSection({
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.2 }}
-                                className="text-campana-primary text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
+                                className="text-campana-primary text-3xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
                             >
                                 {(() => {
                                     const words = title.split(" ");
@@ -273,10 +273,10 @@ export default function InvestmentSection({
 
                     </div>
 
-                    <div className="relative w-full md:max-w-7xl mx-auto ml-0 self-start h-[450px]">
+                    <div className="relative w-full md:w-3/4 mx-auto h-[340px] md:h-[450px]">
                         <div
                             ref={containerRef}
-                            className="relative w-full h-full overflow-hidden"
+                            className="relative w-full h-full overflow-hidden left-0 md:-left-32"
                         >
                             <div className="absolute inset-y-0 left-0 w-10 md:w-32 bg-linear-to-r from-campana-bg-about to-transparent z-30 pointer-events-none" />
                             <div className="absolute inset-y-0 right-0 w-10 md:w-32 bg-linear-to-l from-campana-bg-about to-transparent z-30 pointer-events-none" />
@@ -298,17 +298,42 @@ export default function InvestmentSection({
                         {/* CTA — aparece sola tras el contenido del carrusel */}
                         <div
                             ref={ctaRef}
-                            className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-6 pointer-events-none opacity-0"
+                            className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-6 pointer-events-none opacity-0 w-full md:w-3xl mx-auto"
                         >
-                            {cta && (
-                                <HoverBorderGradient
-                                    containerClassName="rounded-full"
-                                    as="button"
-                                    className="bg-campana-secondary text-campana-primary px-12 py-4 text-xl font-black rounded-full uppercase"
-                                    onClick={() => window.open(cta_url, "_blank")}
+                            {secondary && (
+                                <motion.h2
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-campana-primary text-4xl md:text-6xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-center"
                                 >
-                                    {cta}
-                                </HoverBorderGradient>
+                                    {(() => {
+                                        const words = secondary.split(" ");
+                                        const lastWord = words.pop();
+                                        return (
+                                            <>
+                                                {words.join(" ")}{" "}
+                                                <span className="font-ivy-presto italic">
+                                                    {lastWord}
+                                                </span>
+                                            </>
+                                        );
+                                    })()}
+                                </motion.h2>
+                            )}
+                            {cta && (
+                                <div className="group relative inline-flex items-center justify-center">
+                                    <div
+                                        className="absolute -inset-1 rounded-[40px] opacity-0 blur-[10px] transition-all duration-300 group-hover:opacity-100 group-hover:blur-[14px]"
+                                        style={{ background: 'linear-gradient(123deg, #d600ba 0%, #eb003b 50%, #d14600 100%)' }}
+                                    />
+                                    <button
+                                        onClick={() => window.open(cta_url, "_blank")}
+                                        className="relative flex items-center justify-center rounded-[40px] bg-[#161D26] px-[24px] h-[44px] text-[16px] font-sans font-bold text-white transition-colors duration-300 hover:bg-[#232B37]"
+                                    >
+                                        <span>{cta}</span>
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>

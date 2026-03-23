@@ -251,10 +251,10 @@ export const Timeline = ({
                         className="w-auto lg:h-screen h-[100dvh] scale-[1.4] object-cover object-top-left opacity-30 lg:opacity-100"
                     />
                 </div>
-                <div className="relative z-20 w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 pb-6 pt-20 lg:pt-0">
+                <div className="relative z-20 w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-center justify-center gap-4 md:gap-8 pb-6 pt-10 lg:pt-0">
                     {highlight && (
                         <span
-                            className="text-campana-primary text-xl font-sans font-normal tracking-tighter uppercase mb-6 flex items-center justify-center gap-2 lining-nums"
+                            className="text-campana-primary text-sm md:text-xl font-sans font-normal tracking-tighter uppercase mb-0 md:mb-6 flex items-center justify-center gap-2 lining-nums"
                         >
                             {highlight}
                         </span>
@@ -266,7 +266,7 @@ export const Timeline = ({
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.2 }}
-                            className="text-campana-primary text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-6 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
+                            className="text-campana-primary text-2xl md:text-5xl font-sans font-normal mb-3 md:mb-6 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
                         >
                             {(() => {
                                 const words = heading.split(" ");
@@ -345,7 +345,6 @@ export const Timeline = ({
                             ))}
                         </div>
                     </div>
-                    <div className="h-20" />
                 </div>
 
                 {/* DESKTOP VERSION */}
@@ -407,7 +406,7 @@ export const Timeline = ({
                 subtitle && (
                     <div
                         ref={subtitleRef}
-                        className="opacity-0 pointer-events-none w-full md:w-4xl mx-auto text-center absolute bottom-10 left-0 right-0 z-50 lg:static lg:mt-12 lg:ml-auto px-4 md:px-0"
+                        className="opacity-0 pointer-events-none w-full md:w-4xl mx-auto text-center absolute bottom-10 left-0 right-0 z-50 lg:static mt-2 lg:mt-12 lg:ml-auto px-4 md:px-0"
                     >
                         <span className="text-campana-primary text-xl md:text-3xl font-sans font-normal mb-1 md:mb-6 text-center  leading-2 md:leading-6 tracking-tighter lining-nums">
                             {subtitle.split(" ").map((word, index, arr) => {

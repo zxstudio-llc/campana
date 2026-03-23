@@ -39,7 +39,7 @@ export function StoryTimelineSection({
                 </span>
 
                 <div
-                    className="text-sm min-w-[20rem] tracking-tight leading-5 font-sans font-normal"
+                    className="text-sm min-w-40 md:min-w-[20rem] mx-auto tracking-tight leading-5 font-sans font-normal"
                     dangerouslySetInnerHTML={{
                         __html: item.acf.description,
                     }}

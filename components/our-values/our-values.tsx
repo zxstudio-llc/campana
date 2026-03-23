@@ -105,7 +105,7 @@ export function OurValueSection({
             >
                 <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-12 pb-40 overflow-hidden">
                     {highlight && (
-                        <span className="text-white text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+                        <span className="text-white text-sm md:text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
                             {highlight}
                         </span>
                     )}

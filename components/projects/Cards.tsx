@@ -136,9 +136,9 @@ export function ProjectsCardsSection({ title, description, highlight, projects }
       className="w-screen h-auto py-20 bg-campana-bg-about flex items-center justify-center overflow-hidden z-60"
     >
       <div ref={contentRevealRef} className="w-full mb-20 md:mb-28">
-        <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-8 pb-30 overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-8 pb-10 md:pb-30 overflow-hidden">
           {highlight && (
-            <span className="text-[#001D3D] text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+            <span className="text-[#001D3D] text-sm md:text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
               {highlight}
             </span>
           )}
