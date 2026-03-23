@@ -45,7 +45,6 @@ export default function InvestmentSection({
     const mainContentRef = useRef<HTMLDivElement>(null);
     const extraRef = useRef<HTMLDivElement>(null);
     const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
-    const [isPaused, setIsPaused] = useState(true);
 
     useLayoutEffect(() => {
 
@@ -53,7 +52,7 @@ export default function InvestmentSection({
 
         const mm = gsap.matchMedia();
 
-        mm.add("(min-width: 1024px)", () => {
+        mm.add("all", () => {
 
             const ctx = gsap.context(() => {
 
@@ -84,14 +83,6 @@ export default function InvestmentSection({
                         start: "top top",
                         end: "+=400%",
                         scrub: 1.2,
-                        invalidateOnRefresh: true,
-                        onUpdate: (self) => {
-                            if (self.progress > 0.85) {
-                                setIsPaused(false);
-                            } else if (self.progress < 0.82) {
-                                setIsPaused(true);
-                            }
-                        }
                     }
                 });
 
@@ -168,54 +159,6 @@ export default function InvestmentSection({
             return () => ctx.revert();
         });
 
-        mm.add("(max-width: 1023px)", () => {
-
-            const ctx = gsap.context(() => {
-
-                gsap.fromTo(contentRef.current,
-                    { opacity: 0, y: 40 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        duration: 1,
-                        scrollTrigger: {
-                            trigger: contentRef.current,
-                            start: "top 85%",
-                        }
-                    }
-                );
-
-                gsap.utils.toArray<HTMLElement>(".investment-card").forEach((card) => {
-                    gsap.from(card, {
-                        opacity: 0,
-                        y: 30,
-                        duration: 0.8,
-                        scrollTrigger: {
-                            trigger: card,
-                            start: "top 90%",
-                        }
-                    });
-                });
-
-                gsap.fromTo(ctaRef.current,
-                    { opacity: 0, y: 20 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        pointerEvents: "auto",
-                        duration: 1,
-                        scrollTrigger: {
-                            trigger: ctaRef.current,
-                            start: "top 90%",
-                        }
-                    }
-                );
-
-            }, sectionRef);
-
-            return () => ctx.revert();
-        });
-
         return () => mm.revert();
 
     }, []);
@@ -248,7 +191,7 @@ export default function InvestmentSection({
             >
                 <div
                     ref={extraRef}
-                    className="absolute inset-0 flex flex-col justify-center text-white max-w-3xl right-20 mx-auto z-30 pointer-events-none "
+                    className="absolute inset-0 flex flex-col justify-center text-white w-full md:max-w-3xl right-20 mx-auto z-30 pointer-events-none px-4 md:px-0 "
                 >
                     {main && (
                         <motion.span
@@ -265,7 +208,7 @@ export default function InvestmentSection({
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.2 }}
-                            className="text-campana-primary text-[3.2rem] md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-left"
+                            className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-left"
                         >
                             {(() => {
                                 const words = secondary.split(" ");
@@ -300,7 +243,7 @@ export default function InvestmentSection({
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.2 }}
-                                className="text-campana-primary text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-4xl mx-auto"
+                                className="text-campana-primary text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
                             >
                                 {(() => {
                                     const words = title.split(" ");
@@ -330,16 +273,16 @@ export default function InvestmentSection({
 
                     </div>
 
-                    <div className="relative w-full max-w-7xl mx-auto ml-4 lg:ml-0 self-start h-[450px]">
+                    <div className="relative w-full md:max-w-7xl mx-auto ml-0 self-start h-[450px]">
                         <div
                             ref={containerRef}
                             className="relative w-full h-full overflow-hidden"
                         >
-                            <div className="absolute inset-y-0 left-0 w-32 bg-linear-to-r from-campana-bg-about to-transparent z-30 pointer-events-none" />
-                            <div className="absolute inset-y-0 right-0 w-32 bg-linear-to-l from-campana-bg-about to-transparent z-30 pointer-events-none" />
+                            <div className="absolute inset-y-0 left-0 w-10 md:w-32 bg-linear-to-r from-campana-bg-about to-transparent z-30 pointer-events-none" />
+                            <div className="absolute inset-y-0 right-0 w-10 md:w-32 bg-linear-to-l from-campana-bg-about to-transparent z-30 pointer-events-none" />
 
                             <AppleCards
-                                pause={isPaused}
+                                pause={false}
                                 className="[--duration:40s] [--gap:2rem] h-full"
                             >
                                 {investment.map((item) => (
@@ -384,7 +327,7 @@ const CardContent = ({ item }: { item: Investment }) => (
 
         {/* NÚMERO DE FONDO — watermark grande y opaco */}
         <span
-            className="absolute top-0 right-0 text-[18rem] font-anton font-black text-campana-secondary/50 leading-none select-none pointer-events-none"
+            className="absolute top-0 right-0 text-[10rem] md:text-[18rem] font-anton font-black text-campana-secondary/50 leading-none select-none pointer-events-none"
             aria-hidden="true"
         >
             {item.acf.highlight}
@@ -394,7 +337,7 @@ const CardContent = ({ item }: { item: Investment }) => (
         <div className="relative z-10 flex flex-col h-full justify-end">
 
             {/* TÍTULO — altura fija */}
-            <span className="text-3xl font-sans font-normal text-white mb-3 leading-tight h-[80px]">
+            <span className="text-2xl md:text-3xl font-sans font-normal text-white mb-3 leading-tight h-[80px]">
                 {(() => {
                     const words = item.acf.title.split(" ");
                     const lastWord = words.pop();

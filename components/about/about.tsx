@@ -202,7 +202,7 @@ export function AboutUsSection({ about }: AboutUsProps) {
                         ref={textGroupRef}
                         className="flex flex-col items-center w-full text-center"
                     >
-                        <div className="relative w-[500px] h-[150px]">
+                        <div className="relative w-[300px] md:w-[500px] h-[150px]">
                             <Image
                                 src="/assets/logo.svg"
                                 alt="Logo"

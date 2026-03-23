@@ -204,9 +204,9 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     ref={containerRef}
                     className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none"
                 >
-                    <div className="mx-auto h-full grid grid-cols-1 lg:grid-cols-12 lg:items-center px-0 pt-2">
+                    <div className="mx-auto h-full grid grid-cols-1 lg:grid-cols-12 lg:items-center px-0 pt-2 relative">
                         {/* IMAGE LEFT */}
-                        <div className="lg:col-span-5 h-[60vh] lg:h-full relative w-full" ref={bgImageRef}>
+                        <div className="lg:col-span-5 h-[65vh] lg:h-full absolute bottom-0 left-0 lg:relative w-full z-10 pointer-events-none" ref={bgImageRef}>
                             {currentImage && (
                                 <Image
                                     key={currentImage}
@@ -215,26 +215,26 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     fill
                                     priority
                                     unoptimized={true}
-                                    className="object-contain object-bottom-right lg:object-bottom-left pointer-events-none"
+                                    className="object-contain object-bottom-left pointer-events-none"
                                 />
                             )}
                         </div>
 
                         {/* TEXT RIGHT */}
-                        <div className="lg:col-span-7 flex flex-col items-start lg:items-start justify-center ">
+                        <div className="lg:col-span-7 flex flex-col items-start lg:items-start justify-center relative w-full h-full lg:h-auto">
                             <div
                                 ref={collisionContainerRef}
-                                className="relative w-full h-[300px] md:h-[800px] lg:h-[800px] flex justify-start lg:justify-start items-center mt-10"
+                                className="relative w-full h-full lg:h-[800px] flex justify-start lg:justify-start items-center mt-10 lg:mt-0"
                             >
                                 <span
                                     ref={firstTextRef}
                                     className="
                                         absolute 
-                                        lg:top-0 
+                                        top-[5%] md:top-[5%] lg:top-0 
                                         text-white 
-                                        text-[120px] md:text-[250px] lg:text-[280px] 
+                                        text-[120px] md:text-[200px] lg:text-[280px] 
                                         font-anton uppercase leading-none tracking-tighter antialiased 
-                                        z-20 -mt-6
+                                        z-10 -mt-6
                                     "
                                     style={{ WebkitFontSmoothing: "antialiased" }}
                                 >
@@ -244,9 +244,9 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     ref={secondTextRef}
                                     className="
                                         absolute 
-                                        top-[200px] 
+                                        top-[30%] md:top-[30%] lg:top-[200px] 
                                         text-white 
-                                        text-[300px] md:text-[400px] lg:text-[630px] 
+                                        text-[250px] md:text-[380px] lg:text-[630px] 
                                         font-anton uppercase leading-none tracking-tighter antialiased 
                                         z-10
                                     "
@@ -265,7 +265,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
         inset-y-0
         right-0      
         w-full        
-        z-0 
+        z-20 
         pointer-events-none 
         select-none 
         bg-linear-to-l from-black/50 via-transparent to-transparent

@@ -148,7 +148,7 @@ export function ProjectsCardsSection({ title, description, highlight, projects }
               initial={{ opacity: 0, y: 20 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.2 }}
-              className="text-[#001D3D] text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-4xl mx-auto"
+              className="text-[#001D3D] text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
             >
               {(() => {
                 const words = title.split(" ");

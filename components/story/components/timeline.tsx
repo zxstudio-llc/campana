@@ -163,61 +163,68 @@ export const Timeline = ({
         // TABLET / MOBILE
         mm.add("(max-width: 1023px)", () => {
 
-            const container = mobileContainerRef.current;
-            const progressLine = progressLineMobileRef.current;
+            const section = sectionRef.current!;
+            const container = mobileContainerRef.current!;
+            const progressLine = progressLineMobileRef.current!;
 
             if (!container || !progressLine) return;
 
             const ctx = gsap.context(() => {
 
-                // línea vertical animada
-                gsap.fromTo(
-                    progressLine,
+                const scrollHeight = container.scrollHeight;
+                const viewportHeight = window.innerHeight;
+
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top top",
+                        end: () => `+=${scrollHeight + viewportHeight}`,
+                        scrub: true,
+                        pin: true,
+                        anticipatePin: 1,
+                        invalidateOnRefresh: true,
+                    }
+                });
+
+                // ETAPA 1: ESTABILIDAD INICIAL (Espera un poco antes de empezar a mover)
+                tl.to({}, { duration: 0.5 });
+
+                // ETAPA 2: MOVIMIENTO VERTICAL
+                tl.to(container, {
+                    y: -(scrollHeight - viewportHeight * 0.4),
+                    duration: 4,
+                    ease: "none",
+                });
+
+                // línea progreso vertical
+                tl.fromTo(progressLine,
                     { height: "0%" },
                     {
                         height: "100%",
                         ease: "none",
-                        scrollTrigger: {
-                            trigger: container,
-                            start: "top 80%",
-                            end: "bottom 20%",
-                            scrub: true,
-                        },
-                    }
+                        duration: 4
+                    },
+                    "<"
                 );
 
                 // Subtitle Mobile Reveal
-                if (subtitleRef.current) {
-                    gsap.fromTo(subtitleRef.current,
-                        { opacity: 0, y: 20 },
-                        {
-                            opacity: 1,
-                            y: 0,
-                            duration: 0.8,
-                            ease: "power2.out",
-                            scrollTrigger: {
-                                trigger: subtitleRef.current,
-                                start: "top 90%",
-                                end: "bottom 10%",
-                                toggleActions: "play reverse play reverse"
-                            }
-                        }
-                    );
-                }
+                tl.to(subtitleRef.current, {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    duration: 1,
+                    ease: "power2.out"
+                }, ">+=0.2");
 
-                // animación de items
-                gsap.utils.toArray<HTMLElement>(".timeline-item").forEach((item) => {
-                    gsap.from(item, {
-                        opacity: 0,
-                        y: 40,
-                        duration: 0.8,
-                        ease: "power2.out",
-                        scrollTrigger: {
-                            trigger: item,
-                            start: "top 85%",
-                            toggleActions: "play none none reverse",
-                        },
-                    });
+                // MANTENER UN POCO MÁS ANTES DE DESPINAR
+                tl.to({}, { duration: 0.8 });
+
+                // FADE OUT ANTES DE DESPINAR
+                tl.to(subtitleRef.current, {
+                    opacity: 0,
+                    filter: "blur(8px)",
+                    duration: 0.6,
+                    ease: "power2.in"
                 });
 
             }, sectionRef);
@@ -232,19 +239,19 @@ export const Timeline = ({
     return (
         <section
             ref={sectionRef}
-            className="w-full h-screen bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-60"
+            className="w-full lg:h-screen h-[100dvh] bg-campana-bg relative flex flex-col items-center lg:justify-center overflow-hidden z-60"
         >
             <div ref={contentRevealRef} className="w-full">
-                <div className="absolute inset-0 top-0 lg:-left-24 lg:right-auto lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 top-0 -left-20 lg:-left-24 lg:right-auto h-[100dvh] lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
                     <Image
                         src="/assets/pabloStory.png"
                         alt="Timeline"
                         width={1920 * 3}
                         height={1080 * 3}
-                        className="w-auto h-screen scale-[1.4] object-cover object-top-left opacity-30 lg:opacity-100"
+                        className="w-auto lg:h-screen h-[100dvh] scale-[1.4] object-cover object-top-left opacity-30 lg:opacity-100"
                     />
                 </div>
-                <div className="w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 pb-6">
+                <div className="relative z-20 w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 pb-6 pt-20 lg:pt-0">
                     {highlight && (
                         <span
                             className="text-campana-primary text-xl font-sans font-normal tracking-tighter uppercase mb-6 flex items-center justify-center gap-2 lining-nums"
@@ -259,7 +266,7 @@ export const Timeline = ({
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.2 }}
-                            className="text-campana-primary text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-6 text-center leading-[0.9] tracking-tighter lining-nums w-4xl mx-auto"
+                            className="text-campana-primary text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-6 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
                         >
                             {(() => {
                                 const words = heading.split(" ");
@@ -291,46 +298,54 @@ export const Timeline = ({
                 </div>
 
                 {/* MOBILE VERSION (Original Vertical Line) */}
-                <div
-                    ref={mobileContainerRef}
-                    className="lg:hidden relative max-w-7xl mx-auto px-6 pb-20 mobile-timeline-container"
+                <div className="lg:hidden relative z-20 w-full h-[60vh] overflow-hidden mt-0"
+                    style={{
+                        maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)'
+                    }}
                 >
-                    {/* Línea de fondo */}
-                    <div className="absolute left-8 top-0 bottom-0 w-[2px] bg-neutral-100" />
-
-                    {/* Línea progreso animada */}
                     <div
-                        ref={progressLineMobileRef}
-                        className="absolute left-8 top-0 w-[2px] bg-[#b8912e] z-10 origin-top"
-                    />
+                        ref={mobileContainerRef}
+                        className="relative max-w-7xl mx-auto px-6 mobile-timeline-container"
+                    >
+                        {/* Línea de fondo */}
+                        <div className="absolute left-8 top-0 bottom-0 w-[2px] bg-neutral-100" />
 
-                    <div className="relative z-20">
-                        {data.map((item) => (
-                            <div
-                                key={item.title}
-                                className="timeline-item flex pt-12 relative"
-                            >
-                                <div className="w-4 flex justify-center mr-6">
-                                    <div className="h-4 w-4 rounded-full bg-white border-2 border-[#b8912e] shadow-sm" />
-                                </div>
+                        {/* Línea progreso animada */}
+                        <div
+                            ref={progressLineMobileRef}
+                            className="absolute left-8 top-0 w-[2px] bg-[#b8912e] z-10 origin-top"
+                        />
 
-                                <div className="flex-1">
-                                    <h3 className="text-[#b8912e] font-bold tracking-[0.2em] text-sm uppercase mb-2">
-                                        {item.title}
-                                    </h3>
+                        <div className="relative z-20">
+                            {data.map((item) => (
+                                <div
+                                    key={item.title}
+                                    className="timeline-item flex pt-12 relative"
+                                >
+                                    <div className="w-4 flex justify-center mr-6">
+                                        <div className="h-4 w-4 rounded-full bg-white border-2 border-[#b8912e] shadow-sm" />
+                                    </div>
 
-                                    <div className="text-[#001D3D] text-lg leading-relaxed font-medium"
-                                        style={{
-                                            textAlign: "justify",
-                                            textJustify: "inter-word"
-                                        }}
-                                    >
-                                        {item.content}
+                                    <div className="flex-1">
+                                        <span className="text-[#001D3D] font-ivy-presto font-bold tracking-[0.2em] text-md uppercase mb-2 leading-4">
+                                            {item.title}
+                                        </span>
+
+                                        <div className="text-[#001D3D] text-lg leading-relaxed font-medium"
+                                            style={{
+                                                textAlign: "justify",
+                                                textJustify: "inter-word"
+                                            }}
+                                        >
+                                            {item.content}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
+                    <div className="h-20" />
                 </div>
 
                 {/* DESKTOP VERSION */}
@@ -388,27 +403,29 @@ export const Timeline = ({
                 </div>
             </div>
 
-            {subtitle && (
-                <div
-                    ref={subtitleRef}
-                    className="mt-12 opacity-0 pointer-events-none w-full md:w-4xl lg:ml-auto mx-auto text-center"
-                >
-                    <span className="text-campana-primary text-2xl md:text-3xl font-sans font-normal mb-6 text-center leading-6 tracking-tighter lining-nums">
-                        {subtitle.split(" ").map((word, index, arr) => {
-                            const isLast = index === arr.length - 1;
-                            const isNumber = /^\d+$/.test(word.replace(/[,.]/g, ""));
-                            if (isLast || isNumber) {
-                                return (
-                                    <span key={index} className="font-ivy-presto italic">
-                                        {word}{" "}
-                                    </span>
-                                );
-                            }
-                            return <span key={index}>{word} </span>;
-                        })}
-                    </span>
-                </div>
-            )}
-        </section>
+            {
+                subtitle && (
+                    <div
+                        ref={subtitleRef}
+                        className="opacity-0 pointer-events-none w-full md:w-4xl mx-auto text-center absolute bottom-10 left-0 right-0 z-50 lg:static lg:mt-12 lg:ml-auto px-4 md:px-0"
+                    >
+                        <span className="text-campana-primary text-xl md:text-3xl font-sans font-normal mb-1 md:mb-6 text-center  leading-2 md:leading-6 tracking-tighter lining-nums">
+                            {subtitle.split(" ").map((word, index, arr) => {
+                                const isLast = index === arr.length - 1;
+                                const isNumber = /^\d+$/.test(word.replace(/[,.]/g, ""));
+                                if (isLast || isNumber) {
+                                    return (
+                                        <span key={index} className="font-ivy-presto italic">
+                                            {word}{" "}
+                                        </span>
+                                    );
+                                }
+                                return <span key={index}>{word} </span>;
+                            })}
+                        </span>
+                    </div>
+                )
+            }
+        </section >
     );
 };
