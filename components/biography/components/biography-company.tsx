@@ -83,9 +83,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     end: "+=500%",
                     scrub: 1.2,
                     pin: true,
-                    pinSpacing: false,
-                    anticipatePin: 1,
-                    invalidateOnRefresh: true
+                    anticipatePin: 1
                 },
             })
 
@@ -183,7 +181,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
         <>
             <section
                 ref={sectionRef}
-                className="relative w-full lg:h-screen h-[100dvh] flex items-center z-40 overflow-hidden"
+                className="relative w-full h-screen flex items-center z-40 overflow-hidden"
             >
                 <Image
                     src="/assets/bggradient.png"
@@ -435,9 +433,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                         className="absolute inset-0 z-[110] pointer-events-none bg-transparent opacity-0"
                     />
                 </div>
-            </section >
-            {/* SPACER TO ALLOW 500% PIN DURATION. Bio(100vh) + Spacer(400vh) = 500vh offset for About */}
-            < div className="h-[400vh] pointer-events-none" />
+            </section>
         </>
     )
 }
