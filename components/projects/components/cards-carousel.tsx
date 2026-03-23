@@ -5,6 +5,7 @@ import React, {
   useState,
   createContext,
   useContext,
+  JSX,
 } from "react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -257,14 +258,13 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Control manual de play/pause para asegurar sincronía perfecta
   useEffect(() => {
     if (!videoRef.current) return;
     if (isActive) {
       videoRef.current.play().catch(() => { });
     } else {
       videoRef.current.pause();
-      videoRef.current.currentTime = 0; // Reinicia el video al salir para que siempre empiece de cero
+      videoRef.current.currentTime = 0;
     }
   }, [isActive]);
 
