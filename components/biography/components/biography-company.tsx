@@ -67,6 +67,8 @@ export default function BiographyCompany({ highlight, short_description, descrip
 
     useLayoutEffect(() => {
         if (!sectionRef.current || !textRef.current || !containerRef.current || !extraRef.current) return
+        // Normalización del scroll para prevenir parpadeos en dispositivos móviles
+        ScrollTrigger.normalizeScroll(true);
 
         let mm = gsap.matchMedia();
 
