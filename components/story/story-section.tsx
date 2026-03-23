@@ -23,7 +23,7 @@ export function StoryTimelineSection({
         title: item.acf.year,
         content: (
             <div>
-                <span className="text-xl font-sans font-normal tracking-tighter text-[#001D3D] md:text-[#b8912e] mb-2">
+                <span className="text-xl font-sans font-normal tracking-tighter text-[#001D3D] md:text-[#b8912e] mb-2 ">
                     {(() => {
                         const words = item.acf.title.split(" ");
                         const lastWord = words.pop();

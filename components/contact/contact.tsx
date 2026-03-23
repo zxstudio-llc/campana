@@ -64,7 +64,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                     }}
                     className="w-full mb-10 md:mb-20 max-w-3xl mx-auto text-center"
                 >
-                    <span className="bg-gradient-to-b from-neutral-900 to-neutral-500 bg-clip-text text-transparent text-center text-3xl font-sans font-normal tracking-tight leading-[1.1]">
+                    <span className="bg-linear-to-b from-neutral-900 to-neutral-500 bg-clip-text text-transparent text-center text-2xl md:text-3xl font-sans font-normal tracking-tight leading-[1.1]">
                         {subtitle && (() => {
                             const words = subtitle.split(" ");
                             const lastWord = words.pop();
@@ -94,7 +94,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                             <h2 className="text-5xl md:text-6xl font-sans font-normal text-[#001D3D] tracking-tighter leading-none">
                                 {title}
                             </h2>
-                            <span className="text-gray-700 text-xl leading-relaxed md:leading-[1.3] text-justify lg:text-left">
+                            <span className="text-gray-700 text-md md:text-xl leading-relaxed md:leading-[1.3] text-justify lg:text-left">
                                 {highlight && (() => {
                                     const words = highlight.split(" ");
                                     const lastWord = words.pop();
@@ -136,7 +136,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                                 <div className="w-10 h-10 rounded-full bg-[#001D3D] flex items-center justify-center transition-colors group-hover/contact:bg-white group-hover/contact:border-[#001D3D] group-hover/contact:border">
                                     <Phone className="w-5 h-5 text-white transition-colors group-hover/contact:text-[#001D3D]" />
                                 </div>
-                                <span className="text-[#001D3D] transition-colors group-hover/contact:text-[#001D3D] font-bold uppercase text-sm tracking-wide">
+                                <span className="text-[#001D3D] transition-colors group-hover/contact:text-[#001D3D] font-sans font-normal text-sm tracking-wide">
                                     {phone}
                                 </span>
                             </a>

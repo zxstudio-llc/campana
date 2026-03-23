@@ -85,7 +85,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     pin: true,
                     pinSpacing: false,
                     anticipatePin: 1,
-                    pinType: "transform"
+                    invalidateOnRefresh: true
                 },
             })
 
@@ -183,7 +183,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
         <>
             <section
                 ref={sectionRef}
-                className="relative w-full h-screen flex items-center z-40 overflow-hidden"
+                className="relative w-full lg:h-screen h-[100dvh] flex items-center z-40 overflow-hidden"
             >
                 <Image
                     src="/assets/bggradient.png"
@@ -232,7 +232,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                         absolute 
                                         top-[5%] md:top-[5%] lg:top-0 
                                         text-white 
-                                        text-[120px] md:text-[200px] lg:text-[280px] 
+                                        text-[130px] md:text-[200px] lg:text-[280px] 
                                         font-anton uppercase leading-none tracking-tighter antialiased 
                                         z-10 -mt-6
                                     "
@@ -244,9 +244,9 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     ref={secondTextRef}
                                     className="
                                         absolute 
-                                        top-[30%] md:top-[30%] lg:top-[200px] 
+                                        top-[15%] md:top-[30%] lg:top-[200px] 
                                         text-white 
-                                        text-[250px] md:text-[380px] lg:text-[630px] 
+                                        text-[380px] md:text-[380px] lg:text-[630px] 
                                         font-anton uppercase leading-none tracking-tighter antialiased 
                                         z-10
                                     "
