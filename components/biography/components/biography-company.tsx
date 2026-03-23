@@ -61,7 +61,9 @@ export default function BiographyCompany({ highlight, short_description, descrip
         return () => mql.removeEventListener("change", onChange);
     }, []);
 
-    const bgPlaybackId = biography.acf.main_photo;
+    const currentImage = isMobile && biography.acf.secondary_photo
+        ? biography.acf.secondary_photo
+        : biography.acf.main_photo;
 
     useLayoutEffect(() => {
         if (!sectionRef.current || !textRef.current || !containerRef.current || !extraRef.current) return
@@ -183,75 +185,108 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 ref={sectionRef}
                 className="relative w-full h-screen flex items-center z-40 overflow-hidden"
             >
-                {/* GRADIENT BACKGROUND THAT FADES IN OVER HERO */}
-                <div
-                    ref={bgLayerRef}
-                    className="absolute inset-0 bg-linear-to-b from-black to-campana-bg-hover pointer-events-none"
+                <Image
+                    src="/assets/bggradient.png"
+                    alt="Background Gradient"
+                    fill
+                    priority
+                    unoptimized={true}
+                    // "object-cover" es vital para que sea un fondo real
+                    className="object-cover absolute inset-0 -z-10 pointer-events-none"
                 />
+                {/* GRADIENT BACKGROUND THAT FADES IN OVER HERO */}
+                {/* <div
+                    ref={bgLayerRef}
+                    className="absolute inset-0 bg-linear-to-b from-black/50 to-campana-bg-hover/80 pointer-events-none z-0"
+                /> */}
 
                 <div
                     ref={containerRef}
                     className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none"
                 >
-                    <div className="max-w-7xl mx-auto h-full grid lg:grid-cols-12 items-center">
+                    <div className="mx-auto h-full grid grid-cols-1 lg:grid-cols-12 lg:items-center px-0 pt-2">
+                        {/* IMAGE LEFT */}
+                        <div className="lg:col-span-5 h-[60vh] lg:h-full relative w-full" ref={bgImageRef}>
+                            {currentImage && (
+                                <Image
+                                    key={currentImage}
+                                    src={currentImage}
+                                    alt="CEO Background"
+                                    fill
+                                    priority
+                                    unoptimized={true}
+                                    className="object-contain object-bottom-right lg:object-bottom-left pointer-events-none"
+                                />
+                            )}
+                        </div>
 
-                        {/* TEXT LEFT */}
-                        <div className="lg:col-span-7 flex flex-col items-center lg:items-start justify-center ">
+                        {/* TEXT RIGHT */}
+                        <div className="lg:col-span-7 flex flex-col items-start lg:items-start justify-center ">
                             <div
                                 ref={collisionContainerRef}
-                                className="relative w-full h-[300px] md:h-[500px] lg:h-[800px] flex justify-center lg:justify-start mt-10"
+                                className="relative w-full h-[300px] md:h-[800px] lg:h-[800px] flex justify-start lg:justify-start items-center mt-10"
                             >
                                 <span
                                     ref={firstTextRef}
-                                    className="absolute top-0 text-white text-[120px] md:text-[250px] lg:text-[280px] font-anton uppercase leading-none tracking-tighter antialiased z-20 -mt-6"
+                                    className="
+                                        absolute 
+                                        lg:top-0 
+                                        text-white 
+                                        text-[120px] md:text-[250px] lg:text-[280px] 
+                                        font-anton uppercase leading-none tracking-tighter antialiased 
+                                        z-20 -mt-6
+                                    "
                                     style={{ WebkitFontSmoothing: "antialiased" }}
                                 >
                                     {biography.acf.first_text}
                                 </span>
                                 <span
                                     ref={secondTextRef}
-                                    className="absolute top-[85px] md:top-[180px] lg:top-[200px] text-white text-[180px] md:text-[400px] lg:text-[630px] font-anton uppercase leading-none tracking-tighter antialiased z-10"
+                                    className="
+                                        absolute 
+                                        top-[200px] 
+                                        text-white 
+                                        text-[300px] md:text-[400px] lg:text-[630px] 
+                                        font-anton uppercase leading-none tracking-tighter antialiased 
+                                        z-10
+                                    "
                                     style={{ WebkitFontSmoothing: "antialiased" }}
                                 >
                                     {biography.acf.second_text}
                                 </span>
                             </div>
                         </div>
-
-                        {/* IMAGE RIGHT */}
-                        <div className="lg:col-span-5 h-[60vh] lg:h-full relative w-full" ref={bgImageRef}>
-                            {bgPlaybackId && (
-                                <Image
-                                    src={bgPlaybackId}
-                                    alt="CEO Background"
-                                    fill
-                                    priority
-                                    unoptimized={true}
-                                    className="object-contain object-bottom-right pointer-events-none"
-                                />
-                            )}
-                        </div>
                     </div>
 
                     <div
                         ref={overlayRef}
-                        className="absolute inset-0 z-0 pointer-events-none select-none bg-gradient-to-r from-black via-black/40 via-black/60 via-transparent to-transparent"
+                        className="
+        absolute 
+        inset-y-0
+        right-0      
+        w-full        
+        z-0 
+        pointer-events-none 
+        select-none 
+        bg-linear-to-l from-black/50 via-transparent to-transparent
+        ml-auto
+    "
                     />
                 </div>
 
                 <div className="relative z-[100] w-full px-6 md:px-20 pointer-events-auto">
                     <div className="max-w-7xl mx-auto items-center">
 
-                        <div className="w-full relative flex items-center min-h-[60vh]">
+                        <div className="w-full relative flex items-center min-h-[60vh] justify-end">
                             {/*BLOCK 1: PRIMARY BIOGRAPHY */}
                             <div
                                 ref={textRef}
-                                className="flex flex-col text-white py-10 max-w-2xl relative z-40"
+                                className="flex flex-col text-white py-10 max-w-3xl relative z-40"
                             >
                                 <motion.span
                                     initial={{ opacity: 0 }}
                                     animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                                    className="text-campana-secondary font-bold tracking-[0.2em] uppercase block mb-4 text-center md:text-left"
+                                    className="text-campana-secondary font-inter font-bold uppercase block mb-4 text-center md:text-left"
                                 >
                                     {data.highlight}
                                 </motion.span>
@@ -260,16 +295,27 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                     transition={{ delay: 0.2 }}
-                                    className="text-5xl md:text-8xl lg:text-8xl font-black tracking-tighter leading-[0.85] uppercase mb-10 text-center md:text-left"
+                                    className="text-5xl md:text-8xl lg:text-8xl font-sans font-normal tracking-tighter leading-[0.85] mb-10 text-center md:text-left"
                                 >
-                                    {data.title}
+                                    {(() => {
+                                        const words = data.title.split(" ");
+                                        const lastWord = words.pop();
+                                        return (
+                                            <>
+                                                {words.join(" ")}{" "}
+                                                <span className="font-ivy-presto italic">
+                                                    {lastWord}
+                                                </span>
+                                            </>
+                                        );
+                                    })()}
                                 </motion.h2>
 
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                     transition={{ delay: 0.4 }}
-                                    className="text-white text-base md:text-lg leading-normal space-y-4 reveal-description font-normal"
+                                    className="text-white text-base md:text-lg leading-normal tracking-tighter space-y-4 reveal-description text-right font-inter font-normal"
                                     style={{
                                         textAlign: "justify",
                                         textAlignLast: "left",
@@ -284,10 +330,10 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     transition={{ delay: 0.4 }}
                                     className="text-right py-4"
                                 >
-                                    <p className="text-2xl font-bold mb-2 italic text-white leading-none">
+                                    <p className="text-3xl mb-2 font-ivy-presto italic text-white leading-none">
                                         {data.name}
                                     </p>
-                                    <p className="text-campana-secondary text-sm md:text-sm uppercase font-bold italic">
+                                    <p className="text-campana-secondary text-sm md:text-lg font-ivy-presto italic">
                                         {data.role}
                                     </p>
                                 </motion.div>
@@ -338,12 +384,12 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             {/* BLOCK 2: EXTRA FIELDS (AFTER BIOGRAPHY) */}
                             <div
                                 ref={extraRef}
-                                className="absolute inset-0 flex flex-col justify-center text-white max-w-6xl z-30 pointer-events-none"
+                                className="absolute inset-0 flex flex-col justify-center text-white max-w-8xl z-30 pointer-events-none "
                             >
                                 <motion.span
                                     initial={{ opacity: 0 }}
                                     animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                                    className="text-campana-secondary font-bold tracking-[0.2em] uppercase block mb-4 text-center md:text-left"
+                                    className="text-campana-secondary font-inter font-bold uppercase block mb-4 text-left"
                                 >
                                     {highlight}
                                 </motion.span>
@@ -352,9 +398,20 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                     transition={{ delay: 0.2 }}
-                                    className="text-5xl md:text-6xl lg:text-7xl font-black leading-none uppercase mb-10 text-center md:text-left"
+                                    className="text-[3.2rem] md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-left"
                                 >
-                                    {short_description}
+                                    {(() => {
+                                        const words = short_description.split(" ");
+                                        const lastWord = words.pop();
+                                        return (
+                                            <>
+                                                {words.join(" ")}{" "}
+                                                <span className="font-ivy-presto italic">
+                                                    {lastWord}
+                                                </span>
+                                            </>
+                                        );
+                                    })()}
                                 </motion.h2>
 
 
@@ -380,7 +437,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 </div>
             </section >
             {/* SPACER TO ALLOW 500% PIN DURATION. Bio(100vh) + Spacer(400vh) = 500vh offset for About */}
-            <div className="h-[400vh] pointer-events-none" />
+            < div className="h-[400vh] pointer-events-none" />
         </>
     )
 }

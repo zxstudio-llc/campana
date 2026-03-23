@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-interface MarqueeProps {
+interface AppleCardsProps {
     className?: string;
     reverse?: boolean;
     pauseOnHover?: boolean;
@@ -11,7 +11,7 @@ interface MarqueeProps {
     [key: string]: any;
 }
 
-export default function Marquee({
+export default function AppleCards({
     className,
     reverse,
     pauseOnHover = false,
@@ -20,7 +20,7 @@ export default function Marquee({
     repeat = 4,
     pause = false,
     ...props
-}: MarqueeProps) {
+}: AppleCardsProps) {
     return (
         <div
             {...props}

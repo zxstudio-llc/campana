@@ -191,6 +191,7 @@ async function RenderBlock({
         );
       return (
         <ActivosSection
+          highlight={data.highlight}
           title={data.title}
           description={data.description}
           activos={activosResolved}
@@ -212,6 +213,7 @@ async function RenderBlock({
 
       return (
         <OurValueSection
+          highlight={data.highlight}
           title={data.title}
           description={data.description}
           values={valuesResolved}
@@ -227,6 +229,7 @@ async function RenderBlock({
 
       return (
         <ProjectsCardsSection
+          highlight={data.highlight}
           title={data.title}
           description={data.description}
           projects={projects}
@@ -243,6 +246,7 @@ async function RenderBlock({
       return (
         <StoryTimelineSection
           highlight={data.highlight}
+          title={data.title}
           description={data.description}
           subtitle={data.subtitle}
           timelines={timelines}
@@ -258,8 +262,8 @@ async function RenderBlock({
 
       return (
         <InvestmentSection
-          main_photo={data.main_photo}
-          secondary_photo={data.secondary_photo}
+          main={data.main}
+          secondary={data.secondary}
           highlight={data.highlight}
           title={data.title}
           description={data.description}

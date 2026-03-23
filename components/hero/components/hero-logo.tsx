@@ -26,12 +26,6 @@ export default function HeroLogo({
         ? bg_photo_mobile || bg_photo_desktop
         : bg_photo_desktop || bg_photo_mobile;
 
-    // useEffect(() => {
-    //     if (introSrc && !introSrc.startsWith('http') && !introSrc.startsWith('/')) {
-    //         console.warn(`[Hero] introSrc detectado como hash/ID en lugar de URL: "${introSrc}". Esto provocará un error 404 si no es una ruta válida.`);
-    //     }
-    // }, [introSrc]);
-
     useLayoutEffect(() => {
 
         const mq = window.matchMedia("(max-width: 767px)");
@@ -94,12 +88,13 @@ export default function HeroLogo({
                 <div className="absolute inset-0 bg-linear-to-b from-campana-bg-hover to-black" />
                 {introSrc && (
                     <div ref={introRef} className="absolute inset-0">
-                        <Image
+                        <video
                             src={introSrc}
-                            alt="Hero Background"
-                            fill
-                            priority
-                            className=" pointer-events-none"
+                            loop
+                            muted
+                            autoPlay
+                            playsInline
+                            className="w-full h-full object-cover pointer-events-none object-right"
                         />
                     </div>
                 )}

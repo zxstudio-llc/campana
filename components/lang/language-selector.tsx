@@ -85,6 +85,7 @@ export function LanguageSelector({ languages }: { languages: Language[] }) {
                   alt={lang.name}
                   width={20}
                   height={14}
+                  style={{ width: "20px", height: "auto" }}
                 />
               )}
 

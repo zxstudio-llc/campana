@@ -1,11 +1,9 @@
-import React from "react"
 import { Timeline as TimelineComponent } from "@/components/story/components/timeline"
-import { getTimelineByIds } from "@/lib/wordpress"
-import { getPageById } from "@/lib/wordpress"
 import { Timeline } from "@/lib/wordpress.d";
 
 interface Props {
     highlight: string
+    title: string
     description: string
     subtitle: string
     timelines: Timeline[]
@@ -13,6 +11,7 @@ interface Props {
 
 export function StoryTimelineSection({
     highlight,
+    title,
     description,
     subtitle,
     timelines,
@@ -24,12 +23,23 @@ export function StoryTimelineSection({
         title: item.acf.year,
         content: (
             <div>
-                <h3 className="text-lg font-bold text-[#b8912e] mb-2">
-                    {item.acf.title}
+                <h3 className="text-xl font-sans font-normal tracking-tighter text-[#b8912e] mb-2">
+                    {(() => {
+                        const words = item.acf.title.split(" ");
+                        const lastWord = words.pop();
+                        return (
+                            <>
+                                {words.join(" ")}{" "}
+                                <span className="font-ivy-presto italic text-xl transition-all">
+                                    {lastWord}
+                                </span>
+                            </>
+                        );
+                    })()}
                 </h3>
 
                 <div
-                    className="text-sm leading-relaxed min-w-[20rem]"
+                    className="text-sm min-w-[20rem] tracking-tight leading-5 font-sans font-normal"
                     dangerouslySetInnerHTML={{
                         __html: item.acf.description,
                     }}
@@ -41,7 +51,8 @@ export function StoryTimelineSection({
     return (
         <div className="relative w-full overflow-clip bg-campana-bg">
             <TimelineComponent
-                heading={highlight}
+                highlight={highlight}
+                heading={title}
                 description={description}
                 subtitle={subtitle}
                 data={data}

@@ -50,7 +50,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
     };
 
     return (
-        <section className="py-20 md:py-24 overflow-hidden bg-campana-bg">
+        <section className="py-20 md:py-24 overflow-hidden bg-campana-bg-about">
             <Container className="w-screen px-4">
 
                 {/* SUBTITLE: Centrado en la web con máxima fuerza */}
@@ -62,18 +62,22 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                         duration: 1.2,
                         ease: [0.22, 1, 0.36, 1] as any
                     }}
-                    className="w-full mb-10 md:mb-20"
+                    className="w-full mb-10 md:mb-20 max-w-3xl mx-auto text-center"
                 >
-                    <h3 className="bg-gradient-to-b from-neutral-900 to-neutral-500 bg-clip-text text-transparent text-center text-3xl md:text-5xl lg:text-7xl font-medium tracking-tight max-w-7xl mx-auto leading-[1.1]">
-                        {subtitle}
-                    </h3>
-
-                    <motion.div
-                        initial={{ width: 0, opacity: 0 }}
-                        whileInView={{ width: "100%", opacity: 1 }}
-                        transition={{ delay: 0.8, duration: 1.5, ease: [0.22, 1, 0.36, 1] as any }}
-                        className="h-[1px] bg-neutral-300 mx-auto mt-12 max-w-5xl"
-                    />
+                    <span className="bg-gradient-to-b from-neutral-900 to-neutral-500 bg-clip-text text-transparent text-center text-3xl font-sans font-normal tracking-tight leading-[1.1]">
+                        {subtitle && (() => {
+                            const words = subtitle.split(" ");
+                            const lastWord = words.pop();
+                            return (
+                                <>
+                                    {words.join(" ")}{" "}
+                                    <span className="font-ivy-presto italic">
+                                        {lastWord}
+                                    </span>
+                                </>
+                            );
+                        })()}
+                    </span>
                 </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-top max-w-7xl mx-auto px-6 md:px-8 ">
@@ -86,13 +90,30 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                         viewport={{ once: true }}
                         className="lg:col-span-7 flex flex-col space-y-4 md:space-y-8 text-center lg:text-left"
                     >
-                        <motion.div variants={itemVariants} className="space-y-6">
-                            <h2 className="text-5xl md:text-8xl font-black text-[#001D3D] tracking-tighter leading-none uppercase">
+                        <motion.div variants={itemVariants} className="space-y-6 w-full mx-auto max-w-3xl ">
+                            <h2 className="text-5xl md:text-6xl font-sans font-normal text-[#001D3D] tracking-tighter leading-none">
                                 {title}
                             </h2>
-                            <p className="text-gray-700 text-xl lg:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed md:leading-[1.3] text-justify lg:text-left">
-                                {highlight}
-                            </p>
+                            <span className="text-gray-700 text-xl leading-relaxed md:leading-[1.3] text-justify lg:text-left">
+                                {highlight && (() => {
+                                    const words = highlight.split(" ");
+                                    const lastWord = words.pop();
+                                    const mid = Math.ceil(words.length / 2);
+                                    const firstHalf = words.slice(0, mid).join(" ");
+                                    const secondHalf = words.slice(mid).join(" ");
+
+                                    return (
+                                        <>
+                                            {firstHalf}
+                                            <br />
+                                            {secondHalf}{" "}
+                                            <span className="font-ivy-presto italic">
+                                                {lastWord}
+                                            </span>
+                                        </>
+                                    );
+                                })()}
+                            </span>
                         </motion.div>
 
                         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 md:gap-6 pt-4">
@@ -103,7 +124,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
                                 <div className="w-10 h-10 rounded-full bg-[#001D3D] flex items-center justify-center transition-colors group-hover/contact:bg-white group-hover/contact:border-[#001D3D] group-hover/contact:border">
                                     <Mail className="w-5 h-5 text-white transition-colors group-hover/contact:text-[#001D3D]" />
                                 </div>
-                                <span className="text-[#001D3D] transition-colors group-hover/contact:text-[#001D3D] font-bold uppercase text-sm tracking-wide">
+                                <span className="text-[#001D3D] transition-colors group-hover/contact:text-[#001D3D] font-sans font-normal text-sm tracking-wide">
                                     {mail}
                                 </span>
                             </a>

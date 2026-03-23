@@ -26,9 +26,22 @@ const FAQSection = ({ section, faqs }: FAQSectionProps) => {
 
                         {/* Title */}
                         <div className="lg:col-span-6 w-full">
-                            <h2 className="text-4xl md:text-8xl font-black text-campana-primary tracking-tighter leading-none uppercase">
-                                {section.title}
-                            </h2>
+                            {section.title && (
+                                <h2 className="text-4xl md:text-7xl font-sans font-normal text-campana-primary tracking-tighter leading-none first-letter:capitalize lowercase">
+                                    {(() => {
+                                        const words = section.title.split(" ");
+                                        const lastWord = words.pop();
+                                        return (
+                                            <>
+                                                {words.join(" ")}{" "}
+                                                <span className="font-ivy-presto italic">
+                                                    {lastWord}
+                                                </span>
+                                            </>
+                                        );
+                                    })()}
+                                </h2>
+                            )}
 
                             {section.description && (
                                 <p className="mt-6 text-gray-600 text-lg md:text-xl font-semibold hidden lg:block">
@@ -50,7 +63,7 @@ const FAQSection = ({ section, faqs }: FAQSectionProps) => {
                                             <div className="flex items-start gap-4 w-full">
                                                 <Plus className="w-5 h-5 text-campana-secondary shrink-0 mt-1 transition-transform duration-200 group-data-[state=open]:rotate-45" />
                                                 <span
-                                                    className="text-lg md:text-xl font-semibold leading-tight"
+                                                    className="text-lg font-sans font-normal leading-tight"
                                                     dangerouslySetInnerHTML={{
                                                         __html: faq.title.rendered,
                                                     }}
@@ -58,7 +71,7 @@ const FAQSection = ({ section, faqs }: FAQSectionProps) => {
                                             </div>
                                         </AccordionTrigger>
 
-                                        <AccordionContent className="text-gray-700 text-base md:text-lg pl-9 pb-8 leading-4">
+                                        <AccordionContent className="text-gray-700 text-base md:text-md pl-9 pb-8 leading-4 font-sans font-normal">
                                             <div
                                                 dangerouslySetInnerHTML={{
                                                     __html: faq.acf.content,

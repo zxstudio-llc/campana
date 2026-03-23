@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useLayoutEffect } from "react";
 import { Carousel, Card } from "@/components/projects/components/cards-carousel";
 import Image from "next/image";
-import { motion } from "motion/react";
+import { motion, useInView } from "motion/react";
 import { ExternalLink } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
@@ -20,6 +20,7 @@ if (typeof window !== "undefined") {
 interface Props {
   title?: string
   description?: string
+  highlight?: string
   projects: Projects[]
 }
 
@@ -34,10 +35,11 @@ interface ContentProps {
   imageUrl: string
 }
 
-export function ProjectsCardsSection({ title, description, projects }: Props) {
+export function ProjectsCardsSection({ title, description, highlight, projects }: Props) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRevealRef = useRef<HTMLDivElement>(null);
   const [isCarouselActive, setIsCarouselActive] = React.useState(false);
+  const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
 
   useEffect(() => {
     if (!projects) return;
@@ -131,18 +133,48 @@ export function ProjectsCardsSection({ title, description, projects }: Props) {
   return (
     <section
       ref={sectionRef}
-      className="w-screen h-auto py-20 bg-campana-bg flex items-center justify-center overflow-hidden z-60"
+      className="w-screen h-auto py-20 bg-campana-bg-about flex items-center justify-center overflow-hidden z-60"
     >
-      <div ref={contentRevealRef} className="w-full ">
-        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 mb-6">
-          {description && (
-            <p className="text-campana-secondary text-xl md:text-lg font-bold text-center uppercase">
-              {description}
-            </p>
+      <div ref={contentRevealRef} className="w-full mb-20 md:mb-28">
+        <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-8 pb-30 overflow-hidden">
+          {highlight && (
+            <span className="text-[#001D3D] text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+              {highlight}
+            </span>
           )}
-          <h2 className="text-[#001D3D] text-5xl md:text-8xl font-black uppercase text-center">
-            {title}
-          </h2>
+
+          {title && (
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.2 }}
+              className="text-[#001D3D] text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-4xl mx-auto"
+            >
+              {(() => {
+                const words = title.split(" ");
+                const lastWord = words.pop();
+                return (
+                  <>
+                    {words.join(" ")}{" "}
+                    <span className="font-ivy-presto italic  transition-all">
+                      {lastWord}
+                    </span>
+                  </>
+                );
+              })()}
+            </motion.h2>
+          )}
+          {description && (
+            <p
+              className="text-[#001D3D] text-base md:text-lg w-full md:w-2xl mx-auto tracking-tight leading-5 font-sans font-normal"
+              style={{
+                textAlign: "justify",
+                textAlignLast: "center",
+                textJustify: "inter-word"
+              }}
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          )}
         </div>
 
         <Carousel items={cards} active={isCarouselActive} />
@@ -216,19 +248,19 @@ const Content = ({
           <motion.span
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-[#f1ba0a] font-bold uppercase tracking-tighter text-xl pt-4 md:pt-0"
+            className="text-[#f1ba0a] font-sans font-normal tracking-tighter text-xl pt-4 md:pt-0"
           >
             {category}
           </motion.span>
           <motion.span
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-[#001D3D] font-extrabold uppercase tracking-tighter text-lg mb-2 md:mb-4"
+            className="text-[#001D3D] font-sans font-normal tracking-tighter text-lg mb-2 md:mb-4"
           >
             {title}
           </motion.span>
 
-          <div className="text-[#001D3D] text-base font-sans leading-relaxed flex flex-col gap-2 text-justify">
+          <div className="text-[#001D3D] text-base font-sans font-normal leading-relaxed flex flex-col gap-2 text-justify">
             <span className="block leading-snug text-sm text-neutral-600">{description}</span>
             <div className="text-neutral-600">
               {formatText(details)}

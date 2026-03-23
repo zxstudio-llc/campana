@@ -1,64 +1,53 @@
 "use client";
 
-import * as React from 'react';
-import { useServerInsertedHTML } from 'next/navigation';
-import { CacheProvider } from '@emotion/react';
-import createCache from '@emotion/cache';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import type { ThemeOptions } from '@mui/material/styles';
+import * as React from "react";
+import { useServerInsertedHTML } from "next/navigation";
 
 interface AppThemeProps {
   children: React.ReactNode;
   disableCustomTheme?: boolean;
-  themeComponents?: ThemeOptions['components'];
 }
 
-export default function AppTheme(props: AppThemeProps) {
-  const { children, disableCustomTheme, themeComponents } = props;
-
-  const [emotionCache] = React.useState(() => {
-    const cache = createCache({ key: 'mui', prepend: true });
-    cache.compat = true;
-    return cache;
-  });
+export default function AppTheme({
+  children,
+  disableCustomTheme,
+}: AppThemeProps) {
+  /**
+   * Futuro: aquí puedes integrar cualquier engine de estilos SSR
+   * (styled-components, vanilla-extract, etc.)
+   */
+  const stylesRef = React.useRef<string>("");
 
   useServerInsertedHTML(() => {
-    const serialized = emotionCache.sheet.tags.join('');
-    if (serialized.length === 0) {
-      return null;
-    }
+    if (!stylesRef.current) return null;
 
     return (
       <style
-        data-emotion={`${emotionCache.key} ${emotionCache.sheet.tags.join(' ')}`}
-        dangerouslySetInnerHTML={{ __html: serialized }}
+        id="app-theme-styles"
+        dangerouslySetInnerHTML={{ __html: stylesRef.current }}
       />
     );
   });
 
-  const theme = React.useMemo(() => {
-    return disableCustomTheme
-      ? {}
-      : createTheme({
-        cssVariables: {
-          colorSchemeSelector: 'data-mui-color-scheme',
-          cssVarPrefix: 'template',
-        },
-        components: {
-          ...themeComponents,
-        },
-      });
-  }, [disableCustomTheme, themeComponents]);
-
   if (disableCustomTheme) {
-    return <React.Fragment>{children}</React.Fragment>;
+    return <>{children}</>;
   }
 
   return (
-    <CacheProvider value={emotionCache}>
-      <ThemeProvider theme={theme} disableTransitionOnChange>
-        {children}
-      </ThemeProvider>
-    </CacheProvider>
+    <div
+      data-theme="default"
+      className="min-h-screen"
+      style={
+        {
+          "--background": "0 0% 100%",
+          "--foreground": "222 47% 11%",
+          "--primary": "222 47% 11%",
+          "--primary-foreground": "0 0% 100%",
+          "--radius": "0.5rem",
+        } as React.CSSProperties
+      }
+    >
+      {children}
+    </div>
   );
 }

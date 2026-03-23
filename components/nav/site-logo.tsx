@@ -32,6 +32,7 @@ export default function SiteLogo({ siteInfo }: { siteInfo: SiteInfo | null }) {
         alt={siteInfo.logo.alt || "Logo"}
         width={300}
         height={120}
+        style={{ width: "200px", height: "auto" }}
         priority
         fetchPriority="high"
         className=" h-9 md:h-9 w-auto object-contain"

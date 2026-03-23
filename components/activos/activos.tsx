@@ -6,6 +6,7 @@ import { ActivoEstrategico } from "@/lib/wordpress.d"
 import { useRef, useLayoutEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion, useInView } from "motion/react";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -13,12 +14,14 @@ if (typeof window !== "undefined") {
 
 
 interface Props {
+    highlight?: string
     title?: string
     description?: string
     activos: ActivoEstrategico[]
 }
 
 export function ActivosSection({
+    highlight,
     title,
     description,
     activos,
@@ -26,6 +29,7 @@ export function ActivosSection({
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const [canStartTicker, setCanStartTicker] = useState(false);
+    const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
     const [tickerKey, setTickerKey] = useState(0);
 
     useLayoutEffect(() => {
@@ -149,19 +153,47 @@ export function ActivosSection({
         >
             <div
                 ref={contentRef}
-                className="w-full flex flex-col items-center"
+                className="w-full flex flex-col items-center mb-20 md:mb-28"
             >
-                <div className="max-w-screen mx-auto text-center">
-
-
-                    {description && (
-                        <p className="text-campana-secondary text-base md:text-lg font-medium uppercase">
-                            {description}
-                        </p>
+                <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-12 pb-30 overflow-hidden">
+                    {highlight && (
+                        <span className="text-white text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+                            {highlight}
+                        </span>
                     )}
-                    <h2 className="text-white text-5xl md:text-8xl font-black uppercase leading-tight">
-                        {title}
-                    </h2>
+
+                    {title && (
+                        <motion.h2
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                            transition={{ delay: 0.2 }}
+                            className="text-white text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-4xl mx-auto"
+                        >
+                            {(() => {
+                                const words = title.split(" ");
+                                const lastWord = words.pop();
+                                return (
+                                    <>
+                                        {words.join(" ")}{" "}
+                                        <span className="font-ivy-presto italic  transition-all">
+                                            {lastWord}
+                                        </span>
+                                    </>
+                                );
+                            })()}
+                        </motion.h2>
+                    )}
+                    {description && (
+                        <p
+                            className="text-white text-base md:text-lg w-full md:w-md mx-auto tracking-tight leading-5 font-sans font-normal"
+                            style={{
+                                textAlign: "justify",
+                                textAlignLast: "center",
+                                textJustify: "inter-word"
+                            }}
+                            dangerouslySetInnerHTML={{ __html: description }}
+                        />
+                    )}
                 </div>
 
                 <Showcase content={content} />

@@ -1,6 +1,6 @@
 import "../globals.css";
 
-import { inter, robotoMono, anton, raleway } from '@/lib/fonts';
+import { inter, anton, ivyPresto, ivyOra } from '@/lib/fonts';
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
 import { siteConfig } from "@/site.config";
@@ -11,7 +11,6 @@ import AppNav from "@/components/nav/app-nav";
 import AppTheme from "@/components/theme/app-theme";
 
 import { getMainMenu, getGlobalCTA, getActiveLanguages, getSiteInfo } from "@/lib/wordpress";
-import { SwiperStyles } from "@/components/theme/SwiperStyles";
 import Footer from "@/components/nav/footer";
 import SmoothScroller from "@/components/smooth-scroller";
 
@@ -51,9 +50,9 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${robotoMono.variable} ${anton.variable} ${raleway.variable}`}>
+    <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${ivyPresto.variable} ${ivyOra.variable} ${anton.variable}`}>
       <head />
-      <body className={cn("min-h-screen bg-linear-to-b from-black to-campana-bg-hover text-foreground antialiased")}>
+      <body className={cn("min-h-screen bg-campana-bg text-foreground antialiased")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -61,7 +60,6 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AppTheme>
-            <SwiperStyles />
             <AppNav menuItems={menuItems} cta={cta} languages={wpLanguages} siteInfo={siteInfo} />
             <SmoothScroller>
               <main className="relative flex flex-col min-h-screen">

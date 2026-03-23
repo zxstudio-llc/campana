@@ -172,6 +172,7 @@ export interface Biography {
   slug: string
   acf: {
     main_photo?: string
+    secondary_photo?: string
     first_text?: string
     second_text?: string
     biography: {
@@ -239,12 +240,9 @@ export interface HeroStatic {
 
 export interface AboutSection {
   acf_fc_layout: 'about'
-  title?: string
-  subtitle?: string
   mux_playback_id?: string
   mux_playback_mobile_id?: string
   background_desktop?: string
-  background_mobile?: string
 }
 
 export interface OurValuesSection {
@@ -258,6 +256,7 @@ export interface OurValuesSection {
 export interface TimelineSection {
   acf_fc_layout: 'timelines'
   highlight: string
+  title: string
   description: string
   subtitle: string
   timelines: number[]
@@ -265,6 +264,7 @@ export interface TimelineSection {
 
 export interface ProjectsSection {
   acf_fc_layout: 'projects'
+  highlight?: string
   title?: string
   description?: string
   projects: number[]
@@ -276,8 +276,8 @@ export interface ProjectsSection {
 
 export interface InvestmentsSection {
   acf_fc_layout: 'investment'
-  main_photo?: string
-  secondary_photo?: string
+  main?: string
+  secondary?: string
   highlight?: string
   title?: string
   description?: string
@@ -288,6 +288,7 @@ export interface InvestmentsSection {
 
 export interface ActivosEstrategicosSection {
   acf_fc_layout: "activos";
+  highlight?: string
   title?: string;
   description?: string;
   activos: number[];
@@ -299,6 +300,8 @@ export interface BiographySection {
   short_description?: string
   description?: string
   biography: { ID: number }[]
+  cta?: string
+  cta_url?: string
 }
 
 export interface FaqsSection {

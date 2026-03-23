@@ -1,12 +1,11 @@
 "use client";
 
-import { motion, useInView } from "motion/react";
 import { AboutSection } from "@/lib/wordpress.d";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import Image from "next/image"
-
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { TextHoverEffect } from "../ui/text-hover-effect";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -18,21 +17,28 @@ interface AboutUsProps {
 
 export function AboutUsSection({ about }: AboutUsProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
-    const pinRef = useRef<HTMLDivElement>(null);
 
-    const introRef = useRef<HTMLDivElement>(null);
+    const introTextRef = useRef<HTMLDivElement>(null);
     const bgLayerRef = useRef<HTMLDivElement>(null);
     const scrollOverlayRef = useRef<HTMLDivElement>(null);
-    const [isMobile, setIsMobile] = useState(false);
 
     const subtitleRef = useRef<HTMLHeadingElement>(null);
     const textGroupRef = useRef<HTMLDivElement>(null);
     const videoContainerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
 
-    const introSrc = isMobile
-        ? about.background_mobile || about.background_desktop
-        : about.background_desktop || about.background_mobile;
+    const [isMobile, setIsMobile] = useState(false);
+
+    const introSrc = about.background_desktop;
+
+    const introWords = (introSrc || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(
+            (word) =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        );
 
     useEffect(() => {
         const mql = window.matchMedia("(max-width: 1024px)");
@@ -53,18 +59,24 @@ export function AboutUsSection({ about }: AboutUsProps) {
 
         const ctx = gsap.context(() => {
             gsap.set(bgLayerRef.current, { opacity: 0 });
-            gsap.set(introRef.current, { scale: 1, filter: "blur(0px)" });
 
-            // Texto centrado por el flujo Flexbox
-            gsap.set(textGroupRef.current, {
-                opacity: 0,
-                y: 0
+            gsap.set(introTextRef.current, {
+                opacity: 1,
+                pointerEvents: "auto",
             });
 
-            // Video oculto sin ocupar espacio al inicio
+            gsap.set(textGroupRef.current, {
+                opacity: 0,
+                y: 0,
+            });
+
             gsap.set(videoContainerRef.current, {
                 height: 0,
-                overflow: "hidden"
+                overflow: "hidden",
+            });
+
+            gsap.set(contentRef.current, {
+                opacity: 1,
             });
 
             gsap.set(scrollOverlayRef.current, { opacity: 0 });
@@ -73,39 +85,74 @@ export function AboutUsSection({ about }: AboutUsProps) {
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=500%", // Tightened
+                    end: "+=700%",
                     scrub: true,
                     pin: true,
                     pinSpacing: true,
                     anticipatePin: 1,
-                    pinType: "transform"
-                }
+                },
             });
 
-            // PHASE 1: Entrance reveal
-            tl.to(bgLayerRef.current, { opacity: 0.5, duration: 0.5 }, 0);
+            tl.to({}, { duration: 1 });
 
-            // PHASE 2: Text Revelation
-            tl.to(textGroupRef.current, {
-                opacity: 1,
+            // PHASE 1: Background Reveal
+            tl.to(bgLayerRef.current, {
+                opacity: 0.5,
                 duration: 0.8,
-                ease: "power2.out"
-            }, 0.6);
+            });
 
-            // PHASE 3: Video Reveal
-            tl.to(videoContainerRef.current, {
-                height: "auto",
-                duration: 1.5,
-                ease: "power2.inOut",
-            }, 1.4);
+            // PHASE 2: Intro Text Fade Out
+            tl.to(
+                introTextRef.current,
+                {
+                    opacity: 0,
+                    duration: 1,
+                    ease: "power2.inOut",
+                },
+                "-=0.4"
+            );
+            tl.set(introTextRef.current, { pointerEvents: "none" });
 
-            // PHASE 4: Exit Phase (Transición hacia OurValues)
-            tl.to(contentRef.current, {
-                opacity: 1,
-                duration: 1.5,
-                ease: "power2.inOut"
-            }, 2.9);
+            // PHASE 3: Logo Fade In (Still Centered as Video height is 0)
+            tl.to(
+                textGroupRef.current,
+                {
+                    opacity: 1,
+                    duration: 1,
+                    ease: "power2.out",
+                }
+            );
 
+            // PHASE 4: Video Reveal (Naturally pushes Logo UP)
+            tl.to(
+                videoContainerRef.current,
+                {
+                    height: "auto",
+                    duration: 1.5,
+                    ease: "power2.inOut",
+                },
+                "+=0.2"
+            );
+
+            // PHASE 5: Exit / Dark Overlay
+            tl.to(
+                scrollOverlayRef.current,
+                {
+                    opacity: 1,
+                    duration: 1,
+                },
+                "<+=0.5"
+            );
+
+            tl.to(
+                contentRef.current,
+                {
+                    opacity: 1,
+                    duration: 1.2,
+                    ease: "power2.out",
+                },
+                "<"
+            );
         }, sectionRef);
 
         return () => ctx.revert();
@@ -114,54 +161,58 @@ export function AboutUsSection({ about }: AboutUsProps) {
     return (
         <section
             ref={sectionRef}
-            className="relative w-full h-screen flex items-center overflow-hidden z-50"
+            className="relative w-full h-screen flex items-center overflow-hidden z-50 bg-campana-bg-about"
         >
-            {/* BACKGROUND LAYER THAT FADES IN OVER BIO (SUBTLE) */}
+            {/* BACKGROUND OVERLAY */}
             <div
                 ref={bgLayerRef}
-                className="absolute inset-0 bg-black/20 backdrop-blur-sm z-1 pointer-events-none"
+                className="absolute inset-0 bg-campana-bg-about backdrop-blur-sm z-[1]"
             />
 
             <div className="h-full w-full relative overflow-hidden flex items-center justify-center">
-                {/* BACKGROUND IMAGE LAYER */}
-                <div className="absolute inset-0 z-0">
-                    {introSrc && (
-                        <div ref={introRef} className="absolute inset-0">
-                            <Image
-                                src={introSrc}
-                                alt="About Background"
-                                fill
-                                priority
-                            />
-                        </div>
-                    )}
-                </div>
+                {/* INTRO TEXT */}
+                {introSrc && (
+                    <div
+                        ref={introTextRef}
+                        className="absolute inset-0 z-40 flex flex-col justify-center gap-2 pointer-events-auto"
+                    >
+                        {introWords.map((word, index) => (
+                            <div
+                                key={index}
+                                className="w-[80vw] max-w-[900px] h-[120px] md:h-64 -mb-10"
+                            >
+                                <TextHoverEffect text={word} />
+                            </div>
+                        ))}
+                    </div>
+                )}
 
-                {/* OVERLAY LAYER FOR CONTENT READABILITY */}
+                {/* DARK OVERLAY */}
                 <div
                     ref={scrollOverlayRef}
-                    className="absolute inset-0 z-20 pointer-events-none bg-black/40"
+                    className="absolute inset-0 z-20 pointer-events-none bg-campana-bg-about backdrop-blur-sm"
                 />
 
-                {/* CONTENT LAYER */}
+                {/* CONTENT */}
                 <div
                     ref={contentRef}
-                    className="relative z-30 flex flex-col items-center justify-center w-full max-w-8xl mx-auto h-full gap-8"
+                    className="relative z-30 flex flex-col items-center justify-center w-full max-w-8xl mx-auto h-full gap-4"
                 >
                     <div
                         ref={textGroupRef}
                         className="flex flex-col items-center w-full text-center"
                     >
-                        {about.subtitle && (
-                            <h2
-                                ref={subtitleRef}
-                                className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase text-white"
-                            >
-                                {about.subtitle}
-                            </h2>
-                        )}
+                        <div className="relative w-[500px] h-[150px]">
+                            <Image
+                                src="/assets/logo.svg"
+                                alt="Logo"
+                                fill
+                                priority
+                                unoptimized={true}
+                                className="object-contain pointer-events-none invert"
+                            />
+                        </div>
                     </div>
-
                     {selectedPlaybackId && (
                         <div
                             ref={videoContainerRef}

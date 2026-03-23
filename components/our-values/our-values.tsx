@@ -2,7 +2,7 @@
 
 import Marquee from "@/components/ui/marquee";
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { motion, useInView } from "motion/react";
 import type { OurValues } from "@/lib/wordpress.d";
 import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
@@ -13,6 +13,7 @@ if (typeof window !== "undefined") {
 }
 
 interface Props {
+    highlight?: string
     title?: string;
     description?: string;
     values: OurValues[];
@@ -38,11 +39,11 @@ const ValorCard = ({
             <div className="flex flex-col gap-4">
                 <div className="h-[3px] w-10 bg-[#f1ba0a] rounded-full" />
 
-                <figcaption className="text-2xl font-semibold tracking-[-0.02em]">
+                <figcaption className="text-xl font-inter font-medium">
                     {nombre}
                 </figcaption>
 
-                <blockquote className="text-[15px] leading-relaxed tracking-tight font-medium">
+                <blockquote className="text-md leading-snug font-inter font-normal">
                     {desc}
                 </blockquote>
             </div>
@@ -51,12 +52,14 @@ const ValorCard = ({
 };
 
 export function OurValueSection({
+    highlight,
     title,
     description,
     values,
 }: Props) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
     const contentRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
@@ -100,21 +103,44 @@ export function OurValueSection({
                 ref={contentRef}
                 className="w-full h-full flex flex-col justify-center items-center"
             >
-                <div className="w-full max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-16 overflow-hidden">
-                    {title && (
-                        <div className="w-full flex justify-center mb-8 md:mb-10">
-                            <h2 className="text-white text-center text-5xl md:text-8xl font-black uppercase">
-                                {title}
-                            </h2>
-                        </div>
+                <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-12 pb-40 overflow-hidden">
+                    {highlight && (
+                        <span className="text-white text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+                            {highlight}
+                        </span>
                     )}
 
+                    {title && (
+                        <motion.h2
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                            transition={{ delay: 0.2 }}
+                            className="text-white text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-4xl mx-auto"
+                        >
+                            {(() => {
+                                const words = title.split(" ");
+                                const lastWord = words.pop();
+                                return (
+                                    <>
+                                        {words.join(" ")}{" "}
+                                        <span className="font-ivy-presto italic  transition-all">
+                                            {lastWord}
+                                        </span>
+                                    </>
+                                );
+                            })()}
+                        </motion.h2>
+                    )}
                     {description && (
-                        <div className="w-full max-w-4xl mx-auto">
-                            <p className="text-white text-lg md:text-xl font-semibold text-center leading-relaxed">
-                                {description}
-                            </p>
-                        </div>
+                        <p
+                            className="text-white text-base md:text-lg w-full md:w-2xl mx-auto tracking-tight leading-5 font-sans font-normal"
+                            style={{
+                                textAlign: "justify",
+                                textAlignLast: "center",
+                                textJustify: "inter-word"
+                            }}
+                            dangerouslySetInnerHTML={{ __html: description }}
+                        />
                     )}
                 </div>
 

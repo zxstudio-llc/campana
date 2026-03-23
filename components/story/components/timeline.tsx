@@ -2,6 +2,7 @@
 
 import React, { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import Image from "next/image"
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
@@ -15,6 +16,7 @@ interface TimelineEntry {
     content: React.ReactNode;
 }
 interface TimelineProps {
+    highlight: string;
     heading: string;
     description?: string;
     subtitle?: string;
@@ -23,6 +25,7 @@ interface TimelineProps {
 
 export const Timeline = ({
     data,
+    highlight,
     heading,
     description,
     subtitle,
@@ -33,7 +36,7 @@ export const Timeline = ({
     const progressLineRef = useRef<HTMLDivElement>(null);
     const progressLineMobileRef = useRef<HTMLDivElement>(null);
     const mobileContainerRef = useRef<HTMLDivElement>(null);
-    const [showSubtitle, setShowSubtitle] = useState(false);
+    const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
 
     const subtitleRef = useRef<HTMLDivElement>(null);
 
@@ -69,11 +72,12 @@ export const Timeline = ({
                 // último nodo termina centrado
                 const endX = viewportWidth / 2 - lastMarkerPos;
 
-                gsap.set(contentRevealRef.current, {
+                gsap.set(subtitleRef.current, {
                     opacity: 0,
-                    scale: 1.04,
-                    filter: "blur(6px)"
+                    y: 40,
+                    filter: "blur(8px)"
                 });
+
 
                 gsap.set(container, { x: startX });
 
@@ -81,29 +85,39 @@ export const Timeline = ({
                     scrollTrigger: {
                         trigger: section,
                         start: "top top",
-                        end: () => `+=${scrollDistance + viewportWidth * 0.5}`,
-                        scrub: 1.1,
+                        end: () => `+=${scrollDistance + viewportWidth * 1.2}`,
+                        scrub: true, // More snappy
                         pin: true,
                         anticipatePin: 1,
                         invalidateOnRefresh: true,
                     }
                 });
 
-                // reveal rápido
-                tl.to(contentRevealRef.current, {
-                    opacity: 1,
-                    scale: 1,
-                    filter: "blur(0px)",
-                    duration: 0.25,
-                    ease: "power2.out"
-                }, 0);
+                // ETAPA 1: REVEAL (Se ejecuta una vez bloqueado arriba)
+                tl.fromTo(contentRevealRef.current,
+                    {
+                        opacity: 0,
+                        scale: 0.98,
+                        filter: "blur(4px)"
+                    },
+                    {
+                        opacity: 1,
+                        scale: 1,
+                        filter: "blur(0px)",
+                        duration: 1.5,
+                        ease: "power2.out"
+                    }
+                );
 
-                // movimiento horizontal
+                // ETAPA 2: ESTABILIDAD (Se queda fijo un momento antes de mover)
+                tl.to({}, { duration: 1 });
+
+                // ETAPA 3: MOVIMIENTO HORIZONTAL
                 tl.to(container, {
                     x: endX,
                     duration: 4,
                     ease: "none",
-                }, 0.05);
+                }, "+=0.2");
 
                 // línea progreso
                 if (progressLineRef.current) {
@@ -115,15 +129,28 @@ export const Timeline = ({
                             ease: "none",
                             duration: 4
                         },
-                        0.2
+                        "<" // Sincronizado con el movimiento horizontal
                     );
                 }
 
-                ScrollTrigger.create({
-                    trigger: section,
-                    start: "80% center",
-                    once: true,
-                    onEnter: () => setShowSubtitle(true),
+                // SUBTITLE REVEAL (PHASE 2 DE PIN)
+                tl.to(subtitleRef.current, {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    duration: 1,
+                    ease: "power2.out"
+                }, ">+=0.2");
+
+                // MANTENER UN POCO MÁS ANTES DE DESPINAR
+                tl.to({}, { duration: 0.8 });
+
+                // FADE OUT ANTES DE DESPINAR
+                tl.to(subtitleRef.current, {
+                    opacity: 0,
+                    filter: "blur(8px)",
+                    duration: 0.6,
+                    ease: "power2.in"
                 });
 
             }, sectionRef);
@@ -159,6 +186,25 @@ export const Timeline = ({
                     }
                 );
 
+                // Subtitle Mobile Reveal
+                if (subtitleRef.current) {
+                    gsap.fromTo(subtitleRef.current,
+                        { opacity: 0, y: 20 },
+                        {
+                            opacity: 1,
+                            y: 0,
+                            duration: 0.8,
+                            ease: "power2.out",
+                            scrollTrigger: {
+                                trigger: subtitleRef.current,
+                                start: "top 90%",
+                                end: "bottom 10%",
+                                toggleActions: "play reverse play reverse"
+                            }
+                        }
+                    );
+                }
+
                 // animación de items
                 gsap.utils.toArray<HTMLElement>(".timeline-item").forEach((item) => {
                     gsap.from(item, {
@@ -186,21 +232,53 @@ export const Timeline = ({
     return (
         <section
             ref={sectionRef}
-            className="w-full min-h-screen bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-60"
+            className="w-full h-screen bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-60"
         >
             <div ref={contentRevealRef} className="w-full">
-                <div className="w-full mx-auto px-6 text-center">
-                    {heading && (
-                        <h2
-                            className="text-campana-primary text-5xl md:text-8xl font-black tracking-tighter uppercase mb-6 flex items-center justify-center gap-2 lining-nums"
+                <div className="absolute inset-0 top-0 lg:-left-24 lg:right-auto lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
+                    <Image
+                        src="/assets/pabloStory.png"
+                        alt="Timeline"
+                        width={1920 * 3}
+                        height={1080 * 3}
+                        className="w-auto h-screen scale-[1.4] object-cover object-top-left opacity-30 lg:opacity-100"
+                    />
+                </div>
+                <div className="w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 pb-6">
+                    {highlight && (
+                        <span
+                            className="text-campana-primary text-xl font-sans font-normal tracking-tighter uppercase mb-6 flex items-center justify-center gap-2 lining-nums"
                         >
-                            {heading}
-                        </h2>
+                            {highlight}
+                        </span>
+                    )}
+
+                    {heading && (
+
+                        <motion.h2
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                            transition={{ delay: 0.2 }}
+                            className="text-campana-primary text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-6 text-center leading-[0.9] tracking-tighter lining-nums w-4xl mx-auto"
+                        >
+                            {(() => {
+                                const words = heading.split(" ");
+                                const lastWord = words.pop();
+                                return (
+                                    <>
+                                        {words.join(" ")}{" "}
+                                        <span className="font-ivy-presto italic  transition-all">
+                                            {lastWord}
+                                        </span>
+                                    </>
+                                );
+                            })()}
+                        </motion.h2>
                     )}
 
                     {description && (
                         <p
-                            className="text-[#001D3D] text-base md:text-xl w-full mx-auto px-20"
+                            className="text-[#001D3D] text-base md:text-lg w-full md:w-2xl mx-auto tracking-tight leading-5 font-sans font-normal"
                             style={{
                                 textAlign: "justify",
                                 textAlignLast: "center",
@@ -284,9 +362,9 @@ export const Timeline = ({
                                     className="min-w-[200px] flex-shrink-0 flex flex-col items-center justify-center relative"
                                 >
 
-                                    <h3 className="text-xl font-medium text-neutral-800  transition-colors duration-500 hover:text-[#b8912e]/20 select-none">
+                                    <span className="text-xl font-ivy-presto italic lining-nums text-neutral-800 transition-colors duration-500 select-none">
                                         {item.title}
-                                    </h3>
+                                    </span>
                                     <Tooltip
                                         containerClassName="cursor-pointer"
                                         content={
@@ -311,23 +389,25 @@ export const Timeline = ({
             </div>
 
             {subtitle && (
-                <motion.div
-                    className="mt-4 text-center"
-                    initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
-                    animate={
-                        showSubtitle
-                            ? { opacity: 1, y: 0, filter: "blur(0px)" }
-                            : { opacity: 0 }
-                    }
-                    transition={{
-                        duration: 0.6,
-                        ease: [0.22, 1, 0.36, 1]
-                    }}
+                <div
+                    ref={subtitleRef}
+                    className="mt-12 opacity-0 pointer-events-none w-full md:w-4xl lg:ml-auto mx-auto text-center"
                 >
-                    <h2 className="text-[#001D3D] text-3xl md:text-5xl font-black tracking-tighter uppercase lining-nums">
-                        {subtitle}
-                    </h2>
-                </motion.div>
+                    <span className="text-campana-primary text-2xl md:text-3xl font-sans font-normal mb-6 text-center leading-6 tracking-tighter lining-nums">
+                        {subtitle.split(" ").map((word, index, arr) => {
+                            const isLast = index === arr.length - 1;
+                            const isNumber = /^\d+$/.test(word.replace(/[,.]/g, ""));
+                            if (isLast || isNumber) {
+                                return (
+                                    <span key={index} className="font-ivy-presto italic">
+                                        {word}{" "}
+                                    </span>
+                                );
+                            }
+                            return <span key={index}>{word} </span>;
+                        })}
+                    </span>
+                </div>
             )}
         </section>
     );
