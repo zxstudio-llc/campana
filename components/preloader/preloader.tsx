@@ -12,7 +12,7 @@ export const Preloader = ({ preloadVideos = [] }: PreloaderProps) => {
 
     const [loading, setLoading] = useState(true);
 
-    const preloaderSrc = "https://ykhbacjdlnooyrblnrxi.supabase.co/storage/v1/object/public/Campana/banner/isotipo_blanco.mp4";
+    const preloaderSrc = "/assets/logo.mp4";
 
     useEffect(() => {
         console.log("Preloader: Critical Videos to Preload ->", preloadVideos);
@@ -25,11 +25,9 @@ export const Preloader = ({ preloadVideos = [] }: PreloaderProps) => {
 
         window.addEventListener("hero-video-ready", handleHeroReady);
 
-        // Seguridad: Si después de 15 segundos el video no ha cargado (especialmente para archivos de 34MB), quitamos el preloader
         const backupTimeout = setTimeout(() => {
             setLoading(false);
-            console.log("Preloader: Backup timeout reached (15s)");
-        }, 15000);
+        }, 3000);
 
         return () => {
             window.removeEventListener("hero-video-ready", handleHeroReady);
