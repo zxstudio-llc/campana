@@ -27,7 +27,7 @@ export const Preloader = ({ preloadVideos = [] }: PreloaderProps) => {
 
         const backupTimeout = setTimeout(() => {
             setLoading(false);
-        }, 3000);
+        }, 5000);
 
         return () => {
             window.removeEventListener("hero-video-ready", handleHeroReady);
