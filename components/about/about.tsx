@@ -12,10 +12,11 @@ if (typeof window !== "undefined") {
 }
 
 interface AboutUsProps {
+    id?: string;
     about: AboutSection;
 }
 
-export function AboutUsSection({ about }: AboutUsProps) {
+export function AboutUsSection({ id, about }: AboutUsProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
 
     const introTextRef = useRef<HTMLDivElement>(null);
@@ -160,6 +161,7 @@ export function AboutUsSection({ about }: AboutUsProps) {
 
     return (
         <section
+            id={id}
             ref={sectionRef}
             className="relative w-full h-screen flex items-center overflow-hidden z-50 bg-campana-bg-about"
         >

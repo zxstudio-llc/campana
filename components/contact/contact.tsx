@@ -5,6 +5,7 @@ import { ContactForm } from "./components/contact-form";
 import { motion, Variants } from "motion/react";
 
 interface ContactSectionProps {
+    id?: string;
     title?: string;
     subtitle?: string;
     phone?: string;
@@ -16,7 +17,7 @@ interface ContactSectionProps {
     highlight?: string;
 }
 
-const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook, x, linkedin, highlight }: ContactSectionProps) => {
+const ContactPageSection = ({ id, title, subtitle, phone, mail, instagram, facebook, x, linkedin, highlight }: ContactSectionProps) => {
 
     const socialLinks = [
         { icon: Instagram, url: instagram, label: "Instagram" },
@@ -50,7 +51,7 @@ const ContactPageSection = ({ title, subtitle, phone, mail, instagram, facebook,
     };
 
     return (
-        <section className="py-20 md:py-24 overflow-hidden bg-campana-bg-about">
+        <section id={id} className="py-20 md:py-24 overflow-hidden bg-campana-bg-about">
             <Container className="w-screen px-4">
 
                 {/* SUBTITLE: Centrado en la web con máxima fuerza */}

@@ -168,6 +168,7 @@ async function RenderBlock({
       const biographies = await getBiographyById(bioIds)
       return (
         <BiographyCompanySection
+          id={block.acf_fc_layout}
           biographies={biographies}
           highlight={data.highlight || ""}
           short_description={data.short_description || ""}
@@ -177,7 +178,7 @@ async function RenderBlock({
     }
 
     case "about":
-      return <AboutUsSection about={block as any} />;
+      return <AboutUsSection id={block.acf_fc_layout} about={block as any} />;
 
     case "activos": {
       const data = block as ActivosEstrategicosSection
@@ -191,6 +192,7 @@ async function RenderBlock({
         );
       return (
         <ActivosSection
+          id={block.acf_fc_layout}
           highlight={data.highlight}
           title={data.title}
           description={data.description}
@@ -213,6 +215,7 @@ async function RenderBlock({
 
       return (
         <OurValueSection
+          id={block.acf_fc_layout}
           highlight={data.highlight}
           title={data.title}
           description={data.description}
@@ -229,6 +232,7 @@ async function RenderBlock({
 
       return (
         <ProjectsCardsSection
+          id={block.acf_fc_layout}
           highlight={data.highlight}
           title={data.title}
           description={data.description}
@@ -245,6 +249,7 @@ async function RenderBlock({
 
       return (
         <StoryTimelineSection
+          id={block.acf_fc_layout}
           highlight={data.highlight}
           title={data.title}
           description={data.description}
@@ -262,6 +267,7 @@ async function RenderBlock({
 
       return (
         <InvestmentSection
+          id={block.acf_fc_layout}
           main={data.main}
           secondary={data.secondary}
           highlight={data.highlight}
@@ -270,6 +276,8 @@ async function RenderBlock({
           investment={investments}
           cta={data.cta}
           cta_url={data.cta_url}
+          video={data.video}
+          video_mobile={data.video_mobile}
         />
       )
     }
@@ -281,6 +289,7 @@ async function RenderBlock({
       )
       return (
         <FAQSection
+          id={block.acf_fc_layout}
           section={data}
           faqs={faqs}
         />
@@ -289,7 +298,7 @@ async function RenderBlock({
 
     case "contact": {
       const data = block as ContactSection
-      return <ContactPageSection {...data} />
+      return <ContactPageSection id={block.acf_fc_layout} {...data} />
     }
 
     default:

@@ -2,6 +2,7 @@ import { Timeline as TimelineComponent } from "@/components/story/components/tim
 import { Timeline } from "@/lib/wordpress.d";
 
 interface Props {
+    id?: string
     highlight: string
     title: string
     description: string
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function StoryTimelineSection({
+    id,
     highlight,
     title,
     description,
@@ -49,7 +51,7 @@ export function StoryTimelineSection({
     }))
 
     return (
-        <div className="relative w-full overflow-clip bg-campana-bg">
+        <div id={id} className="relative w-full overflow-clip bg-campana-bg">
             <TimelineComponent
                 highlight={highlight}
                 heading={title}

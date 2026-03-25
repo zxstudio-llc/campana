@@ -15,13 +15,14 @@ if (typeof window !== "undefined") {
 }
 
 interface Props {
+    id?: string
     highlight: string
     short_description: string
     description: string
     biography: Biography
 }
 
-export default function BiographyCompany({ highlight, short_description, description, biography }: Props) {
+export default function BiographyCompany({ id, highlight, short_description, description, biography }: Props) {
     const sectionRef = useRef<HTMLDivElement>(null)
     const textRef = useRef<HTMLDivElement>(null)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -105,35 +106,30 @@ export default function BiographyCompany({ highlight, short_description, descrip
                 duration: 2.5,
                 ease: "none"
             }, 0)
-                .to(collisionContainerRef.current, {
+                .to(extraRef.current, {
                     opacity: 1,
+                    scale: 1,
+                    filter: "blur(0px)",
+                    pointerEvents: "auto",
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, 0.5)
+                .to({}, { duration: 1.5 })
+                .to(extraRef.current, {
+                    opacity: 0,
+                    scale: 0.85,
+                    filter: "blur(15px)",
+                    pointerEvents: "none",
                     duration: 1.5,
                     ease: "power2.out"
-                }, 0)
-                .to(firstTextRef.current, {
-                    y: 0,
-                    opacity: 1,
-                    duration: 2.5,
-                    ease: "power4.out"
-                }, 0.2)
-                .to(secondTextRef.current, {
-                    y: 0,
-                    opacity: 1,
-                    duration: 2.5,
-                    ease: "power4.out"
-                }, 0.2)
+                })
+                .add("block1Reveal")
                 .to(bgImageRef.current, {
                     scale: 1,
                     opacity: 1,
                     duration: 2.5,
                     ease: "power2.out"
-                }, 0.5)
-                .to(overlayRef.current, {
-                    opacity: 1,
-                    backgroundColor: "rgba(0,0,0,0.65)",
-                    duration: 3,
-                    ease: "power2.out"
-                })
+                }, "block1Reveal")
                 .to(textRef.current, {
                     opacity: 1,
                     scale: 1,
@@ -141,8 +137,8 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     pointerEvents: "auto",
                     duration: 1.5,
                     ease: "power2.inOut"
-                }, "-=1")
-                .to({}, { duration: 1.5 })
+                }, "block1Reveal")
+                .to({}, { duration: 1.5 }) // Wait to read
                 .to(textRef.current, {
                     opacity: 0,
                     scale: 0.85,
@@ -151,28 +147,24 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     duration: 1.5,
                     ease: "power2.inOut"
                 })
-                .to(extraRef.current, {
+                .add("block2Reveal")
+                .to(collisionContainerRef.current, {
                     opacity: 1,
-                    scale: 1,
-                    filter: "blur(0px)",
-                    pointerEvents: "auto",
-                    duration: 1.5,
-                    ease: "power2.inOut"
-                })
-                .to({}, { duration: 1.5 })
-                .to(extraRef.current, {
-                    opacity: 0,
-                    scale: 0.85,
-                    filter: "blur(15px)",
-                    pointerEvents: "none",
-                    duration: 1.5,
+                    duration: 2.5,
                     ease: "power2.out"
-                })
-                .to(scrollOverlayRef.current, {
+                }, "block2Reveal")
+                .to(firstTextRef.current, {
+                    y: 0,
                     opacity: 1,
-                    duration: 1.5,
-                    ease: "power2.inOut"
-                })
+                    duration: 2.5,
+                    ease: "power4.out"
+                }, "block2Reveal+=0.2")
+                .to(secondTextRef.current, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 2.5,
+                    ease: "power4.out"
+                }, "block2Reveal+=0.2")
                 .to({}, { duration: 1 }) // Final buffer
         });
 
@@ -182,6 +174,7 @@ export default function BiographyCompany({ highlight, short_description, descrip
     return (
         <>
             <section
+                id={id}
                 ref={sectionRef}
                 className="relative w-full h-screen flex items-center z-40 overflow-hidden"
             >
@@ -191,7 +184,6 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     fill
                     priority
                     unoptimized={true}
-                    // "object-cover" es vital para que sea un fondo real
                     className="object-cover absolute inset-0 -z-10 pointer-events-none"
                 />
                 {/* GRADIENT BACKGROUND THAT FADES IN OVER HERO */}
@@ -204,6 +196,53 @@ export default function BiographyCompany({ highlight, short_description, descrip
                     ref={containerRef}
                     className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none"
                 >
+
+                    {/* EXTRA FIELDS*/}
+                    <div
+                        ref={extraRef}
+                        className="absolute inset-0 flex flex-col justify-center text-white max-w-7xl mx-auto z-30 pointer-events-none "
+                    >
+                        <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                            className="text-campana-secondary font-inter font-bold uppercase block mb-4 text-left"
+                        >
+                            {highlight}
+                        </motion.span>
+
+                        <motion.h2
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                            transition={{ delay: 0.2 }}
+                            className="text-[3.2rem] md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-left"
+                        >
+                            {(() => {
+                                const words = short_description.split(" ");
+                                const lastWord = words.pop();
+                                return (
+                                    <>
+                                        {words.join(" ")}{" "}
+                                        <span className="font-ivy-presto italic">
+                                            {lastWord}
+                                        </span>
+                                    </>
+                                );
+                            })()}
+                        </motion.h2>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                            transition={{ delay: 0.4 }}
+                            className="hidden text-neutral-300 text-base md:text-lg leading-normal space-y-4 reveal-description font-light"
+                            style={{
+                                textAlign: "justify",
+                                textAlignLast: "left",
+                                textJustify: "inter-word"
+                            }}>
+                            {description}
+                        </motion.div>
+                    </div>
                     <div className="mx-auto h-full grid grid-cols-1 lg:grid-cols-12 lg:items-center px-0 pt-2 relative">
                         {/* IMAGE LEFT */}
                         <div className="lg:col-span-5 h-[65vh] lg:h-full absolute bottom-0 left-0 lg:relative w-full z-10 pointer-events-none" ref={bgImageRef}>
@@ -215,13 +254,118 @@ export default function BiographyCompany({ highlight, short_description, descrip
                                     fill
                                     priority
                                     unoptimized={true}
-                                    className="object-contain object-bottom-left pointer-events-none"
+                                    className="w-auto h-screen scale-[1.2] object-contain object-bottom-left pointer-events-none"
                                 />
                             )}
                         </div>
 
                         {/* TEXT RIGHT */}
                         <div className="lg:col-span-7 flex flex-col items-start lg:items-start justify-center relative w-full h-full lg:h-auto">
+                            <div className="absolute inset-0 w-full h-full flex justify-start lg:justify-start items-center mt-10 lg:mt-0 pointer-events-none z-40">
+                                {/*BLOCK 1: PRIMARY BIOGRAPHY */}
+                                <div
+                                    ref={textRef}
+                                    className="flex flex-col text-white py-10 max-w-3xl relative pointer-events-auto"
+                                >
+                                    <motion.span
+                                        initial={{ opacity: 0 }}
+                                        animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                                        className="text-campana-secondary font-inter font-bold uppercase block mb-4 text-center md:text-left"
+                                    >
+                                        {data.highlight}
+                                    </motion.span>
+
+                                    <motion.h2
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-5xl md:text-8xl lg:text-8xl font-sans font-normal tracking-tighter leading-[0.85] mb-10 text-center md:text-left"
+                                    >
+                                        {(() => {
+                                            const words = data.title.split(" ");
+                                            const lastWord = words.pop();
+                                            return (
+                                                <>
+                                                    {words.join(" ")}{" "}
+                                                    <span className="font-ivy-presto italic">
+                                                        {lastWord}
+                                                    </span>
+                                                </>
+                                            );
+                                        })()}
+                                    </motion.h2>
+
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-white text-base md:text-lg leading-normal tracking-tighter space-y-4 reveal-description text-right font-inter font-normal"
+                                        style={{
+                                            textAlign: "justify",
+                                            textAlignLast: "left",
+                                            textJustify: "inter-word"
+                                        }}
+                                        dangerouslySetInnerHTML={{ __html: data.description }}
+                                    />
+
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-right py-4"
+                                    >
+                                        <p className="text-3xl mb-2 font-ivy-presto italic text-white leading-none">
+                                            {data.name}
+                                        </p>
+                                        <p className="text-campana-secondary text-sm md:text-lg font-ivy-presto italic">
+                                            {data.role}
+                                        </p>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={isVisible ? { opacity: 1 } : {}}
+                                        transition={{ delay: 0.6 }}
+                                        className="mt-8 flex flex-col sm:flex-row items-center gap-10"
+                                    >
+                                        {data.cta && data.mux_playback_id && (
+                                            <Modal>
+                                                <ModalTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        className="
+                                                    px-6 py-6 hover:bg-campana-secondary group rounded-full 
+                                                    bg-white w-full md:w-fit transition-all hover:scale-105 
+                                                    active:scale-95 flex items-center justify-center gap-4 
+                                                    cursor-pointer text-campana-primary hover:text-white relative z-50
+                                                "
+                                                    >
+                                                        <div className="flex items-center gap-4">
+                                                            <span className="font-semibold">{data.cta}</span>
+                                                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-campana-primary text-white">
+                                                                <Play size={16} fill="currentColor" />
+                                                            </div>
+                                                        </div>
+                                                    </Button>
+                                                </ModalTrigger>
+                                                <ModalBody>
+                                                    <ModalContent className="max-w-6xl p-0 overflow-hidden bg-black flex flex-col rounded-3xl">
+                                                        <video
+                                                            autoPlay
+                                                            controls
+                                                            playsInline
+                                                            className="w-full aspect-video object-cover"
+                                                        >
+                                                            <source src={data.mux_playback_id} type="video/mp4" />
+                                                        </video>
+                                                    </ModalContent>
+                                                </ModalBody>
+                                            </Modal>
+                                        )}
+                                    </motion.div>
+                                </div>
+                            </div>
+                            {/* Block 2 */}
                             <div
                                 ref={collisionContainerRef}
                                 className="relative w-full h-full lg:h-[800px] flex justify-start lg:justify-start items-center mt-10 lg:mt-0"
@@ -257,183 +401,6 @@ export default function BiographyCompany({ highlight, short_description, descrip
                             </div>
                         </div>
                     </div>
-
-                    <div
-                        ref={overlayRef}
-                        className="
-        absolute 
-        inset-y-0
-        right-0      
-        w-full        
-        z-20 
-        pointer-events-none 
-        select-none 
-        bg-linear-to-l from-black/50 via-transparent to-transparent
-        ml-auto
-    "
-                    />
-                </div>
-
-                <div className="relative z-[100] w-full px-6 md:px-20 pointer-events-auto">
-                    <div className="max-w-7xl mx-auto items-center">
-
-                        <div className="w-full relative flex items-center min-h-[60vh] justify-end">
-                            {/*BLOCK 1: PRIMARY BIOGRAPHY */}
-                            <div
-                                ref={textRef}
-                                className="flex flex-col text-white py-10 max-w-3xl relative z-40"
-                            >
-                                <motion.span
-                                    initial={{ opacity: 0 }}
-                                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                                    className="text-campana-secondary font-inter font-bold uppercase block mb-4 text-center md:text-left"
-                                >
-                                    {data.highlight}
-                                </motion.span>
-
-                                <motion.h2
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-5xl md:text-8xl lg:text-8xl font-sans font-normal tracking-tighter leading-[0.85] mb-10 text-center md:text-left"
-                                >
-                                    {(() => {
-                                        const words = data.title.split(" ");
-                                        const lastWord = words.pop();
-                                        return (
-                                            <>
-                                                {words.join(" ")}{" "}
-                                                <span className="font-ivy-presto italic">
-                                                    {lastWord}
-                                                </span>
-                                            </>
-                                        );
-                                    })()}
-                                </motion.h2>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                                    transition={{ delay: 0.4 }}
-                                    className="text-white text-base md:text-lg leading-normal tracking-tighter space-y-4 reveal-description text-right font-inter font-normal"
-                                    style={{
-                                        textAlign: "justify",
-                                        textAlignLast: "left",
-                                        textJustify: "inter-word"
-                                    }}
-                                    dangerouslySetInnerHTML={{ __html: data.description }}
-                                />
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                                    transition={{ delay: 0.4 }}
-                                    className="text-right py-4"
-                                >
-                                    <p className="text-3xl mb-2 font-ivy-presto italic text-white leading-none">
-                                        {data.name}
-                                    </p>
-                                    <p className="text-campana-secondary text-sm md:text-lg font-ivy-presto italic">
-                                        {data.role}
-                                    </p>
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={isVisible ? { opacity: 1 } : {}}
-                                    transition={{ delay: 0.6 }}
-                                    className="mt-8 flex flex-col sm:flex-row items-center gap-10"
-                                >
-                                    {data.cta && data.mux_playback_id && (
-                                        <Modal>
-                                            <ModalTrigger asChild>
-                                                <Button
-                                                    type="button"
-                                                    className="
-                                                    px-6 py-6 hover:bg-campana-secondary group rounded-full 
-                                                    bg-white w-full md:w-fit transition-all hover:scale-105 
-                                                    active:scale-95 flex items-center justify-center gap-4 
-                                                    cursor-pointer text-campana-primary hover:text-white relative z-50
-                                                "
-                                                >
-                                                    <div className="flex items-center gap-4">
-                                                        <span className="font-semibold">{data.cta}</span>
-                                                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-campana-primary text-white">
-                                                            <Play size={16} fill="currentColor" />
-                                                        </div>
-                                                    </div>
-                                                </Button>
-                                            </ModalTrigger>
-                                            <ModalBody>
-                                                <ModalContent className="max-w-6xl p-0 overflow-hidden bg-black flex flex-col rounded-3xl">
-                                                    <video
-                                                        autoPlay
-                                                        controls
-                                                        playsInline
-                                                        className="w-full aspect-video object-cover"
-                                                    >
-                                                        <source src={data.mux_playback_id} type="video/mp4" />
-                                                    </video>
-                                                </ModalContent>
-                                            </ModalBody>
-                                        </Modal>
-                                    )}
-                                </motion.div>
-                            </div>
-
-                            {/* BLOCK 2: EXTRA FIELDS (AFTER BIOGRAPHY) */}
-                            <div
-                                ref={extraRef}
-                                className="absolute inset-0 flex flex-col justify-center text-white max-w-8xl z-30 pointer-events-none "
-                            >
-                                <motion.span
-                                    initial={{ opacity: 0 }}
-                                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                                    className="text-campana-secondary font-inter font-bold uppercase block mb-4 text-left"
-                                >
-                                    {highlight}
-                                </motion.span>
-
-                                <motion.h2
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-[3.2rem] md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-left"
-                                >
-                                    {(() => {
-                                        const words = short_description.split(" ");
-                                        const lastWord = words.pop();
-                                        return (
-                                            <>
-                                                {words.join(" ")}{" "}
-                                                <span className="font-ivy-presto italic">
-                                                    {lastWord}
-                                                </span>
-                                            </>
-                                        );
-                                    })()}
-                                </motion.h2>
-
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                                    transition={{ delay: 0.4 }}
-                                    className="hidden text-neutral-300 text-base md:text-lg leading-normal space-y-4 reveal-description font-light"
-                                    style={{
-                                        textAlign: "justify",
-                                        textAlignLast: "left",
-                                        textJustify: "inter-word"
-                                    }}>
-                                    {description}
-                                </motion.div>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        ref={scrollOverlayRef}
-                        className="absolute inset-0 z-[110] pointer-events-none bg-transparent opacity-0"
-                    />
                 </div>
             </section>
         </>

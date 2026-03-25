@@ -284,6 +284,8 @@ export interface InvestmentsSection {
   investment: number[]
   cta?: string
   cta_url?: string
+  video?: string
+  video_mobile?: string
 }
 
 export interface ActivosEstrategicosSection {

@@ -13,6 +13,7 @@ if (typeof window !== "undefined") {
 }
 
 interface Props {
+    id?: string;
     highlight?: string
     title?: string;
     description?: string;
@@ -52,6 +53,7 @@ const ValorCard = ({
 };
 
 export function OurValueSection({
+    id,
     highlight,
     title,
     description,
@@ -96,6 +98,7 @@ export function OurValueSection({
 
     return (
         <section
+            id={id}
             ref={sectionRef}
             className="relative w-screen h-screen overflow-hidden flex items-center justify-center z-40 bg-transparent"
         >
@@ -105,7 +108,7 @@ export function OurValueSection({
             >
                 <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-12 pb-40 overflow-hidden">
                     {highlight && (
-                        <span className="text-white text-sm md:text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+                        <span className="text-campana-secondary text-sm md:text-lg font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
                             {highlight}
                         </span>
                     )}
@@ -115,7 +118,7 @@ export function OurValueSection({
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.2 }}
-                            className="text-white text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
+                            className="text-white text-4xl md:text-5xl lg:text-8xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
                         >
                             {(() => {
                                 const words = title.split(" ");
@@ -123,7 +126,7 @@ export function OurValueSection({
                                 return (
                                     <>
                                         {words.join(" ")}{" "}
-                                        <span className="font-ivy-presto italic  transition-all">
+                                        <span className="font-ivy-presto italic transition-all capitalize">
                                             {lastWord}
                                         </span>
                                     </>

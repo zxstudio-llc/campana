@@ -18,6 +18,7 @@ if (typeof window !== "undefined") {
 }
 
 interface Props {
+  id?: string
   title?: string
   description?: string
   highlight?: string
@@ -35,7 +36,7 @@ interface ContentProps {
   imageUrl: string
 }
 
-export function ProjectsCardsSection({ title, description, highlight, projects }: Props) {
+export function ProjectsCardsSection({ id, title, description, highlight, projects }: Props) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRevealRef = useRef<HTMLDivElement>(null);
   const [isCarouselActive, setIsCarouselActive] = React.useState(false);
@@ -132,13 +133,14 @@ export function ProjectsCardsSection({ title, description, highlight, projects }
 
   return (
     <section
+      id={id}
       ref={sectionRef}
-      className="w-screen h-auto py-20 bg-campana-bg-about flex items-center justify-center overflow-hidden z-60"
+      className="w-screen bg-campana-bg-about flex items-center justify-center overflow-hidden z-60"
     >
-      <div ref={contentRevealRef} className="w-full mb-20 md:mb-28">
+      <div ref={contentRevealRef} className="w-full h-auto py-20 ">
         <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-8 pb-10 md:pb-30 overflow-hidden">
           {highlight && (
-            <span className="text-[#001D3D] text-sm md:text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+            <span className="text-[#001D3D] text-sm md:text-lg font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
               {highlight}
             </span>
           )}
@@ -148,7 +150,7 @@ export function ProjectsCardsSection({ title, description, highlight, projects }
               initial={{ opacity: 0, y: 20 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.2 }}
-              className="text-[#001D3D] text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
+              className="text-[#001D3D] text-4xl md:text-5xl lg:text-8xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
             >
               {(() => {
                 const words = title.split(" ");
@@ -156,7 +158,7 @@ export function ProjectsCardsSection({ title, description, highlight, projects }
                 return (
                   <>
                     {words.join(" ")}{" "}
-                    <span className="font-ivy-presto italic  transition-all">
+                    <span className="font-ivy-presto italic capitalize transition-all">
                       {lastWord}
                     </span>
                   </>

@@ -7,6 +7,7 @@ import { useRef, useLayoutEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, useInView } from "motion/react";
+import { CanvasRevealEffect } from "./components/canvasRevealEffect";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -14,6 +15,7 @@ if (typeof window !== "undefined") {
 
 
 interface Props {
+    id?: string;
     highlight?: string
     title?: string
     description?: string
@@ -21,6 +23,7 @@ interface Props {
 }
 
 export function ActivosSection({
+    id,
     highlight,
     title,
     description,
@@ -104,11 +107,15 @@ export function ActivosSection({
         const hasK = rawAmount.toUpperCase().includes("K")
         const hasM = rawAmount.toUpperCase().includes("M")
 
+        const [isHovering, setIsHovering] = useState(false);
+        const handleMouseEnter = () => setIsHovering(true);
+        const handleMouseLeave = () => setIsHovering(false);
+
         return {
             title: item.acf?.title,
             description: item.acf?.description,
             renderContent: (
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                     <div className="flex items-baseline">
                         {hasDollar && (
                             <span className="text-white text-[120px] md:text-[200px] font-bold">
@@ -141,6 +148,17 @@ export function ActivosSection({
                             </span>
                         )}
                     </div>
+                    {isHovering && (
+                        <CanvasRevealEffect
+                            animationSpeed={5}
+                            containerClassName="bg-transparent absolute inset-0 pointer-events-none"
+                            colors={[
+                                [59, 130, 246],
+                                [139, 92, 246],
+                            ]}
+                            dotSize={3}
+                        />
+                    )}
                 </div>
             ),
         }
@@ -148,6 +166,7 @@ export function ActivosSection({
 
     return (
         <section
+            id={id}
             ref={sectionRef}
             className="relative w-screen min-h-screen overflow-hidden flex items-center justify-center z-50 bg-transparent md:px-28"
         >
@@ -157,7 +176,7 @@ export function ActivosSection({
             >
                 <div className="w-full max-w-7xl mx-auto px-6 text-center flex flex-col items-center justify-center gap-8 md:gap-12 pb-10 md:pb-30 overflow-hidden">
                     {highlight && (
-                        <span className="text-white text-sm md:text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+                        <span className="text-campana-secondary text-sm md:text-lg font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
                             {highlight}
                         </span>
                     )}
@@ -167,7 +186,7 @@ export function ActivosSection({
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.2 }}
-                            className="text-white text-4xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
+                            className="text-white text-4xl md:text-5xl lg:text-8xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto"
                         >
                             {(() => {
                                 const words = title.split(" ");
@@ -175,7 +194,7 @@ export function ActivosSection({
                                 return (
                                     <>
                                         {words.join(" ")}{" "}
-                                        <span className="font-ivy-presto italic  transition-all">
+                                        <span className="font-ivy-presto italic capitalize transition-all">
                                             {lastWord}
                                         </span>
                                     </>

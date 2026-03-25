@@ -9,17 +9,18 @@ import { FaqsSection, Faq } from "@/lib/wordpress.d";
 import Container from "../contact/components/container";
 
 interface FAQSectionProps {
+    id?: string;
     section: FaqsSection
     faqs: Faq[]
 }
 
-const FAQSection = ({ section, faqs }: FAQSectionProps) => {
+const FAQSection = ({ id, section, faqs }: FAQSectionProps) => {
     const orderedFaqs = section.faqs
         .map((id) => faqs.find((faq) => faq.id === id))
         .filter(Boolean) as Faq[];
 
     return (
-        <section className="py-20 lg:py-20 overflow-hidden bg-campana-bg">
+        <section id={id} className="py-20 lg:py-20 overflow-hidden bg-campana-bg">
             <Container className="px-6 md:px-8">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">

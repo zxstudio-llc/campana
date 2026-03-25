@@ -11,6 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import gsap from "gsap";
+import { CanvasRevealEffect } from "./canvasRevealEffect";
 
 interface ShowcaseItem {
   title: string;
@@ -154,7 +155,7 @@ export const DesktopUI = ({
   };
 
   return (
-    <div className="hidden md:flex h-full px-12 gap-0">
+    <div className="hidden md:flex h-full pl-12 gap-0">
       {/* Sidebar */}
       <div className="relative z-20 xl:w-[35%] flex flex-col justify-center gap-2 left-0 ">
 
@@ -410,18 +411,16 @@ const ContentDisplay = ({
 }) => {
   if (!content || content.length === 0) return null;
 
-  const safeIndex =
-    activeCard >= content.length ? 0 : activeCard;
-
+  const safeIndex = activeCard >= content.length ? 0 : activeCard;
   const current = content[safeIndex];
 
   if (!current) return null;
 
   return (
-    <div className="relative w-full flex-1 rounded-2xl flex items-center justify-center">
-
+    <div className="relative w-full flex-1 rounded-2xl flex items-center justify-center overflow-hidden">
+      {/* Si hay renderContent (como el CanvasReveal), lo mostramos a pantalla completa dentro del contenedor */}
       {current.renderContent ? (
-        <div className="relative w-full h-[250px] md:absolute md:inset-0 md:h-full flex items-center justify-center ">
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center">
           {current.renderContent}
         </div>
       ) : (
@@ -432,9 +431,8 @@ const ContentDisplay = ({
         />
       )}
 
-      {!current.renderContent && (
-        <div className="absolute inset-0 bg-gradient-to-t from-[#030b14]/80 via-transparent to-transparent md:bg-gradient-to-r md:from-[#030b14]/40" />
-      )}
+      {/* Gradiente solo si no hay un contenido renderizado manualmente o si quieres que el texto mobile sea legible */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#030b14]/80 via-transparent to-transparent pointer-events-none" />
     </div>
   );
 };

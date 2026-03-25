@@ -240,14 +240,23 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
 };
 
 export const Card = ({ card, index, layout = false }: { card: Card; index: number; layout?: boolean }) => {
-  const { currentIndex, onCardClose } = useContext(CarouselContext);
+  const { currentIndex, onCardClose, onCardOpen } = useContext(CarouselContext);
   const [open, setOpen] = useState(false);
+  const [docHeight, setDocHeight] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isActive = currentIndex === index;
 
   useOutsideClick(containerRef, () => handleClose());
-  const handleClose = () => { setOpen(false); onCardClose(index); };
+  const handleOpen = () => {
+    setOpen(true);
+    if (onCardOpen) onCardOpen();
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    onCardClose(index);
+  };
 
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -268,6 +277,29 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
     }
   }, [isActive]);
 
+  useEffect(() => {
+    if (open) {
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+
+      // Bloquear scroll con wheel y touch
+      const preventScroll = (e: Event) => e.preventDefault();
+      window.addEventListener("wheel", preventScroll, { passive: false });
+      window.addEventListener("touchmove", preventScroll, { passive: false });
+
+      return () => {
+        document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
+        window.removeEventListener("wheel", preventScroll);
+        window.removeEventListener("touchmove", preventScroll);
+      };
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
+  }, [open]);
+
   const playbackId = isMobile
     ? card.mux?.primary_mux_playback_mobile_id || card.mux?.primary_mux_playback_web_id
     : card.mux?.primary_mux_playback_web_id || card.mux?.primary_mux_playback_mobile_id;
@@ -276,11 +308,17 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
     <>
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 backdrop-blur-xl" onClick={handleClose} />
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl cursor-pointer"
+              onClick={handleClose}
+            />
             <motion.div ref={containerRef} layoutId={layout ? `card-${card.title}` : undefined} className="relative z-60 w-full max-w-7xl rounded-[32px] bg-[#030b14] overflow-hidden h-[90vh] md:h-[80vh] flex flex-col md:flex-row mt-8 md:mt-20">
               <button className="absolute top-6 right-6 h-10 w-10 flex items-center justify-center rounded-full bg-[#001D3D] text-[#f1ba0a] z-70" onClick={handleClose}><X size={20} /></button>
-              <div className="flex-1 w-full h-full overflow-hidden">{card.content}</div>
+              <div className="flex-1 w-full h-screen mb-20 md:mb-28 overflow-hidden">{card.content}</div>
             </motion.div>
           </div>
         )}
@@ -288,7 +326,7 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
 
       <motion.button
         layoutId={layout ? `card-${card.title}` : undefined}
-        onClick={() => setOpen(true)}
+        onClick={handleOpen}
         className="relative group h-[500px] w-[300px] md:h-[650px] md:w-[1200px] flex flex-col items-start justify-start overflow-hidden rounded-[32px] bg-neutral-900"
       >
         <div className="absolute inset-0 z-20 bg-linear-to-b from-black/80 via-transparent to-black/20" />
