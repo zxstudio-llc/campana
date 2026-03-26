@@ -6,7 +6,6 @@ import { Investment } from "@/lib/wordpress.d";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { HoverBorderGradient } from "../ui/hover-border-gradient";
 import { useState } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
