@@ -20,7 +20,7 @@ const FAQSection = ({ id, section, faqs }: FAQSectionProps) => {
         .filter(Boolean) as Faq[];
 
     return (
-        <section id={id} className="py-20 lg:py-20 overflow-hidden bg-campana-bg">
+        <section id={id} className="relative py-20 lg:py-20 overflow-hidden bg-campana-bg z-60">
             <Container className="px-6 md:px-8">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">

@@ -68,7 +68,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
 
     useLayoutEffect(() => {
         if (!sectionRef.current || !textRef.current || !containerRef.current || !extraRef.current) return
-        // Normalización del scroll para prevenir parpadeos en dispositivos móviles
+
         ScrollTrigger.normalizeScroll(true);
 
         let mm = gsap.matchMedia();
@@ -86,21 +86,23 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     end: "+=500%",
                     scrub: 1.2,
                     pin: true,
-                    anticipatePin: 1
+                    anticipatePin: 1,
+                    invalidateOnRefresh: true, // Crucial para mobile
                 },
             })
 
+            // ESTADOS INICIALES
             gsap.set(textRef.current, { opacity: 0, scale: 1.15, filter: "blur(15px)", pointerEvents: "none" })
             gsap.set(extraRef.current, { opacity: 0, scale: 1.15, filter: "blur(15px)", pointerEvents: "none" })
             gsap.set(overlayRef.current, { backdropFilter: "blur(0px)", opacity: 0 })
             gsap.set(bgLayerRef.current, { opacity: 0 })
-
             gsap.set(bgImageRef.current, { opacity: 0, scale: 1.1 })
             gsap.set(firstTextRef.current, { y: -250, opacity: 0 })
             gsap.set(secondTextRef.current, { y: 250, opacity: 0 })
             gsap.set(collisionContainerRef.current, { scale: 1, opacity: 0 })
             gsap.set(scrollOverlayRef.current, { opacity: 0 });
 
+            // TIMELINE
             tl.to(bgLayerRef.current, {
                 opacity: 1,
                 duration: 2.5,
@@ -130,6 +132,11 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     duration: 2.5,
                     ease: "power2.out"
                 }, "block1Reveal")
+                .to(scrollOverlayRef.current, {
+                    opacity: isMobile ? 1 : 0,
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, "block1Reveal")
                 .to(textRef.current, {
                     opacity: 1,
                     scale: 1,
@@ -138,7 +145,10 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     duration: 1.5,
                     ease: "power2.inOut"
                 }, "block1Reveal")
-                .to({}, { duration: 1.5 }) // Wait to read
+
+                .to({}, { duration: 1.5 }) // Pausa lectura
+
+                .add("textExit")
                 .to(textRef.current, {
                     opacity: 0,
                     scale: 0.85,
@@ -146,7 +156,12 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     pointerEvents: "none",
                     duration: 1.5,
                     ease: "power2.inOut"
-                })
+                }, "textExit")
+                .to(scrollOverlayRef.current, {
+                    opacity: 0,
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, "textExit")
                 .add("block2Reveal")
                 .to(collisionContainerRef.current, {
                     opacity: 1,
@@ -165,11 +180,11 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     duration: 2.5,
                     ease: "power4.out"
                 }, "block2Reveal+=0.2")
-                .to({}, { duration: 1 }) // Final buffer
+                .to({}, { duration: 1 })
         });
 
         return () => mm.revert()
-    }, [])
+    }, []) // Dejamos vacío para que mm.add maneje la lógica interna
 
     return (
         <>
@@ -187,20 +202,20 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     className="object-cover absolute inset-0 -z-10 pointer-events-none"
                 />
                 {/* GRADIENT BACKGROUND THAT FADES IN OVER HERO */}
-                {/* <div
-                    ref={bgLayerRef}
-                    className="absolute inset-0 bg-linear-to-b from-black/50 to-campana-bg-hover/80 pointer-events-none z-0"
-                /> */}
 
                 <div
                     ref={containerRef}
                     className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none"
                 >
+                    <div
+                        ref={scrollOverlayRef}
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 pointer-events-none md:hidden"
+                    />
 
                     {/* EXTRA FIELDS*/}
                     <div
                         ref={extraRef}
-                        className="absolute inset-0 flex flex-col justify-center text-white max-w-7xl mx-auto z-30 pointer-events-none "
+                        className="absolute inset-0 flex flex-col justify-center text-white max-w-7xl mx-auto z-30 pointer-events-none px-8 md:px-0"
                     >
                         <motion.span
                             initial={{ opacity: 0 }}
@@ -265,7 +280,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                                 {/*BLOCK 1: PRIMARY BIOGRAPHY */}
                                 <div
                                     ref={textRef}
-                                    className="flex flex-col text-white py-10 max-w-3xl relative pointer-events-auto"
+                                    className="flex flex-col text-white px-8 md:px-0 py-10 md:max-w-4xl relative pointer-events-auto left-0 md:-left-10"
                                 >
                                     <motion.span
                                         initial={{ opacity: 0 }}
@@ -279,7 +294,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                         transition={{ delay: 0.2 }}
-                                        className="text-5xl md:text-8xl lg:text-8xl font-sans font-normal tracking-tighter leading-[0.85] mb-10 text-center md:text-left"
+                                        className="text-5xl md:text-8xl lg:text-7xl font-sans font-normal tracking-tighter leading-[0.85] mb-10 text-center md:text-left"
                                     >
                                         {(() => {
                                             const words = data.title.split(" ");
@@ -287,7 +302,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                                             return (
                                                 <>
                                                     {words.join(" ")}{" "}
-                                                    <span className="font-ivy-presto italic">
+                                                    <span className="font-ivy-presto italic inline">
                                                         {lastWord}
                                                     </span>
                                                 </>
@@ -299,7 +314,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={isVisible ? { opacity: 1, y: 0 } : {}}
                                         transition={{ delay: 0.4 }}
-                                        className="text-white text-base md:text-lg leading-normal tracking-tighter space-y-4 reveal-description text-right font-inter font-normal"
+                                        className="text-white text-base md:text-lg leading-normal tracking-tighter space-y-4 reveal-description text-right font-inter font-normal md:max-w-3xl"
                                         style={{
                                             textAlign: "justify",
                                             textAlignLast: "left",

@@ -51,7 +51,7 @@ const ContactPageSection = ({ id, title, subtitle, phone, mail, instagram, faceb
     };
 
     return (
-        <section id={id} className="py-20 md:py-24 overflow-hidden bg-campana-bg-about">
+        <section id={id} className="relative py-20 md:py-24 overflow-hidden bg-campana-bg-about z-60">
             <Container className="w-screen px-4">
 
                 {/* SUBTITLE: Centrado en la web con máxima fuerza */}
@@ -143,7 +143,10 @@ const ContactPageSection = ({ id, title, subtitle, phone, mail, instagram, faceb
                             </a>
                         </motion.div>
 
-                        <motion.div variants={itemVariants} className="flex flex-wrap justify-center lg:justify-start gap-4 pt-2">
+                        <motion.div
+                            variants={itemVariants}
+                            className="flex flex-wrap justify-center lg:justify-start gap-4 pt-2 mt-auto"
+                        >
                             {socialLinks.map((social, index) => (
                                 social.url && (
                                     <motion.a

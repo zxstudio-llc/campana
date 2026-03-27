@@ -115,51 +115,53 @@ export function ActivosSection({
             title: item.acf?.title,
             description: item.acf?.description,
             renderContent: (
-                <div className="flex flex-col items-center" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-                    <div className="flex items-baseline">
-                        {hasDollar && (
-                            <span className="text-white text-[120px] md:text-[200px] font-bold">
-                                $
-                            </span>
-                        )}
+                <>
+                    <div className="relative z-10 flex flex-col items-center" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                        <div className="flex items-baseline">
+                            {hasDollar && (
+                                <span className="text-white text-[120px] md:text-[200px] font-bold">
+                                    $
+                                </span>
+                            )}
 
-                        {hasPlus && (
-                            <span className="text-white text-[120px] md:text-[200px] font-bold">
-                                +
-                            </span>
-                        )}
+                            {hasPlus && (
+                                <span className="text-white text-[120px] md:text-[200px] font-bold">
+                                    +
+                                </span>
+                            )}
 
-                        <NumberTicker
-                            key={tickerKey}
-                            value={numericValue}
-                            start={canStartTicker}
-                            className="text-[120px] md:text-[200px] font-bold tracking-tighter text-white leading-none"
-                        />
+                            <NumberTicker
+                                key={tickerKey}
+                                value={numericValue}
+                                start={canStartTicker}
+                                className="text-[120px] md:text-[200px] font-bold tracking-tighter text-white leading-none"
+                            />
 
-                        {hasK && (
-                            <span className="text-white text-[120px] md:text-[200px] font-bold">
-                                K
-                            </span>
-                        )}
+                            {hasK && (
+                                <span className="text-white text-[120px] md:text-[200px] font-bold">
+                                    K
+                                </span>
+                            )}
 
-                        {hasM && (
-                            <span className="text-white text-[120px] md:text-[200px] font-bold">
-                                M
-                            </span>
-                        )}
+                            {hasM && (
+                                <span className="text-white text-[120px] md:text-[200px] font-bold">
+                                    M
+                                </span>
+                            )}
+                        </div>
                     </div>
                     {isHovering && (
                         <CanvasRevealEffect
                             animationSpeed={5}
-                            containerClassName="bg-transparent absolute inset-0 pointer-events-none"
+                            containerClassName="absolute inset-0 pointer-events-none hidden md:block rounded-[32px] z-0 bg-transparent"
                             colors={[
-                                [59, 130, 246],
-                                [139, 92, 246],
+                                [241, 186, 10],
+                                [181, 147, 74],
                             ]}
                             dotSize={3}
                         />
                     )}
-                </div>
+                </>
             ),
         }
     })

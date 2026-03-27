@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef } from "react";
-import { motion, useMotionTemplate, useMotionValue, useInView } from "framer-motion";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Investment } from "@/lib/wordpress.d";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useState } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,10 +12,10 @@ interface InvestmentsSectionProps {
     id?: string;
     main?: string;
     secondary?: string;
+    investment: Investment[];
     highlight?: string;
     title?: string;
     description?: string;
-    investment: Investment[];
     cta?: string;
     cta_url?: string;
     video?: string;
@@ -25,38 +23,26 @@ interface InvestmentsSectionProps {
 }
 
 export default function InvestmentSection({
-    id,
-    main,
-    secondary,
-    highlight,
-    title,
-    description,
-    investment,
-    cta,
-    cta_url,
-    video,
-    video_mobile
+    id, main, secondary, investment, highlight, title, description, cta, cta_url, video, video_mobile
 }: InvestmentsSectionProps) {
     if (!investment?.length) return null;
 
     const sectionRef = useRef<HTMLDivElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null); // El contenedor que crecerá
-    const ctaRef = useRef<HTMLDivElement>(null);
-    const mainContentRef = useRef<HTMLDivElement>(null);
     const extraRef = useRef<HTMLDivElement>(null);
+    const mainContentRef = useRef<HTMLDivElement>(null);
     const headingRevealRef = useRef<HTMLDivElement>(null);
-    const videoBlockRef = useRef<HTMLDivElement>(null);
+    const videoContainerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
-
-    const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
     const [isMobile, setIsMobile] = useState(false);
+    const ctaRef = useRef<HTMLDivElement>(null);
     const [isPlaying, setIsPlaying] = useState(true);
     const [isMuted, setIsMuted] = useState(true);
 
     useEffect(() => {
         const mql = window.matchMedia("(max-width: 1024px)");
-        const onChange = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+        const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
+            setIsMobile(e.matches);
+        };
         onChange(mql);
         mql.addEventListener("change", onChange);
         return () => mql.removeEventListener("change", onChange);
@@ -67,218 +53,166 @@ export default function InvestmentSection({
     useLayoutEffect(() => {
         if (!sectionRef.current) return;
 
-        const mm = gsap.matchMedia();
+        const ctx = gsap.context(() => {
+            gsap.set(ctaRef.current, { opacity: 0 });
+            gsap.set(extraRef.current, { opacity: 0, scale: 1.1, filter: "blur(10px)" });
+            gsap.set(mainContentRef.current, { opacity: 0 });
+            gsap.set(videoContainerRef.current, {
+                height: 0,
+                overflow: "hidden",
+            });
 
-        mm.add("all", () => {
-            const ctx = gsap.context(() => {
-                const mainTl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: sectionRef.current,
-                        pin: true,
-                        anticipatePin: 1,
-                        start: "top top",
-                        end: "+=700%",
-                        scrub: 1.2,
-                    }
-                });
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top top",
+                    end: () => `+=${window.innerHeight * 5}`,
+                    scrub: true,
+                    pin: true,
+                    pinSpacing: true,
+                    anticipatePin: 1,
+                    invalidateOnRefresh: true,
+                },
+            });
 
-                // INITIAL STATES
-                gsap.set(extraRef.current, { opacity: 0, scale: 1.1, filter: "blur(10px)" });
-                gsap.set(mainContentRef.current, { opacity: 0 });
-                gsap.set(ctaRef.current, { opacity: 0, y: 20 });
+            // INTRO fade in/out
+            tl.to(extraRef.current, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.5, ease: "power2.inOut" })
+                .to({}, { duration: 1 })
+                .to(extraRef.current, { opacity: 0, duration: 1, ease: "power2.inOut" });
 
-                gsap.set(containerRef.current, {
-                    height: 0,
-                    opacity: 1,
-                    overflow: "hidden",
-                    scale: 0.9
-                });
+            // MAIN CONTENT aparece
+            tl.to(mainContentRef.current, { opacity: 1, duration: 1 });
 
-                // ETAPA 1: REVEAL INTRO
-                mainTl
-                    .to(extraRef.current, {
-                        opacity: 1,
-                        scale: 1,
-                        filter: "blur(0px)",
-                        duration: 1.5,
-                        ease: "power2.inOut"
-                    })
-                    .to({}, { duration: 1 })
-                    .to(extraRef.current, {
-                        opacity: 0,
-                        duration: 1,
-                        ease: "power2.inOut"
-                    });
+            // HEADING sube
+            tl.to(headingRevealRef.current, {
+                duration: 1.5,
+                ease: "power2.inOut"
+            });
 
-                mainTl.to(mainContentRef.current, {
-                    opacity: 1,
-                    duration: 1,
-                });
-
-                // AJUSTE AQUÍ: El texto sube un poco más para dar aire (-400px en lugar de -350px)
-                mainTl.to(headingRevealRef.current, {
-                    y: isMobile ? "-180px" : "-350px",
-                    duration: 1.5,
-                    ease: "power2.inOut"
-                });
-
-                // El video crece conservando su nueva posición más baja
-                mainTl.to(containerRef.current, {
-                    y: isMobile ? "-180px" : "100px",
-                    height: isMobile ? "540px" : "540px",
+            tl.to(
+                videoContainerRef.current,
+                {
+                    height: "auto",
                     duration: 1.5,
                     ease: "power2.inOut",
-                }, "<");
+                },
+                "+=0.2"
+            );
 
-                mainTl.to(ctaRef.current, {
-                    opacity: 1,
-                    y: isMobile ? "-180px" : "100px",
-                    pointerEvents: "auto",
-                    duration: 0.8,
-                }, ">-=0.3");
+            tl.to(ctaRef.current, {
+                opacity: 1,
+                duration: 0.5,
+                ease: "power2.out"
+            }, "-=0.2");
 
-                mainTl.to({}, { duration: 1.5 });
+            tl.to({}, { duration: 1.5 });
 
-            }, sectionRef);
+        }, sectionRef);
 
-            return () => ctx.revert();
-        });
-
-        return () => mm.revert();
-    }, [isMobile, selectedPlaybackId]);
+        return () => ctx.revert();
+    }, []);
 
     return (
         <section
             id={id}
             ref={sectionRef}
-            className="relative w-full h-screen overflow-hidden bg-campana-bg-about"
+            style={{ height: "100dvh" }}
+            className="relative w-full flex items-center justify-center overflow-hidden bg-campana-bg-about"
         >
             {/* PABLO IMAGE */}
-            <div className="absolute inset-0 top-0 lg:right-0 lg:left-auto lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
+            <div className="absolute inset-0 top-0 -right-20 lg:-right-24 lg:left-auto  z-0 pointer-events-none">
                 <Image
                     src="/assets/pabloInvestment.png"
                     alt="Pablo Story"
-                    width={1920 * 3}
-                    height={1080 * 3}
-                    className="w-auto h-screen scale-[1.2] object-cover object-top-left opacity-30 lg:opacity-100"
+                    width={1920}
+                    height={1080}
+                    className="w-auto lg:h-screen h-[100dvh] scale-[1.2] object-cover object-top-right opacity-30 lg:opacity-100"
                 />
             </div>
 
-            {/* CONTENT */}
+            {/* INTRO */}
             <div
-                ref={contentRef}
-                className="relative z-20 max-w-screen mx-auto h-screen flex flex-col justify-center items-center"
+                ref={extraRef}
+                className="absolute inset-0 flex flex-col items-start  justify-center px-6  w-full max-w-4xl ml-0 md:ml-18 mx-auto z-10 pointer-events-none"
             >
-                {/* INTRO (extraRef) */}
-                <div
-                    ref={extraRef}
-                    className="absolute inset-0 flex flex-col justify-center text-white w-full md:max-w-3xl right-20 md:right-100 mx-auto z-30 pointer-events-none px-4 md:px-0"
-                >
-                    {main && (
-                        <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                            className="text-campana-primary font-inter font-bold uppercase block mb-4 text-left"
-                        >
-                            {main}
-                        </motion.span>
-                    )}
+                {main && (
+                    <span className="text-campana-primary font-bold uppercase block mb-4 text-sm">
+                        {main}
+                    </span>
+                )}
+                {secondary && (
+                    <h2 className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10">
+                        {(() => {
+                            const words = secondary.split(" ");
+                            const lastWord = words.pop();
+                            return (
+                                <>
+                                    {words.join(" ")}{" "}
+                                    <span className="font-ivy-presto italic">{lastWord}</span>
+                                </>
+                            );
+                        })()}
+                    </h2>
+                )}
+            </div>
 
-                    {secondary && (
-                        <motion.h2
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                            transition={{ delay: 0.2 }}
-                            className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-left"
-                        >
-                            {(() => {
-                                const words = secondary.split(" ");
-                                const lastWord = words.pop();
-                                return (
-                                    <>
-                                        {words.join(" ")}{" "}
-                                        <span className="font-ivy-presto italic">{lastWord}</span>
-                                    </>
-                                );
-                            })()}
-                        </motion.h2>
-                    )}
-                </div>
-
-                {/* MAIN CONTENT */}
+            {/* MAIN CONTENT */}
+            <div
+                ref={mainContentRef}
+                className="relative z-30 flex flex-col items-start justify-center w-full max-w-8xl ml-0 lg:ml-20 mx-auto h-full gap-4"
+            >
                 <div
-                    ref={mainContentRef}
-                    className="w-full flex flex-col items-center justify-center h-full left-0 md:-left-30 gap-8"
-                    style={{ position: "relative" }}
+                    ref={headingRevealRef}
+                    className="flex flex-col items-start w-full text-left"
                 >
-                    {/* Heading centrado que sube al hacer scroll */}
-                    <div
-                        ref={headingRevealRef}
-                        className="absolute left-0 right-0 z-20 text-center px-6 w-full md:w-3/4 mx-auto flex flex-col items-center gap-4"
-                        style={{ top: "50%", transform: "translateY(-50%)" }}
-                    >
+                    <div className="relative w-full gap-6 flex flex-col">
                         {highlight && (
-                            <span className="text-campana-primary text-sm md:text-xl font-sans font-normal tracking-tighter uppercase flex items-center justify-center gap-2 lining-nums">
+                            <span className="text-campana-primary font-bold uppercase block mb-4 text-sm">
                                 {highlight}
                             </span>
                         )}
-
                         {title && (
-                            <h2 className="text-campana-primary text-3xl md:text-5xl lg:text-5xl font-sans font-normal mb-0 text-center leading-[0.9] tracking-tighter lining-nums w-full md:w-4xl mx-auto">
+                            <h2 className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-5">
                                 {(() => {
                                     const words = title.split(" ");
                                     const lastWord = words.pop();
                                     return (
                                         <>
                                             {words.join(" ")}{" "}
-                                            <span className="font-ivy-presto italic capatilize transition-all">{lastWord}</span>
+                                            <span className="font-ivy-presto capitalize italic">{lastWord}</span>
                                         </>
                                     );
                                 })()}
                             </h2>
                         )}
-
                         {description && (
                             <p
-                                className="text-[#001D3D] text-base md:text-lg w-full md:w-2xl mx-auto tracking-tight leading-5 font-sans font-normal"
-                                style={{ textAlign: "justify", textAlignLast: "center", textJustify: "inter-word" }}
+                                className="text-[#001D3D] text-base md:text-lg tracking-tight leading-5 font-sans"
                                 dangerouslySetInnerHTML={{ __html: description }}
                             />
                         )}
                     </div>
-
-                    {/* Video + CTA apilados — aparecen tras el heading */}
-                    <div
-                        ref={videoBlockRef}
-                        className="w-full flex flex-col items-center gap-6 px-6"
-                    >
-                        {/* Video con controles */}
+                </div>
+                {selectedPlaybackId && (
+                    <>
                         <div
-                            ref={containerRef}
-                            className="relative w-full md:w-[960px] mx-auto h-[540px] rounded-2xl overflow-hidden"
+                            ref={videoContainerRef}
+                            className="relative w-full aspect-video md:w-[1000px] mx-auto md:ml-0 h-[40vh] md:max-h-[500px] shadow-2xl overflow-hidden rounded-lg"
                         >
-                            {selectedPlaybackId && (
-                                <video
-                                    ref={videoRef}
-                                    src={selectedPlaybackId}
-                                    loop
-                                    muted
-                                    autoPlay
-                                    playsInline
-                                    className="w-full h-full object-cover"
-                                />
-                            )}
-
-                            {/* Controles sobre el video */}
+                            <video
+                                ref={videoRef}
+                                src={selectedPlaybackId}
+                                loop
+                                muted
+                                autoPlay
+                                playsInline
+                                className="w-full h-full object-cover"
+                            />
                             <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
                                 <button
                                     onClick={() => {
                                         if (!videoRef.current) return;
-                                        if (isPlaying) {
-                                            videoRef.current.pause();
-                                        } else {
-                                            videoRef.current.play();
-                                        }
+                                        isPlaying ? videoRef.current.pause() : videoRef.current.play();
                                         setIsPlaying(!isPlaying);
                                     }}
                                     className="h-9 w-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer"
@@ -294,7 +228,6 @@ export default function InvestmentSection({
                                         </svg>
                                     )}
                                 </button>
-
                                 <button
                                     onClick={() => {
                                         if (!videoRef.current) return;
@@ -318,92 +251,23 @@ export default function InvestmentSection({
                                 </button>
                             </div>
                         </div>
-
                         {/* CTA debajo del video */}
                         <div
                             ref={ctaRef}
-                            className="flex flex-col items-center gap-6 pointer-events-none opacity-0"
+                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto"
                         >
                             {cta && (
-                                <div className="group relative inline-flex items-center justify-center">
-                                    <button
-                                        onClick={() => window.open(cta_url, "_blank")}
-                                        className="relative flex items-center justify-center rounded-[40px] bg-campana-secondary hover:bg-campana-seconday-hover px-[24px] h-[44px] text-[16px] font-sans font-bold text-white transition-colors duration-300 cursor-pointer"
-                                    >
-                                        <span>{cta}</span>
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={() => window.open(cta_url, "_blank")}
+                                    className="flex items-center justify-center rounded-[40px] bg-campana-secondary hover:bg-campana-seconday-hover px-[24px] h-[44px] text-[16px] font-sans font-bold text-white transition-all duration-300 cursor-pointer"
+                                >
+                                    <span>{cta}</span>
+                                </button>
                             )}
                         </div>
-                    </div>
-                </div>
+                    </>
+                )}
             </div>
         </section>
     );
 }
-
-/* ─── CARD CONTENT ─────────────────────────────────────────────────────────── */
-
-const CardContent = ({ item }: { item: Investment }) => (
-    <div className="relative flex flex-col h-full overflow-hidden">
-        <span
-            className="absolute top-0 right-0 text-[10rem] md:text-[18rem] font-anton font-black text-campana-secondary/50 leading-none select-none pointer-events-none"
-            aria-hidden="true"
-        >
-            {item.acf.highlight}
-        </span>
-
-        <div className="relative z-10 flex flex-col h-full justify-end">
-            <span className="text-2xl md:text-3xl font-sans font-normal text-white mb-3 leading-tight h-[80px]">
-                {(() => {
-                    const words = item.acf.title.split(" ");
-                    const lastWord = words.pop();
-                    const remaining = words;
-                    const mid = Math.ceil(remaining.length / 2);
-                    const line1 = remaining.slice(0, mid).join(" ");
-                    const line2 = remaining.slice(mid).join(" ");
-                    return (
-                        <>
-                            {line1}<br />
-                            {line2}{" "}
-                            <span className="font-ivy-presto italic transition-all">{lastWord}</span>
-                        </>
-                    );
-                })()}
-            </span>
-
-            <div
-                className="text-white text-sm leading-relaxed line-clamp-6 break-words w-full"
-                dangerouslySetInnerHTML={{ __html: item.acf.description }}
-            />
-        </div>
-    </div>
-);
-
-/* ─── CARD APPLE ───────────────────────────────────────────────────────────── */
-
-const CardApple = ({ children }: { children: React.ReactNode }) => {
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-
-    return (
-        <motion.div
-            onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                mouseX.set(e.clientX - rect.left);
-                mouseY.set(e.clientY - rect.top);
-            }}
-            className="group relative h-[340px] p-8 rounded-3xl bg-neutral-900 border border-white/10 overflow-hidden"
-        >
-            <motion.div
-                className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 group-hover:opacity-100 transition"
-                style={{
-                    background: useMotionTemplate`
-                        radial-gradient(400px circle at ${mouseX}px ${mouseY}px, rgba(181,147,74,0.1), transparent 80%)
-                    `
-                }}
-            />
-            {children}
-        </motion.div>
-    );
-};

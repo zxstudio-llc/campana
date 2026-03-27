@@ -12,6 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image, { ImageProps } from "next/image";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { ChevronLeft, ChevronRight, X, Play, Pause, RotateCcw } from "lucide-react";
+import { createPortal } from "react-dom";
 
 const AUTO_PLAY_DURATION = 16000;
 
@@ -22,18 +23,18 @@ interface CarouselProps {
 
 type Card = {
   src: {
-    url: string
-    alt?: string
-  }
+    url: string;
+    alt?: string;
+  };
   duration?: number;
   mux?: {
-    primary_mux_playback_web_id?: string
-    primary_mux_playback_mobile_id?: string
-    secondary_mux_playback_web_id?: string
-  }
-  title: string
-  category: string
-  content: React.ReactNode
+    primary_mux_playback_web_id?: string;
+    primary_mux_playback_mobile_id?: string;
+    secondary_mux_playback_web_id?: string;
+  };
+  title: string;
+  category: string;
+  content: React.ReactNode;
 };
 
 export const CarouselContext = createContext<{
@@ -62,7 +63,7 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
   useEffect(() => {
     if (active) {
       setCurrentIndex(0);
-      scrollTo(0, false); // Instant reset when becoming active
+      scrollTo(0, false);
       setIsPlaying(true);
       setHasEnded(false);
     }
@@ -71,16 +72,16 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
   const scrollTo = (index: number, smooth = true) => {
     if (!carouselRef.current) return;
     const container = carouselRef.current;
-    const cardElement = container.firstElementChild?.firstElementChild as HTMLElement;
+    const cardElement =
+      (container.querySelector('[key^="card-container"]') as HTMLElement) ||
+      (container.firstElementChild?.firstElementChild as HTMLElement);
     if (!cardElement) return;
-
-    const cardFullWidth = cardElement.offsetWidth + 16;
+    const cardWidth = cardElement.offsetWidth + 16;
     let targetIndex = index;
     if (index < 0) targetIndex = items.length - 1;
     if (index >= items.length) targetIndex = 0;
-
     container.scrollTo({
-      left: targetIndex * cardFullWidth,
+      left: targetIndex * cardWidth,
       behavior: smooth ? "smooth" : "auto",
     });
     setCurrentIndex(targetIndex);
@@ -115,10 +116,12 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
       if (!carouselRef.current) return;
       const rect = carouselRef.current.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+      const visibleHeight =
+        Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
       const ratio = visibleHeight / rect.height;
-      const offsetFromCenter = Math.abs(rect.top + rect.height / 2 - viewportHeight / 2);
-
+      const offsetFromCenter = Math.abs(
+        rect.top + rect.height / 2 - viewportHeight / 2
+      );
       if (ratio >= 0.1 && offsetFromCenter <= 300) {
         setControlsVisible(true);
       } else {
@@ -137,7 +140,8 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
   const handleScroll = () => {
     if (!carouselRef.current) return;
     const container = carouselRef.current;
-    const cardElement = container.firstElementChild?.firstElementChild as HTMLElement;
+    const cardElement = container.firstElementChild
+      ?.firstElementChild as HTMLElement;
     if (!cardElement) return;
     const cardFullWidth = cardElement.offsetWidth + 16;
     const index = Math.round(container.scrollLeft / cardFullWidth);
@@ -146,15 +150,29 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
     }
   };
 
+  const handleCarouselWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (!carouselRef.current) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+  };
+
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === items.length - 1;
 
   return (
-    <CarouselContext.Provider value={{
-      onCardClose: (index) => { setCardOpen(false); setIsPlaying(true); scrollTo(index); },
-      onCardOpen: () => { setCardOpen(true); setIsPlaying(false); },
-      currentIndex,
-    }}>
+    <CarouselContext.Provider
+      value={{
+        onCardClose: (index) => {
+          setCardOpen(false);
+          setIsPlaying(true);
+          scrollTo(index);
+        },
+        onCardOpen: () => {
+          setCardOpen(true);
+          setIsPlaying(false);
+        },
+        currentIndex,
+      }}
+    >
       <div className="relative w-full group">
         <AnimatePresence>
           {!isFirst && controlsStage === "final" && (
@@ -162,7 +180,10 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
               initial={false}
               animate={{ opacity: 0.7, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
-              onClick={() => { setIsPlaying(false); scrollTo(currentIndex - 1); }}
+              onClick={() => {
+                setIsPlaying(false);
+                scrollTo(currentIndex - 1);
+              }}
               className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-campana-primary flex items-center justify-center text-campana-secondary z-50 border border-campana-primary cursor-pointer"
             >
               <ChevronLeft size={22} />
@@ -176,7 +197,10 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 0.7, x: 0 }}
               exit={{ opacity: 0, x: 12 }}
-              onClick={() => { setIsPlaying(false); scrollTo(currentIndex + 1); }}
+              onClick={() => {
+                setIsPlaying(false);
+                scrollTo(currentIndex + 1);
+              }}
               className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-campana-primary flex items-center justify-center text-campana-secondary z-50 border border-campana-primary cursor-pointer"
             >
               <ChevronRight size={22} />
@@ -184,10 +208,18 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
           )}
         </AnimatePresence>
 
-        <div className="flex w-full overflow-x-scroll snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" ref={carouselRef} onScroll={handleScroll}>
-          <div className="flex flex-row gap-4 px-[5%] md:px-[10%] mb-4">
+        <div
+          className="flex w-full overflow-x-auto overscroll-x-contain snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
+          ref={carouselRef}
+          onScroll={handleScroll}
+          style={{ touchAction: "pan-x" }}
+        >
+          <div className="inline-flex flex-row min-w-max gap-4 px-[5%] md:px-[10%] mb-4">
             {items.map((item, index) => (
-              <div key={"card-container-" + index} className="snap-center shrink-0">
+              <div
+                key={"card-container-" + index}
+                className="snap-center shrink-0"
+              >
                 {item}
               </div>
             ))}
@@ -196,23 +228,40 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
 
         <motion.div
           initial={false}
-          animate={controlsStage !== "hidden" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          animate={
+            controlsStage !== "hidden"
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: 20 }
+          }
           className="absolute bottom-10 left-0 w-full z-40 pointer-events-none"
         >
           <div className="w-full max-w-[1200px] mx-auto pointer-events-auto flex justify-center">
             <div className="flex items-center gap-4">
               <motion.div className="flex items-center gap-3 h-10 bg-[#00122D]/70 backdrop-blur-sm px-4 rounded-full border border-[#00122D]/20">
                 {items.map((_, index) => {
-                  const itemDuration = items[index]?.props.card?.duration || AUTO_PLAY_DURATION;
+                  const itemDuration =
+                    items[index]?.props.card?.duration || AUTO_PLAY_DURATION;
                   return (
                     <button
                       key={index}
-                      onClick={() => { setIsPlaying(false); setHasEnded(false); scrollTo(index, false); }}
+                      onClick={() => {
+                        setIsPlaying(false);
+                        setHasEnded(false);
+                        scrollTo(index, false);
+                      }}
                       className="relative h-1.5 bg-[#F1BA0A]/20 rounded-full overflow-hidden transition-all duration-300 cursor-pointer"
                       style={{ width: currentIndex === index ? "40px" : "8px" }}
                     >
                       {currentIndex === index && isPlaying && !hasEnded && (
-                        <motion.div initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: itemDuration / 1000, ease: "linear" }} className="absolute inset-y-0 left-0 bg-[#F1BA0A]" />
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: "100%" }}
+                          transition={{
+                            duration: itemDuration / 1000,
+                            ease: "linear",
+                          }}
+                          className="absolute inset-y-0 left-0 bg-[#F1BA0A]"
+                        />
                       )}
                       {currentIndex === index && (!isPlaying || hasEnded) && (
                         <div className="absolute inset-0 bg-[#F1BA0A]" />
@@ -224,12 +273,23 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
 
               <motion.button
                 onClick={() => {
-                  if (hasEnded) { scrollTo(0); setHasEnded(false); setIsPlaying(true); return; }
+                  if (hasEnded) {
+                    scrollTo(0);
+                    setHasEnded(false);
+                    setIsPlaying(true);
+                    return;
+                  }
                   setIsPlaying(!isPlaying);
                 }}
                 className="h-10 w-10 flex items-center justify-center rounded-full bg-[#00122D]/70 backdrop-blur-sm text-[#F1BA0A] cursor-pointer"
               >
-                {hasEnded ? <RotateCcw size={18} /> : isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+                {hasEnded ? (
+                  <RotateCcw size={18} />
+                ) : isPlaying ? (
+                  <Pause size={18} fill="currentColor" />
+                ) : (
+                  <Play size={18} fill="currentColor" className="ml-0.5" />
+                )}
               </motion.button>
             </div>
           </div>
@@ -239,15 +299,26 @@ export const Carousel = ({ items, active = true }: CarouselProps) => {
   );
 };
 
-export const Card = ({ card, index, layout = false }: { card: Card; index: number; layout?: boolean }) => {
+export const Card = ({
+  card,
+  index,
+  layout = false,
+}: {
+  card: Card;
+  index: number;
+  layout?: boolean;
+}) => {
   const { currentIndex, onCardClose, onCardOpen } = useContext(CarouselContext);
   const [open, setOpen] = useState(false);
-  const [docHeight, setDocHeight] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isActive = currentIndex === index;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   useOutsideClick(containerRef, () => handleClose());
+
   const handleOpen = () => {
     setOpen(true);
     if (onCardOpen) onCardOpen();
@@ -278,51 +349,104 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
   }, [isActive]);
 
   useEffect(() => {
-    if (open) {
-      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    if (!open) return;
 
-      // Bloquear scroll con wheel y touch
-      const preventScroll = (e: Event) => e.preventDefault();
-      window.addEventListener("wheel", preventScroll, { passive: false });
-      window.addEventListener("touchmove", preventScroll, { passive: false });
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.scrollbarGutter = "stable";
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
 
-      return () => {
-        document.body.style.overflow = "";
-        document.body.style.paddingRight = "";
-        window.removeEventListener("wheel", preventScroll);
-        window.removeEventListener("touchmove", preventScroll);
-      };
-    } else {
+    const preventDefault = (e: WheelEvent) => {
+      // Permitir scroll horizontal (trackpad lateral / mouse horizontal)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // Permitir scroll dentro del contenido del modal
+      const target = e.target as HTMLElement;
+      const isInsideModal = containerRef.current?.contains(target);
+      if (isInsideModal) return;
+      e.preventDefault();
+    };
+
+    const preventTouch = (e: TouchEvent) => e.preventDefault();
+
+    const preventKeyScroll = (e: KeyboardEvent) => {
+      const keys = [
+        "ArrowUp",
+        "ArrowDown",
+        "PageUp",
+        "PageDown",
+        "Home",
+        "End",
+        " ",
+      ];
+      if (keys.includes(e.key)) e.preventDefault();
+    };
+
+    window.addEventListener("wheel", preventDefault, { passive: false });
+    window.addEventListener("touchmove", preventTouch, { passive: false });
+    window.addEventListener("keydown", preventKeyScroll);
+    window.addEventListener("gesturestart", preventTouch as any, {
+      passive: false,
+    });
+    window.addEventListener("gesturechange", preventTouch as any, {
+      passive: false,
+    });
+
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.documentElement.style.scrollbarGutter = "";
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
-    }
+      window.removeEventListener("wheel", preventDefault);
+      window.removeEventListener("touchmove", preventTouch);
+      window.removeEventListener("keydown", preventKeyScroll);
+      window.removeEventListener("gesturestart", preventTouch as any);
+      window.removeEventListener("gesturechange", preventTouch as any);
+    };
   }, [open]);
 
   const playbackId = isMobile
-    ? card.mux?.primary_mux_playback_mobile_id || card.mux?.primary_mux_playback_web_id
-    : card.mux?.primary_mux_playback_web_id || card.mux?.primary_mux_playback_mobile_id;
+    ? card.mux?.primary_mux_playback_mobile_id ||
+    card.mux?.primary_mux_playback_web_id
+    : card.mux?.primary_mux_playback_web_id ||
+    card.mux?.primary_mux_playback_mobile_id;
 
   return (
     <>
-      <AnimatePresence>
-        {open && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 backdrop-blur-xl cursor-pointer"
-              onClick={handleClose}
-            />
-            <motion.div ref={containerRef} layoutId={layout ? `card-${card.title}` : undefined} className="relative z-60 w-full max-w-7xl rounded-[32px] bg-[#030b14] overflow-hidden h-[90vh] md:h-[80vh] flex flex-col md:flex-row mt-8 md:mt-20">
-              <button className="absolute top-6 right-6 h-10 w-10 flex items-center justify-center rounded-full bg-[#001D3D] text-[#f1ba0a] z-70" onClick={handleClose}><X size={20} /></button>
-              <div className="flex-1 w-full h-screen mb-20 md:mb-28 overflow-hidden">{card.content}</div>
-            </motion.div>
-          </div>
+      {mounted &&
+        open &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-black/80 backdrop-blur-xl cursor-pointer"
+                  onClick={handleClose}
+                />
+                <motion.div
+                  ref={containerRef}
+                  layoutId={layout ? `card-${card.title}` : undefined}
+                  className="relative z-[60] w-full max-w-7xl rounded-[32px] bg-[#030b14] overflow-hidden h-[90vh] md:h-[80vh]"
+                >
+                  <button
+                    className="absolute top-6 right-6 h-10 w-10 flex items-center justify-center rounded-full bg-[#001D3D] text-[#f1ba0a] z-[70]"
+                    onClick={handleClose}
+                  >
+                    <X size={20} />
+                  </button>
+                  <div className="w-full h-full overflow-hidden">
+                    {card.content}
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
 
       <motion.button
         layoutId={layout ? `card-${card.title}` : undefined}
@@ -331,8 +455,12 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
       >
         <div className="absolute inset-0 z-20 bg-linear-to-b from-black/80 via-transparent to-black/20" />
         <div className="relative z-30 p-10 md:p-14 text-left">
-          <p className="font-bold text-campana-secondary text-sm md:text-base uppercase tracking-[0.2em] mb-3">{card.category}</p>
-          <p className="text-3xl md:text-5xl font-bold text-white leading-[0.95] tracking-tighter max-w-lg">{card.title}</p>
+          <p className="font-bold text-campana-secondary text-sm md:text-base uppercase tracking-[0.2em] mb-3">
+            {card.category}
+          </p>
+          <p className="text-3xl md:text-5xl font-bold text-white leading-[0.95] tracking-tighter max-w-lg">
+            {card.title}
+          </p>
         </div>
 
         {playbackId ? (
@@ -343,12 +471,17 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
             playsInline
             preload="auto"
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full inset-0 z-10 object-cover pointer-events-none"
-            style={{ width: '100%', height: '100%', background: 'transparent' }}
+            style={{ width: "100%", height: "100%", background: "transparent" }}
           >
             <source src={playbackId} type="video/mp4" />
           </video>
         ) : (
-          <BlurImage src={card.src.url} alt={card.src.alt || "Imagen"} fill className="absolute inset-0 z-10 object-cover transition-transform duration-700 group-hover:scale-105" />
+          <BlurImage
+            src={card.src.url}
+            alt={card.src.alt || "Imagen"}
+            fill
+            className="absolute inset-0 z-10 object-cover transition-transform duration-700 group-hover:scale-105"
+          />
         )}
       </motion.button>
     </>
@@ -359,7 +492,11 @@ export const BlurImage = ({ src, className, alt, fill, ...rest }: ImageProps) =>
   const [isLoading, setLoading] = useState(true);
   return (
     <Image
-      className={cn("transition duration-300", isLoading ? "blur-sm" : "blur-0", className)}
+      className={cn(
+        "transition duration-300",
+        isLoading ? "blur-sm" : "blur-0",
+        className
+      )}
       onLoad={() => setLoading(false)}
       src={src}
       alt={alt || "Grupo Campana Asset"}

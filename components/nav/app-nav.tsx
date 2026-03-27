@@ -25,33 +25,33 @@ export default function AppNav({ menuItems, cta, languages, siteInfo }: AppNavPr
   const locale = pathname.split("/")[1] || "en"
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isHidden, setIsHidden] = React.useState(false)
+  const [isAtTop, setIsAtTop] = React.useState(true);
 
   useEffect(() => {
-    let lastScroll = 0
+    let lastScroll = 0;
 
     const handleScroll = () => {
-      const currentScroll = window.scrollY
+      const currentScroll = window.scrollY;
+
+      setIsAtTop(currentScroll === 0);
 
       if (currentScroll <= 0) {
-        setIsHidden(false)
-        return
+        setIsHidden(false);
+        return;
       }
 
       if (currentScroll > lastScroll && currentScroll > 80) {
-        // scrolling down
-        setIsHidden(true)
+        setIsHidden(true);
       } else if (currentScroll < lastScroll) {
-        // scrolling up
-        setIsHidden(false)
+        setIsHidden(false);
       }
 
-      lastScroll = currentScroll
-    }
+      lastScroll = currentScroll;
+    };
 
-    window.addEventListener("scroll", handleScroll)
-
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   return (
     <header
       className={cn(
@@ -62,30 +62,21 @@ export default function AppNav({ menuItems, cta, languages, siteInfo }: AppNavPr
       <div className="mx-auto flex h-20 max-w-screen items-center justify-between px-6 md:px-20">
         {/* LOGO */}
         <div
-          className="flex items-center z-50 transition-opacity duration-300"
+          className={cn(
+            "flex items-center z-50 transition-opacity duration-300",
+            isAtTop ? "opacity-100" : "opacity-0"
+          )}
         >
           <div className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
             <SiteLogo siteInfo={siteInfo} />
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="items-center gap-0 md:gap-3 flex z-50">
+          <div className={cn(
+            "items-center gap-0 md:gap-3 flex z-50 transition-opacity duration-300",
+            isAtTop ? "opacity-100" : "opacity-0"
+          )}>
             <LanguageSelector languages={languages} />
-
-            {cta?.enabled !== false && cta?.title && cta?.url && (
-              <Button
-                asChild
-                className="hidden md:block rounded-full px-6 font-semibold text-campana-primary bg-white/60 backdrop-blur-xl hover:bg-white/60 hover:backdrop-blur-xl"
-                variant="secondary"
-              >
-                <Link
-                  href={cta.url}
-                  target={cta.newTab ? '_blank' : undefined}
-                >
-                  {cta.title}
-                </Link>
-              </Button>
-            )}
           </div>
 
           {/* DESKTOP ACTIONS */}
@@ -94,7 +85,6 @@ export default function AppNav({ menuItems, cta, languages, siteInfo }: AppNavPr
               open={mobileOpen}
               setOpen={setMobileOpen}
               menuItems={menuItems}
-              cta={cta}
               languages={languages}
               siteInfo={siteInfo}
             />

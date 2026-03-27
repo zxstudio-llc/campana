@@ -87,14 +87,14 @@ export const Timeline = ({
 
                 // PHASE 2: Heading sube y el Timeline aparece (Reveal)
                 tl.to(contentRevealRef.current, {
-                    y: window.innerWidth >= 1024 ? "-65%" : "-55%",
+                    y: window.innerWidth >= 1024 ? "-65%" : "-95%",
                     duration: 1,
                     ease: "power2.inOut"
                 });
 
                 tl.to([timelineMobileRef.current, timelineDesktopRef.current], {
                     opacity: 1,
-                    y: window.innerWidth >= 1024 ? "-65%" : "-55%",
+                    y: window.innerWidth >= 1024 ? "-65%" : "-10%",
                     duration: 1,
                     ease: "power2.out",
                     stagger: 0.1,
@@ -160,67 +160,10 @@ export const Timeline = ({
                     ease: "power2.out"
                 }, "-=0.5");
 
-                // PHASE 5: Mantener Subtitle y Fade Out Final antes de soltar el Pin
                 tl.to({}, { duration: 1.5 });
 
             }, sectionRef);
 
-            return () => ctx.revert();
-        });
-
-        // TABLET / MOBILE
-        mm.add("(max-width: 1023px)", () => {
-            const section = sectionRef.current!;
-            const container = mobileContainerRef.current!;
-            const progressLine = progressLineMobileRef.current!;
-
-            const ctx = gsap.context(() => {
-                const scrollHeight = container.scrollHeight;
-                const viewportHeight = window.innerHeight;
-
-                const tl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: "top top",
-                        end: () => `+=${scrollHeight + viewportHeight * 1.2}`,
-                        scrub: true,
-                        pin: true,
-                        anticipatePin: 1,
-                    }
-                });
-
-                tl.to({}, { duration: 0.5 });
-
-                tl.to(container, {
-                    y: -(scrollHeight - viewportHeight * 0.4),
-                    duration: 4,
-                    ease: "none",
-                });
-
-                tl.fromTo(progressLine,
-                    { height: "0%" },
-                    { height: "100%", ease: "none", duration: 4 },
-                    "<"
-                );
-
-                tl.to([contentRevealRef.current, container, progressLine], {
-                    opacity: 0,
-                    filter: "blur(10px)",
-                    duration: 0.8,
-                    immediateRender: false
-                }, ">+=0.2");
-
-                tl.to(subtitleRef.current, {
-                    opacity: 1,
-                    y: 0,
-                    filter: "blur(0px)",
-                    duration: 1,
-                    ease: "power2.out"
-                }, "-=0.4");
-
-                tl.to({}, { duration: 1.5 });
-
-            }, sectionRef);
             return () => ctx.revert();
         });
 
@@ -233,18 +176,18 @@ export const Timeline = ({
             ref={sectionRef}
             className="w-full lg:h-screen h-[100dvh] bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-60"
         >
-            {/* Imagen de fondo — fuera del contentRevealRef para no moverse */}
+            {/* Imagen de fondo */}
             <div className="absolute inset-0 top-0 -left-20 lg:-left-24 lg:right-auto h-[100dvh] lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
                 <Image
                     src="/assets/pabloStory.png"
                     alt="Timeline"
-                    width={1920 * 3}
-                    height={1080 * 3}
-                    className="w-auto lg:h-screen h-[100dvh] scale-[1.4] object-cover object-top-left opacity-30 lg:opacity-100"
+                    width={1920}
+                    height={1080}
+                    className="w-auto lg:h-screen h-[100dvh] scale-[1] object-cover object-top-left opacity-30 lg:opacity-100"
                 />
             </div>
 
-            {/* Contenido centrado — sube al hacer scroll */}
+            {/* Contenido centrado */}
             <div
                 ref={contentRevealRef}
                 className="absolute left-0 right-0 z-20"
@@ -262,15 +205,15 @@ export const Timeline = ({
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.2 }}
-                            className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-right lining-nums"
+                            className="text-campana-primary text-[2.5rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-right lining-nums"
                         >
                             {(() => {
                                 const parts = heading.split(",");
                                 if (parts.length === 1) return heading;
                                 return (
                                     <>
-                                        {parts[0]},{" "}
-                                        <span className="font-ivy-presto italic transition-all">
+                                        {parts[0]},
+                                        <span className="block lg:inline lg:ml-2 font-ivy-presto italic transition-all">
                                             {parts.slice(1).join(",").trim()}
                                         </span>
                                     </>
@@ -281,7 +224,7 @@ export const Timeline = ({
                 </div>
             </div>
 
-            {/* MOBILE TIMELINE — ref propio */}
+            {/* MOBILE TIMELINE */}
             <div
                 ref={timelineMobileRef}
                 className="lg:hidden absolute bottom-0 left-0 right-0 z-20 h-[60vh] overflow-hidden"
@@ -320,7 +263,7 @@ export const Timeline = ({
                 </div>
             </div>
 
-            {/* DESKTOP TIMELINE — ref propio */}
+            {/* DESKTOP TIMELINE */}
             <div
                 ref={timelineDesktopRef}
                 className="hidden lg:block absolute bottom-0 left-0 right-0 z-20"
@@ -346,31 +289,32 @@ export const Timeline = ({
                 </div>
             </div>
 
-            {/* SUBTITLE — aparece al final */}
+            {/* SUBTITLE */}
             {subtitle && (
                 <div
                     ref={subtitleRef}
-                    className="opacity-0 pointer-events-none w-full md:w-3/4 mx-auto absolute bottom-10 left-0 right-0 z-50 lg:static mt-2 lg:mt-12 lg:ml-auto px-4 md:px-0 text-right"
+                    className="opacity-0 pointer-events-none w-full md:w-[85%] lg:w-[60%] mx-auto absolute bottom-20 left-0 right-0 z-50 lg:static mt-2 lg:mt-12 lg:ml-auto lg:mr-50 px-6 md:px-0 text-right"
                 >
-                    <h3 className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-right lining-nums">
-                        {(() => {
-                            const parts = subtitle.split(",");
+                    <h3 className="text-campana-primary text-[2.2rem] lg:text-5xl font-sans font-normal leading-[0.95] lg:leading-[1.1] tracking-tighter text-right lining-nums ml-auto lg:max-w-[1100px]">
+                        {subtitle.split(" ").map((word, i) => {
+                            // 1. Detectamos si tiene números
+                            const hasNumber = /\d/.test(word);
+                            // 2. Detectamos si la palabra CONTIENE la coma (ej: "excelencia,")
+                            const hasComma = word.includes(",");
+                            // 3. Detectamos si la palabra está DESPUÉS de la coma 
+                            // Buscamos si en el array original alguna palabra previa tenía coma
+                            const wordsArray = subtitle.split(" ");
+                            const indexFirstComma = wordsArray.findIndex(w => w.includes(","));
+                            const isAfterComma = indexFirstComma !== -1 && i > indexFirstComma;
 
-                            // Si no hay coma, renderizamos normal (con tu lógica de números/última palabra si prefieres)
-                            if (parts.length === 1) return subtitle;
+                            const shouldBeIvy = hasNumber || hasComma || isAfterComma;
 
                             return (
-                                <>
-                                    {/* Primera parte: Normal */}
-                                    <span>{parts[0].trim()},</span>
-                                    <br />
-                                    {/* Segunda parte: Ivy Presto Italic */}
-                                    <span className="font-ivy-presto italic">
-                                        {parts.slice(1).join(",").trim()}
-                                    </span>
-                                </>
+                                <span key={i} className={shouldBeIvy ? "font-ivy-presto italic" : ""}>
+                                    {word}{" "}
+                                </span>
                             );
-                        })()}
+                        })}
                     </h3>
                 </div>
             )}

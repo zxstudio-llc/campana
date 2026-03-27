@@ -14,14 +14,12 @@ type MobileNavProps = {
   open: boolean
   setOpen: (open: boolean) => void
   menuItems: AppMenuItem[]
-  cta: GlobalCTA | null
   languages: WpLanguage[]
   siteInfo: SiteInfo | null
 }
 
 export function MobileNav({
   menuItems,
-  cta,
   open,
   setOpen,
 }: MobileNavProps) {
@@ -219,21 +217,6 @@ export function MobileNav({
               )
             })}
           </nav>
-
-          {cta?.enabled !== false && cta?.title && cta?.url && (
-            <Button
-              asChild
-              className="block md:hidden rounded-full px-6 font-semibold text-campana-primary bg-campana-secondary hover:bg-campana-secondary"
-              variant="secondary"
-            >
-              <Link
-                href={cta.url}
-                target={cta.newTab ? '_blank' : undefined}
-              >
-                {cta.title}
-              </Link>
-            </Button>
-          )}
 
         </div>
       </div>
