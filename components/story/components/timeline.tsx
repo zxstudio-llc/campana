@@ -94,7 +94,7 @@ export const Timeline = ({
 
                 tl.to([timelineMobileRef.current, timelineDesktopRef.current], {
                     opacity: 1,
-                    y: window.innerWidth >= 1024 ? "-65%" : "-10%",
+                    y: window.innerWidth >= 1024 ? "-55%" : "-10%",
                     duration: 1,
                     ease: "power2.out",
                     stagger: 0.1,
@@ -205,16 +205,24 @@ export const Timeline = ({
                             initial={{ opacity: 0, y: 20 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.2 }}
-                            className="text-campana-primary text-[2.5rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10 text-right lining-nums"
+                            className="text-campana-primary text-[2.5rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl"
                         >
                             {(() => {
                                 const parts = heading.split(",");
                                 if (parts.length === 1) return heading;
+
+                                // 1. Tomamos la parte antes de la coma y la dividimos por espacios
+                                const firstPartWords = parts[0].trim().split(" ");
+                                // 2. Extraemos la última palabra
+                                const lastWordBeforeComma = firstPartWords.pop();
+                                // 3. El resto del texto que se queda con el estilo normal
+                                const remainingFirstPart = firstPartWords.join(" ");
+
                                 return (
                                     <>
-                                        {parts[0]},
+                                        {remainingFirstPart}{" "}
                                         <span className="block lg:inline lg:ml-2 font-ivy-presto italic transition-all">
-                                            {parts.slice(1).join(",").trim()}
+                                            {lastWordBeforeComma}, {parts.slice(1).join(",").trim()}
                                         </span>
                                     </>
                                 );
