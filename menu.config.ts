@@ -13,5 +13,5 @@ export const contentMenu = {
 
 export const menuConfig = {
   homeSlug: 'inicio',
-  wpBaseUrl: 'https://zxcms.xiaotianqi.com/',
+  wpBaseUrl: 'https://cms.grupocampana.ec//',
 }

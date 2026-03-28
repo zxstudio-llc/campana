@@ -14,7 +14,6 @@ export function resolveMenuHref(item: WpMenuItem): string {
   if (item.slug === menuConfig.homeSlug) {
     return '/'
   }
-
   return normalizeWpUrl(item.url)
 }
 
@@ -22,12 +21,8 @@ export function buildMenuUrl(slug: string, lang: string) {
   if (lang === 'en') {
     return slug === 'home' ? '/' : `/${slug}`
   }
-
-  return slug === 'home'
-    ? `/${lang}`
-    : `/${lang}/${slug}`
+  return slug === 'home' ? `/${lang}` : `/${lang}/${slug}`
 }
-
 
 export function mapWpMenu(
   items: WpMenuItem[],
@@ -35,35 +30,41 @@ export function mapWpMenu(
 ): AppMenuItem[] {
   const homeSlugs = ['home', 'inicio']
   const roots: AppMenuItem[] = []
-  const map = new Map<number, AppMenuItem>();
+  const map = new Map<number, AppMenuItem>()
 
   items.forEach((item, idx) => {
     if (!item) {
-      console.warn(`[MENU] Item en índice ${idx} es undefined o null`);
-      return;
+      console.warn(`[MENU] Item en índice ${idx} es undefined o null`)
+      return
     }
 
-    let path = ''
     const slug = (item.slug || '').toString()
     const lowerSlug = slug.toLowerCase()
+    const rawUrl = (item.url || '').trim()
 
-    if (homeSlugs.includes(lowerSlug)) {
-      path = ''
+    let resolvedUrl = ''
+
+    if (rawUrl.startsWith('#')) {
+      // ✅ Preservar anchors tal cual
+      resolvedUrl = `/${lang}/${rawUrl}`
+    } else if (homeSlugs.includes(lowerSlug)) {
+      // Home → /{lang}
+      resolvedUrl = `/${lang}`
     } else {
-      path = slug ? `/${slug}` : ''
+      // Página normal → /{lang}/{slug}
+      resolvedUrl = `/${lang}/${slug}`
     }
 
     map.set(item.ID, {
       id: item.ID,
       label: item.title || 'Sin título',
-      url: `/${lang}${path}`,
+      url: resolvedUrl,
       children: [],
     })
   })
 
   items.forEach((item) => {
     const parentId = Number(item.menu_item_parent)
-
     if (parentId && map.has(parentId)) {
       map.get(parentId)!.children!.push(map.get(item.ID)!)
     } else {
