@@ -50,8 +50,11 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${ivyPresto.variable} ${ivyOra.variable} ${anton.variable}`}>
-      <head />
+    <html translate="no" lang={lang} suppressHydrationWarning className={`${inter.variable} ${ivyPresto.variable} ${ivyOra.variable} ${anton.variable}`}>
+      <head>
+        <meta name="google" content="notranslate" />
+        <meta name="microsoft" content="notranslate" />
+      </head>
       <body className={cn("min-h-screen bg-campana-bg text-foreground antialiased")}>
         <ThemeProvider
           attribute="class"
