@@ -133,7 +133,7 @@ export default function InvestmentSection({
             className="relative w-full flex items-center justify-center overflow-hidden bg-campana-bg-about"
         >
             {/* PABLO IMAGE */}
-            <div className="absolute inset-0 top-0 -right-20 lg:-right-24 lg:left-auto  z-0 pointer-events-none">
+            <div className="absolute inset-0 top-0 -right-20 lg:right-6 lg:left-auto  z-0 pointer-events-none">
                 <Image
                     src="/assets/pabloInvestment.png"
                     alt="Pablo Story"
@@ -146,7 +146,7 @@ export default function InvestmentSection({
             {/* INTRO */}
             <div
                 ref={extraRef}
-                className="absolute inset-0 flex flex-col items-start  justify-center px-6  w-full max-w-4xl ml-0 md:ml-18 mx-auto z-10 pointer-events-none"
+                className="absolute inset-0 flex flex-col items-start  justify-center px-6  w-full max-w-7xl ml-0 md:ml-18 mx-auto z-10 pointer-events-none"
             >
                 {main && (
                     <span className="text-campana-primary font-bold uppercase block mb-4 text-sm">
@@ -154,7 +154,7 @@ export default function InvestmentSection({
                     </span>
                 )}
                 {secondary && (
-                    <h2 className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-10">
+                    <h2 className="text-campana-primary text-5xl md:text-9xl font-sans font-normal leading-[0.9] tracking-tighter mb-10">
                         {(() => {
                             const words = secondary.split(" ");
                             const lastWord = words.pop();
@@ -178,14 +178,14 @@ export default function InvestmentSection({
                     ref={headingRevealRef}
                     className="flex flex-col items-start w-full text-left"
                 >
-                    <div className="relative w-full gap-6 flex flex-col">
+                    <div className="relative w-full flex flex-col">
                         {highlight && (
                             <span className="text-campana-primary font-bold uppercase block mb-4 text-sm">
                                 {highlight}
                             </span>
                         )}
                         {title && (
-                            <h2 className="text-campana-primary text-5xl md:text-6xl lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-5">
+                            <h2 className="text-campana-primary text-5xl md:text-8xl font-sans font-normal leading-[0.9] tracking-tighter mb-5">
                                 {(() => {
                                     const words = title.split(" ");
                                     const lastWord = words.pop();

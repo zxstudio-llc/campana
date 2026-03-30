@@ -68,7 +68,7 @@ export default async function RootLayout({
               <main className="relative flex flex-col min-h-screen">
                 {children}
               </main>
-              <Footer />
+              <Footer menuItems={menuItems} siteInfo={siteInfo} />
             </SmoothScroller>
           </AppTheme>
         </ThemeProvider>
