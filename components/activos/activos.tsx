@@ -7,7 +7,6 @@ import { useRef, useLayoutEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, useInView } from "motion/react";
-import { CanvasRevealEffect } from "./components/canvasRevealEffect";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -107,16 +106,12 @@ export function ActivosSection({
         const hasK = rawAmount.toUpperCase().includes("K")
         const hasM = rawAmount.toUpperCase().includes("M")
 
-        const [isHovering, setIsHovering] = useState(false);
-        const handleMouseEnter = () => setIsHovering(true);
-        const handleMouseLeave = () => setIsHovering(false);
-
         return {
             title: item.acf?.title,
             description: item.acf?.description,
             renderContent: (
                 <>
-                    <div className="relative z-10 flex flex-col items-center" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                    <div className="relative z-10 flex flex-col items-center">
                         <div className="flex items-baseline">
                             {hasDollar && (
                                 <span className="text-white text-[120px] md:text-[200px] font-bold">
@@ -150,17 +145,6 @@ export function ActivosSection({
                             )}
                         </div>
                     </div>
-                    {isHovering && (
-                        <CanvasRevealEffect
-                            animationSpeed={5}
-                            containerClassName="absolute inset-0 pointer-events-none hidden md:block rounded-[32px] z-0 bg-transparent"
-                            colors={[
-                                [241, 186, 10],
-                                [181, 147, 74],
-                            ]}
-                            dotSize={3}
-                        />
-                    )}
                 </>
             ),
         }

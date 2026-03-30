@@ -35,7 +35,8 @@ export default function InvestmentSection({
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isMobile, setIsMobile] = useState(false);
     const ctaRef = useRef<HTMLDivElement>(null);
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
+    // const [isPlaying, setIsPlaying] = useState(true);
     const [isMuted, setIsMuted] = useState(true);
 
     useEffect(() => {
@@ -95,6 +96,18 @@ export default function InvestmentSection({
                     height: "auto",
                     duration: 1.5,
                     ease: "power2.inOut",
+                    onComplete: () => {
+                        if (videoRef.current) {
+                            videoRef.current.play();
+                            setIsPlaying(true);
+                        }
+                    },
+                    onReverseComplete: () => {
+                        if (videoRef.current) {
+                            videoRef.current.pause();
+                            setIsPlaying(false);
+                        }
+                    }
                 },
                 "+=0.2"
             );
@@ -204,7 +217,7 @@ export default function InvestmentSection({
                                 src={selectedPlaybackId}
                                 loop
                                 muted
-                                autoPlay
+                                // autoPlay
                                 playsInline
                                 className="w-full h-full object-cover"
                             />

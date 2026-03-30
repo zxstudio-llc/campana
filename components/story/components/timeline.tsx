@@ -66,8 +66,10 @@ export const Timeline = ({
                 gsap.set([timelineMobileRef.current, timelineDesktopRef.current], {
                     opacity: 0,
                     y: 40,
+                    pointerEvents: "none",
                 });
                 gsap.set(container, { x: startX });
+                gsap.set(contentRevealRef.current, { opacity: 0, scale: 1.1, filter: "blur(10px)" });
                 gsap.set(subtitleRef.current, { opacity: 0, y: 40 });
 
                 const tl = gsap.timeline({
@@ -83,7 +85,14 @@ export const Timeline = ({
                 });
 
                 // PHASE 1: Pausa inicial (Inmersión - Usuario ve el heading centrado)
-                tl.to({}, { duration: 1.5 });
+                tl.to(contentRevealRef.current, {
+                    opacity: 1,
+                    scale: 1,
+                    filter: "blur(0px)",
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                })
+                    .to({}, { duration: 1 });
 
                 // PHASE 2: Heading sube y el Timeline aparece (Reveal)
                 tl.to(contentRevealRef.current, {
@@ -98,6 +107,7 @@ export const Timeline = ({
                     duration: 1,
                     ease: "power2.out",
                     stagger: 0.1,
+                    pointerEvents: "auto",
                 }, "<");
 
                 // PHASE 3: Movimiento del Timeline (Desktop o Mobile)
@@ -146,6 +156,7 @@ export const Timeline = ({
                     {
                         opacity: 0,
                         filter: "blur(10px)",
+                        pointerEvents: "none",
                         duration: 1,
                         ease: "power2.inOut",
                         immediateRender: false
@@ -220,7 +231,8 @@ export const Timeline = ({
 
                                 return (
                                     <>
-                                        {remainingFirstPart}{" "}
+                                        {remainingFirstPart}
+                                        <br />
                                         <span className="block lg:inline lg:ml-2 font-ivy-presto italic transition-all">
                                             {lastWordBeforeComma}, {parts.slice(1).join(",").trim()}
                                         </span>

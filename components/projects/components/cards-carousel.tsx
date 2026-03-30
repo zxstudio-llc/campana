@@ -13,6 +13,12 @@ import Image, { ImageProps } from "next/image";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { ChevronLeft, ChevronRight, X, Play, Pause, RotateCcw } from "lucide-react";
 import { createPortal } from "react-dom";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const AUTO_PLAY_DURATION = 16000;
 
@@ -351,53 +357,51 @@ export const Card = ({
   useEffect(() => {
     if (!open) return;
 
-    const scrollbarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
-    document.documentElement.style.overflow = "hidden";
-    document.documentElement.style.scrollbarGutter = "stable";
+    const scrollY = window.scrollY;
+
+    // Simple como el que funciona, sin position:fixed
     document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     const preventDefault = (e: WheelEvent) => {
-      // Permitir scroll horizontal (trackpad lateral / mouse horizontal)
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      // Permitir scroll dentro del contenido del modal
       const target = e.target as HTMLElement;
-      const isInsideModal = containerRef.current?.contains(target);
-      if (isInsideModal) return;
+      if (containerRef.current?.contains(target)) return;
       e.preventDefault();
     };
-
     const preventTouch = (e: TouchEvent) => e.preventDefault();
-
     const preventKeyScroll = (e: KeyboardEvent) => {
-      const keys = [
-        "ArrowUp",
-        "ArrowDown",
-        "PageUp",
-        "PageDown",
-        "Home",
-        "End",
-        " ",
-      ];
+      const keys = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "];
       if (keys.includes(e.key)) e.preventDefault();
     };
 
     window.addEventListener("wheel", preventDefault, { passive: false });
     window.addEventListener("touchmove", preventTouch, { passive: false });
     window.addEventListener("keydown", preventKeyScroll);
-    window.addEventListener("gesturestart", preventTouch as any, {
-      passive: false,
-    });
-    window.addEventListener("gesturechange", preventTouch as any, {
-      passive: false,
-    });
+    window.addEventListener("gesturestart", preventTouch as any, { passive: false });
+    window.addEventListener("gesturechange", preventTouch as any, { passive: false });
 
     return () => {
-      document.documentElement.style.overflow = "";
-      document.documentElement.style.scrollbarGutter = "";
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
+      // Pausar timelines ANTES de restaurar
+      const timelines: gsap.core.Animation[] = [];
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.animation) {
+          st.animation.pause();
+          timelines.push(st.animation);
+        }
+      });
+
+      document.body.style.overflow = "auto";
+
+      // Restaurar scroll sin que GSAP lo vea
+      window.scrollTo({ top: scrollY, behavior: "instant" });
+
+      // Reanudar después de que el browser pintó el frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          timelines.forEach((tl) => tl.resume());
+        });
+      });
+
       window.removeEventListener("wheel", preventDefault);
       window.removeEventListener("touchmove", preventTouch);
       window.removeEventListener("keydown", preventKeyScroll);
