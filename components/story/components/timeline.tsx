@@ -62,6 +62,14 @@ export const Timeline = ({
                 const startX = viewportWidth * 0.75 - firstMarkerPos;
                 const endX = viewportWidth / 2 - lastMarkerPos;
 
+                gsap.set([
+                    contentRevealRef.current,
+                    timelineMobileRef.current,
+                    timelineDesktopRef.current,
+                    subtitleRef.current,
+                    container
+                ], { clearProps: "all" });
+
                 // 1. ESTADOS INICIALES
                 gsap.set([timelineMobileRef.current, timelineDesktopRef.current], {
                     opacity: 0,
@@ -76,8 +84,8 @@ export const Timeline = ({
                     scrollTrigger: {
                         trigger: section,
                         start: "top top",
-                        end: "+=750%",
-                        scrub: true,
+                        end: "+=800%",
+                        scrub: 1,
                         pin: true,
                         anticipatePin: 1,
                         invalidateOnRefresh: true,
@@ -89,26 +97,29 @@ export const Timeline = ({
                     opacity: 1,
                     scale: 1,
                     filter: "blur(0px)",
-                    duration: 1.5,
-                    ease: "power2.inOut"
+                    duration: 2,
+                    ease: "none"
                 })
-                    .to({}, { duration: 1 });
+
+                tl.to({}, { duration: 1 });
 
                 // PHASE 2: Heading sube y el Timeline aparece (Reveal)
                 tl.to(contentRevealRef.current, {
                     y: window.innerWidth >= 1024 ? "-65%" : "-95%",
-                    duration: 1,
+                    duration: 2,
                     ease: "power2.inOut"
                 });
 
                 tl.to([timelineMobileRef.current, timelineDesktopRef.current], {
                     opacity: 1,
                     y: window.innerWidth >= 1024 ? "-55%" : "-10%",
-                    duration: 1,
+                    duration: 2,
                     ease: "power2.out",
                     stagger: 0.1,
                     pointerEvents: "auto",
                 }, "<");
+
+                tl.to({}, { duration: 1.5 });
 
                 // PHASE 3: Movimiento del Timeline (Desktop o Mobile)
                 if (window.innerWidth >= 1024 && horizontalRef.current) {
@@ -117,14 +128,14 @@ export const Timeline = ({
 
                     tl.to(container, {
                         x: -scrollDistance,
-                        duration: 4,
+                        duration: 8,
                         ease: "none"
                     });
 
                     if (progressLineRef.current) {
                         tl.to(progressLineRef.current, {
                             width: "100%",
-                            duration: 4,
+                            duration: 8,
                             ease: "none"
                         }, "<");
                     }
@@ -134,7 +145,7 @@ export const Timeline = ({
 
                     tl.to(mContainer, {
                         y: -mScrollHeight,
-                        duration: 4,
+                        duration: 8,
                         ease: "none"
                     });
 
@@ -144,12 +155,14 @@ export const Timeline = ({
                             {
                                 height: "100%",
                                 ease: "none",
-                                duration: 4
+                                duration: 8
                             },
                             "<"
                         );
                     }
                 }
+
+                tl.to({}, { duration: 1 });
 
                 tl.to(
                     [contentRevealRef.current, timelineMobileRef.current, timelineDesktopRef.current],
@@ -157,7 +170,7 @@ export const Timeline = ({
                         opacity: 0,
                         filter: "blur(10px)",
                         pointerEvents: "none",
-                        duration: 1,
+                        duration: 2,
                         ease: "power2.inOut",
                         immediateRender: false
                     },
@@ -167,9 +180,9 @@ export const Timeline = ({
                 tl.to(subtitleRef.current, {
                     opacity: 1,
                     y: 0,
-                    duration: 1,
+                    duration: 2,
                     ease: "power2.out"
-                }, "-=0.5");
+                }, "-=1");
 
                 tl.to({}, { duration: 1.5 });
 
@@ -188,13 +201,13 @@ export const Timeline = ({
             className="w-full lg:h-screen h-[100dvh] bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-60"
         >
             {/* Imagen de fondo */}
-            <div className="absolute inset-0 top-0 -left-20 lg:-left-24 lg:right-auto h-[100dvh] lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
+            <div className="absolute inset-0 top-10 -left-20 lg:-left-14 lg:right-auto h-[100dvh] lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
                 <Image
                     src="/assets/pabloStory.png"
                     alt="Timeline"
                     width={1920}
                     height={1080}
-                    className="w-auto lg:h-screen h-[100dvh] scale-[1] object-cover object-top-left opacity-30 lg:opacity-100"
+                    className="w-auto lg:h-screen h-[100dvh] scale-[1.3] object-cover object-top-left opacity-30 lg:opacity-100"
                 />
             </div>
 
@@ -286,7 +299,7 @@ export const Timeline = ({
             {/* DESKTOP TIMELINE */}
             <div
                 ref={timelineDesktopRef}
-                className="hidden lg:block absolute bottom-0 left-0 right-0 z-20"
+                className="hidden lg:block absolute bottom-0 right-0 z-20 w-9/10 mx-auto"
             >
                 <div className="absolute inset-0 left-0 right-0 h-[2px] bg-linear-to-r from-transparent via-campana-secondary-active to-transparent" style={{ top: "50%", transform: "translateY(-50%)" }} />
                 <div ref={progressLineRef} className="absolute h-[2px] bg-linear-to-r from-campana-secondary via-campana-secondary to-transparent" style={{ top: "50%", transform: "translateY(-50%)", width: "0%" }} />

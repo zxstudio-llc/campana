@@ -47,7 +47,7 @@ export default function HeroLogo({
 
         const ctx = gsap.context(() => {
 
-            gsap.set(scrollOverlayRef.current, { opacity: 0 });
+            // gsap.set(scrollOverlayRef.current, { opacity: 0 });
             gsap.set(introRef.current, { scale: 1 });
 
             const tl = gsap.timeline({
@@ -70,11 +70,11 @@ export default function HeroLogo({
                 ease: "none"
             }, 0);
 
-            tl.to(scrollOverlayRef.current, {
-                opacity: 1,
-                duration: 0.8,
-                ease: "power2.inOut"
-            }, 0.1);
+            // tl.to(scrollOverlayRef.current, {
+            //     opacity: 1,
+            //     duration: 0.8,
+            //     ease: "power2.inOut"
+            // }, 0.1);
 
         }, sectionRef);
 
@@ -94,14 +94,15 @@ export default function HeroLogo({
                             muted
                             autoPlay
                             playsInline
+                            preload="auto"
                             className="w-full h-full object-cover pointer-events-none object-right"
                         />
                     </div>
                 )}
-                <div
+                {/* <div
                     ref={scrollOverlayRef}
                     className="absolute inset-0 z-10 pointer-events-none bg-linear-to-b from-campana-bg-hover to-black"
-                />
+                /> */}
             </div>
         </section>
     );

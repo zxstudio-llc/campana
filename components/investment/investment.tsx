@@ -5,6 +5,7 @@ import { Investment } from "@/lib/wordpress.d";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Volume2, VolumeX } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -40,6 +41,12 @@ export default function InvestmentSection({
     const [isMuted, setIsMuted] = useState(true);
 
     useEffect(() => {
+        return () => {
+            if (videoRef.current) videoRef.current.pause();
+        };
+    }, []);
+
+    useEffect(() => {
         const mql = window.matchMedia("(max-width: 1024px)");
         const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
             setIsMobile(e.matches);
@@ -56,7 +63,7 @@ export default function InvestmentSection({
 
         const ctx = gsap.context(() => {
             gsap.set(ctaRef.current, { opacity: 0 });
-            gsap.set(extraRef.current, { opacity: 0, scale: 1.1, filter: "blur(10px)" });
+            gsap.set(extraRef.current, { opacity: 0, scale: 1.1, filter: "blur(20px)" });
             gsap.set(mainContentRef.current, { opacity: 0 });
             gsap.set(videoContainerRef.current, {
                 height: 0,
@@ -73,14 +80,34 @@ export default function InvestmentSection({
                     pinSpacing: true,
                     anticipatePin: 1,
                     invalidateOnRefresh: true,
+                    onLeave: () => {
+                        videoRef.current?.pause();
+                        setIsPlaying(false);
+                    },
+                    onLeaveBack: () => {
+                        videoRef.current?.pause();
+                        setIsPlaying(false);
+                    }
                 },
             });
 
             // INTRO fade in/out
-            tl.to(extraRef.current, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.5, ease: "power2.inOut" })
-                .to({}, { duration: 1 })
-                .to(extraRef.current, { opacity: 0, duration: 1, ease: "power2.inOut" });
+            tl.to(extraRef.current, {
+                opacity: 1,
+                scale: 1,
+                filter: "blur(0px)",
+                duration: 2,
+                ease: "none"
+            });
 
+            tl.to({}, { duration: 1 });
+            tl.to(extraRef.current, {
+                opacity: 0,
+                duration: 2,
+                ease: "power2.inOut"
+            });
+
+            tl.to({}, { duration: 1 });
             // MAIN CONTENT aparece
             tl.to(mainContentRef.current, { opacity: 1, duration: 1 });
 
@@ -96,12 +123,12 @@ export default function InvestmentSection({
                     height: "auto",
                     duration: 1.5,
                     ease: "power2.inOut",
-                    onComplete: () => {
-                        if (videoRef.current) {
-                            videoRef.current.play();
-                            setIsPlaying(true);
-                        }
-                    },
+                    // onComplete: () => {
+                    //     if (videoRef.current) {
+                    //         videoRef.current.play();
+                    //         setIsPlaying(false);
+                    //     }
+                    // },
                     onReverseComplete: () => {
                         if (videoRef.current) {
                             videoRef.current.pause();
@@ -146,7 +173,7 @@ export default function InvestmentSection({
             {/* INTRO */}
             <div
                 ref={extraRef}
-                className="absolute inset-0 flex flex-col items-start  justify-center px-6  w-full max-w-7xl ml-0 md:ml-18 mx-auto z-10 pointer-events-none"
+                className="absolute inset-0 flex flex-col items-start  justify-center px-6  w-full max-w-7xl ml-0 md:ml-34 mx-auto z-10 pointer-events-none"
             >
                 {main && (
                     <span className="text-campana-primary font-bold uppercase block mb-4 text-sm">
@@ -154,13 +181,33 @@ export default function InvestmentSection({
                     </span>
                 )}
                 {secondary && (
-                    <h2 className="text-campana-primary text-5xl md:text-9xl font-sans font-normal leading-[0.9] tracking-tighter mb-10">
+                    <h2 className="text-campana-primary text-5xl md:text-8xl font-sans font-normal leading-[0.9] tracking-tighter mb-10">
                         {(() => {
                             const words = secondary.split(" ");
-                            const lastWord = words.pop();
+                            const totalWords = words.length;
+
+                            // Si solo hay una palabra, no dividimos, solo aplicamos el estilo
+                            if (totalWords === 1) {
+                                return <span className="font-ivy-presto italic">{words[0]}</span>;
+                            }
+
+                            // Calculamos la mitad (hacia arriba si es impar)
+                            const midIndex = Math.ceil(totalWords / 2);
+
+                            const firstLine = words.slice(0, midIndex).join(" ");
+                            const remainingWords = words.slice(midIndex);
+
+                            // Extraemos la última palabra para el span
+                            const lastWord = remainingWords.pop();
+                            const secondLineBase = remainingWords.join(" ");
+
                             return (
                                 <>
-                                    {words.join(" ")}{" "}
+                                    {/* Primera parte (la mayor cantidad) */}
+                                    {firstLine}
+                                    <br />
+                                    {/* Segunda parte con la última palabra estilizada */}
+                                    {secondLineBase}{" "}
                                     <span className="font-ivy-presto italic">{lastWord}</span>
                                 </>
                             );
@@ -172,7 +219,7 @@ export default function InvestmentSection({
             {/* MAIN CONTENT */}
             <div
                 ref={mainContentRef}
-                className="relative z-30 flex flex-col items-start justify-center w-full max-w-8xl ml-0 lg:ml-20 mx-auto h-full gap-4"
+                className="relative z-30 flex flex-col items-start justify-center w-full max-w-8xl ml-0 lg:ml-34 mx-auto h-full gap-4"
             >
                 <div
                     ref={headingRevealRef}
@@ -185,7 +232,7 @@ export default function InvestmentSection({
                             </span>
                         )}
                         {title && (
-                            <h2 className="text-campana-primary text-5xl md:text-8xl font-sans font-normal leading-[0.9] tracking-tighter mb-5">
+                            <h2 className="text-campana-primary text-5xl md:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-5">
                                 {(() => {
                                     const words = title.split(" ");
                                     const lastWord = words.pop();
@@ -216,9 +263,9 @@ export default function InvestmentSection({
                                 ref={videoRef}
                                 src={selectedPlaybackId}
                                 loop
-                                muted
-                                // autoPlay
+                                muted={isMuted}
                                 playsInline
+                                preload="auto"
                                 className="w-full h-full object-cover"
                             />
                             <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
@@ -250,16 +297,9 @@ export default function InvestmentSection({
                                     className="h-9 w-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer"
                                 >
                                     {isMuted ? (
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                            <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor" />
-                                            <line x1="23" y1="9" x2="17" y2="15" />
-                                            <line x1="17" y1="9" x2="23" y2="15" />
-                                        </svg>
+                                        <VolumeX />
                                     ) : (
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                            <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor" />
-                                            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" />
-                                        </svg>
+                                        <Volume2 />
                                     )}
                                 </button>
                             </div>
