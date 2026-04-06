@@ -218,7 +218,7 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
                     {selectedPlaybackId && (
                         <div
                             ref={videoContainerRef}
-                            className="w-full aspect-4500/1440 shadow-2xl overflow-hidden "
+                            className="w-full aspect-2430/1080 shadow-2xl overflow-hidden "
                         >
                             <video
                                 src={selectedPlaybackId}
@@ -226,7 +226,7 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
                                 muted
                                 autoPlay
                                 playsInline
-                                className="w-full h-full object-cover"
+                                className="w-full object-contain"
                             />
                         </div>
                     )}
