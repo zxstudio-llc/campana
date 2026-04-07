@@ -6,6 +6,7 @@ import Image from "next/image"
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextHoverEffect } from "../ui/text-hover-effect";
+import { Volume2, VolumeX } from "lucide-react";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -27,6 +28,10 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
     const textGroupRef = useRef<HTMLDivElement>(null);
     const videoContainerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
+
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isPlaying, setIsPlaying] = useState(false); // Inicia en pausa
+    const [isMuted, setIsMuted] = useState(true);
 
     const [isMobile, setIsMobile] = useState(false);
 
@@ -91,6 +96,14 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
                     pin: true,
                     pinSpacing: true,
                     anticipatePin: 1,
+                    onLeave: () => {
+                        videoRef.current?.pause();
+                        setIsPlaying(false);
+                    },
+                    onLeaveBack: () => {
+                        videoRef.current?.pause();
+                        setIsPlaying(false);
+                    }
                 },
             });
 
@@ -131,6 +144,10 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
                     height: "auto",
                     duration: 1.5,
                     ease: "power2.inOut",
+                    onReverseComplete: () => {
+                        videoRef.current?.pause();
+                        setIsPlaying(false);
+                    }
                 },
                 "+=0.2"
             );
@@ -218,16 +235,38 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
                     {selectedPlaybackId && (
                         <div
                             ref={videoContainerRef}
-                            className="w-full aspect-2430/1080 shadow-2xl overflow-hidden "
+                            className="relative w-full aspect-2430/1080 shadow-2xl overflow-hidden "
                         >
                             <video
+                                ref={videoRef}
                                 src={selectedPlaybackId}
                                 loop
                                 muted
-                                autoPlay
+                                // autoPlay
                                 playsInline
                                 className="w-full object-contain"
                             />
+                            <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
+                                <button
+                                    onClick={() => {
+                                        if (!videoRef.current) return;
+                                        isPlaying ? videoRef.current.pause() : videoRef.current.play();
+                                        setIsPlaying(!isPlaying);
+                                    }}
+                                    className="h-9 w-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer pointer-events-auto"
+                                >
+                                    {isPlaying ? (
+                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                                            <rect x="2" y="1" width="4" height="12" rx="1" />
+                                            <rect x="8" y="1" width="4" height="12" rx="1" />
+                                        </svg>
+                                    ) : (
+                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                                            <path d="M3 1.5l9 5.5-9 5.5V1.5z" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>

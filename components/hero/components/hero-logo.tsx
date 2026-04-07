@@ -48,7 +48,7 @@ export default function HeroLogo({
         const ctx = gsap.context(() => {
 
             // gsap.set(scrollOverlayRef.current, { opacity: 0 });
-            gsap.set(introRef.current, { scale: 1 });
+            gsap.set(introRef.current, { scale: 1, filter: "blur(0px)" });
 
             const tl = gsap.timeline({
                 scrollTrigger: {
@@ -67,7 +67,8 @@ export default function HeroLogo({
                 scale: 1.15,
                 filter: "blur(20px)",
                 duration: 1,
-                ease: "none"
+                ease: "none",
+                immediateRender: false
             }, 0);
 
             // tl.to(scrollOverlayRef.current, {
