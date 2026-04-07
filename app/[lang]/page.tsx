@@ -89,7 +89,7 @@ export default async function Home({
       <Container>
         <Hero page={page} />
 
-        <BlocksRenderer sections={sections} />
+        <BlocksRenderer sections={sections} lang={lang} />
       </Container>
     </Section>
   );
@@ -97,8 +97,10 @@ export default async function Home({
 
 async function BlocksRenderer({
   sections,
+  lang,
 }: {
   sections: PageSection[];
+  lang: string;
 }) {
   const result: React.ReactNode[] = [];
 
@@ -126,7 +128,7 @@ async function BlocksRenderer({
         <GradientWrapper key={`group-${i}`}>
           {await Promise.all(
             groupedBlocks.map((block, idx) => (
-              <RenderBlock key={idx} block={block} />
+              <RenderBlock key={idx} block={block} lang={lang} />
             ))
           )}
         </GradientWrapper>
@@ -136,7 +138,7 @@ async function BlocksRenderer({
     }
 
     result.push(
-      <RenderBlock key={i} block={current} />
+      <RenderBlock key={i} block={current} lang={lang} />
     );
   }
 
@@ -157,8 +159,10 @@ function GradientWrapper({
 
 async function RenderBlock({
   block,
+  lang,
 }: {
   block: PageSection;
+  lang: string;
 }) {
   switch (block.acf_fc_layout) {
 
@@ -298,7 +302,8 @@ async function RenderBlock({
 
     case "contact": {
       const data = block as ContactSection
-      return <ContactPageSection id={block.acf_fc_layout} {...data} />
+      const currentLang = (lang === "en" || lang === "es") ? lang : "es";
+      return <ContactPageSection id={block.acf_fc_layout} {...data} lang={currentLang} />
     }
 
     default:

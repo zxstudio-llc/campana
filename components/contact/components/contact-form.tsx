@@ -151,7 +151,7 @@ export const ContactForm = ({ lang = "es" }: { lang?: "es" | "en" }) => {
                         disabled={status === "loading"}
                         className="group/btn relative block w-full bg-campana-secondary hover:bg-campana-seconday-hover text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] uppercase tracking-wider text-sm disabled:opacity-50"
                     >
-                        {status === "loading" ? "Enviando..." : "Enviar Mensaje"}
+                        {status === "loading" ? t.sending : t.send}
                         <BottomGradient />
                     </button>
 

@@ -307,12 +307,12 @@ export default function InvestmentSection({
                         {/* CTA debajo del video */}
                         <div
                             ref={ctaRef}
-                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto"
+                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto mt-10"
                         >
                             {cta && (
                                 <button
                                     onClick={() => window.open(cta_url, "_blank")}
-                                    className="flex items-center justify-center rounded-[40px] bg-campana-secondary hover:bg-campana-seconday-hover px-[24px] h-[44px] text-[16px] font-sans font-bold text-white transition-all duration-300 cursor-pointer"
+                                    className="group/btn relative block px-[80px] bg-campana-secondary hover:bg-campana-seconday-hover text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] uppercase tracking-wider text-sm disabled:opacity-50 cursor-pointer"
                                 >
                                     <span>{cta}</span>
                                 </button>

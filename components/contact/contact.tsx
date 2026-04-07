@@ -15,9 +15,10 @@ interface ContactSectionProps {
     x?: string;
     linkedin?: string;
     highlight?: string;
+    lang?: "es" | "en";
 }
 
-const ContactPageSection = ({ id, title, subtitle, phone, mail, instagram, facebook, x, linkedin, highlight }: ContactSectionProps) => {
+const ContactPageSection = ({ id, title, subtitle, phone, mail, instagram, facebook, x, linkedin, highlight, lang = "es" }: ContactSectionProps) => {
 
     const socialLinks = [
         { icon: Instagram, url: instagram, label: "Instagram" },
@@ -179,7 +180,7 @@ const ContactPageSection = ({ id, title, subtitle, phone, mail, instagram, faceb
                         }}
                         className="lg:col-span-5 w-full"
                     >
-                        <ContactForm />
+                        <ContactForm lang={lang} />
                     </motion.div>
 
                 </div>
