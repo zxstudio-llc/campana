@@ -5,9 +5,44 @@ import { Label } from "@/components/ui/label-custom";
 import { Input } from "@/components/ui/input-custom";
 import { Textarea } from "@/components/ui/textarea-custom";
 
-export const ContactForm = () => {
-    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+const i18n = {
+    es: {
+        fullname: "Nombre completo",
+        fullnamePlaceholder: "Tu nombre",
+        email: "Correo electrónico",
+        emailPlaceholder: "ejemplo@correo.com",
+        company: "Empresa (Opcional)",
+        companyPlaceholder: "Nombre de tu empresa",
+        phone: "Teléfono",
+        phonePlaceholder: "Tu teléfono",
+        message: "Mensaje",
+        messagePlaceholder: "¿Cómo podemos ayudarte?",
+        send: "Enviar Mensaje",
+        sending: "Enviando...",
+        success: "¡Enviado con éxito!",
+        error: "Error al enviar. Intenta de nuevo.",
+    },
+    en: {
+        fullname: "Full Name",
+        fullnamePlaceholder: "Your name",
+        email: "Email Address",
+        emailPlaceholder: "example@email.com",
+        company: "Company (Optional)",
+        companyPlaceholder: "Your company name",
+        phone: "Phone Number",
+        phonePlaceholder: "Your phone",
+        message: "Message",
+        messagePlaceholder: "How can we help you?",
+        send: "Send Message",
+        sending: "Sending...",
+        success: "Sent successfully!",
+        error: "Error sending. Please try again.",
+    }
+};
 
+export const ContactForm = ({ lang = "es" }: { lang?: "es" | "en" }) => {
+    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const t = i18n[lang];
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setStatus("loading");
@@ -54,59 +89,59 @@ export const ContactForm = () => {
 
                 <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
                     <LabelInputContainer>
-                        <Label htmlFor="fullname" className="text-black ml-1">Nombre completo</Label>
+                        <Label htmlFor="fullname" className="text-black ml-1">{t.fullname}</Label>
                         <Input
                             id="fullname"
                             name="fullname"
                             type="text"
                             required
-                            placeholder="Tu nombre"
+                            placeholder={t.fullnamePlaceholder}
                             className="bg-white border-white/10 text-black placeholder:text-gray-500 focus:ring-[#C29B4B]/50"
                         />
                     </LabelInputContainer>
 
                     <LabelInputContainer>
-                        <Label htmlFor="email" className="text-sm font-medium text-black ml-1 text-left block">Correo electrónico</Label>
+                        <Label htmlFor="email" className="text-sm font-medium text-black ml-1 text-left block">{t.email}</Label>
                         <Input
                             id="email"
                             name="email"
                             type="email"
                             required
-                            placeholder="ejemplo@correo.com"
+                            placeholder={t.emailPlaceholder}
                             className="bg-white border-white/10 text-black placeholder:text-gray-500 focus:ring-[#C29B4B]/50"
                         />
                     </LabelInputContainer>
 
                     <LabelInputContainer>
-                        <Label htmlFor="company" className="text-black ml-1">Empresa (Opcional)</Label>
+                        <Label htmlFor="company" className="text-black ml-1">{t.company}</Label>
                         <Input
                             id="company"
                             name="company"
                             type="text"
-                            placeholder="Nombre de tu empresa"
+                            placeholder={t.companyPlaceholder}
                             className="bg-white border-white/10 text-black placeholder:text-gray-500 focus:ring-[#C29B4B]/50"
                         />
                     </LabelInputContainer>
 
                     <LabelInputContainer>
-                        <Label htmlFor="phone" className="text-black ml-1">Teléfono</Label>
+                        <Label htmlFor="phone" className="text-black ml-1">{t.phone}</Label>
                         <Input
                             id="phone"
                             name="phone"
                             type="text"
-                            placeholder="Tu teléfono"
+                            placeholder={t.phonePlaceholder}
                             className="bg-white border-white/10 text-black placeholder:text-gray-500 focus:ring-[#C29B4B]/50"
                         />
                     </LabelInputContainer>
 
                     <LabelInputContainer>
-                        <Label htmlFor="message" className="text-black ml-1">Mensaje</Label>
+                        <Label htmlFor="message" className="text-black ml-1">{t.message}</Label>
                         <Textarea
                             id="message"
                             name="message"
                             rows={4}
                             required
-                            placeholder="¿Cómo podemos ayudarte?"
+                            placeholder={t.messagePlaceholder}
                             className="flex w-full bg-white border border-white/10 rounded-xl px-4 py-3.5 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#C29B4B]/50 transition-all resize-none shadow-input"
                         />
                     </LabelInputContainer>
@@ -120,8 +155,8 @@ export const ContactForm = () => {
                         <BottomGradient />
                     </button>
 
-                    {status === "success" && <p className="text-green-400 text-sm text-center mt-2">¡Enviado con éxito!</p>}
-                    {status === "error" && <p className="text-red-400 text-sm text-center mt-2">Error al enviar. Intenta de nuevo.</p>}
+                    {status === "success" && <p className="text-green-400 text-sm text-center mt-2">{t.success}</p>}
+                    {status === "error" && <p className="text-red-400 text-sm text-center mt-2">{t.error}</p>}
                 </form>
             </div>
         </div>
