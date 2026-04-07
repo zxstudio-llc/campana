@@ -39,6 +39,7 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
 
     const introWords = (introSrc || "")
         .trim()
+        .replace(/,/g, "")
         .split(/\s+/)
         .filter(Boolean)
         .map(
