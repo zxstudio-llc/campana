@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
-import Image from "next/image"
+import Image from "next/image";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
 import { HeadingWithCounter } from "./heading-with-counter";
 import { Tooltip } from "@/components/ui/tooltip-card";
 
@@ -38,161 +36,214 @@ export const Timeline = ({
     const mobileContainerRef = useRef<HTMLDivElement>(null);
     const timelineMobileRef = useRef<HTMLDivElement>(null);
     const timelineDesktopRef = useRef<HTMLDivElement>(null);
-    const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
-
     const subtitleRef = useRef<HTMLDivElement>(null);
+
+    // FIX #2: Removed Framer Motion useInView — GSAP owns all reveals now.
+    // Removed: isVisible, motion.h2, animate={isVisible ? ...}
 
     useLayoutEffect(() => {
         if (!sectionRef.current) return;
 
         const mm = gsap.matchMedia();
 
-        mm.add("all", () => {
-            const ctx = gsap.context(() => {
-                const container = horizontalRef.current!;
-                const section = sectionRef.current!;
-                const totalWidth = container.scrollWidth;
-                const viewportWidth = window.innerWidth;
-                const scrollDistance = totalWidth - viewportWidth;
+        // FIX #1: Replace invalid mm.add("all") with proper breakpoint conditions.
+        // Safari (and all spec-compliant browsers) require valid CSS media queries.
+        mm.add(
+            {
+                isDesktop: "(min-width: 1024px)",
+                isMobile: "(max-width: 1023px)",
+            },
+            (context) => {
+                const { isDesktop } = context.conditions!;
 
-                const firstMarkerPos = 180;
-                const lastMarkerPos = totalWidth - 180;
+                const ctx = gsap.context(() => {
+                    const section = sectionRef.current!;
+                    const container = horizontalRef.current!;
 
-                // Tu lógica original de posiciones
-                const startX = viewportWidth * 0.75 - firstMarkerPos;
-                const endX = viewportWidth / 2 - lastMarkerPos;
+                    // FIX #5: Removed clearProps from container — it was conflicting
+                    // with the initial x positioning and causing resets on refresh.
+                    gsap.set(
+                        [
+                            contentRevealRef.current,
+                            subtitleRef.current,
+                        ],
+                        { clearProps: "all" }
+                    );
 
-                gsap.set([
-                    contentRevealRef.current,
-                    timelineMobileRef.current,
-                    timelineDesktopRef.current,
-                    subtitleRef.current,
-                    container
-                ], { clearProps: "all" });
+                    // FIX #3 & #4: All viewport/layout-dependent values are now
+                    // wrapped in functions so ScrollTrigger re-evaluates them on
+                    // invalidateOnRefresh (covers Safari's late layout timing and
+                    // dynamic toolbar resizes).
+                    const getStartX = () => {
+                        if (!container) return 0;
+                        const totalWidth = container.scrollWidth;
+                        const vw = window.innerWidth;
+                        const firstMarkerPos = 180;
+                        return vw * 0.75 - firstMarkerPos;
+                    };
 
-                // 1. ESTADOS INICIALES
-                gsap.set([timelineMobileRef.current, timelineDesktopRef.current], {
-                    opacity: 0,
-                    y: 40,
-                    pointerEvents: "none",
-                });
-                gsap.set(container, { x: startX });
-                gsap.set(contentRevealRef.current, { opacity: 0, scale: 1.1, filter: "blur(10px)" });
-                gsap.set(subtitleRef.current, { opacity: 0, y: 40 });
+                    // FIX #6: Only animate the timeline that is actually visible.
+                    // Previously both mobile and desktop refs were included in the
+                    // same tween array, causing the hidden one to flash unexpectedly.
+                    const activeTimeline = isDesktop
+                        ? timelineDesktopRef.current
+                        : timelineMobileRef.current;
 
-                const tl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: "top top",
-                        end: "+=800%",
-                        scrub: 1,
-                        pin: true,
-                        anticipatePin: 1,
-                        invalidateOnRefresh: true,
-                    }
-                });
-
-                // PHASE 1: Pausa inicial (Inmersión - Usuario ve el heading centrado)
-                tl.to(contentRevealRef.current, {
-                    opacity: 1,
-                    scale: 1,
-                    filter: "blur(0px)",
-                    duration: 2,
-                    ease: "none"
-                })
-
-                tl.to({}, { duration: 1 });
-
-                // PHASE 2: Heading sube y el Timeline aparece (Reveal)
-                tl.to(contentRevealRef.current, {
-                    y: window.innerWidth >= 1024 ? "-65%" : "-95%",
-                    duration: 2,
-                    ease: "power2.inOut"
-                });
-
-                tl.to([timelineMobileRef.current, timelineDesktopRef.current], {
-                    opacity: 1,
-                    y: window.innerWidth >= 1024 ? "-55%" : "-10%",
-                    duration: 2,
-                    ease: "power2.out",
-                    stagger: 0.1,
-                    pointerEvents: "auto",
-                }, "<");
-
-                tl.to({}, { duration: 1.5 });
-
-                // PHASE 3: Movimiento del Timeline (Desktop o Mobile)
-                if (window.innerWidth >= 1024 && horizontalRef.current) {
-                    const container = horizontalRef.current;
-                    const scrollDistance = container.scrollWidth - window.innerWidth + 400;
-
-                    tl.to(container, {
-                        x: -scrollDistance,
-                        duration: 8,
-                        ease: "none"
-                    });
-
-                    if (progressLineRef.current) {
-                        tl.to(progressLineRef.current, {
-                            width: "100%",
-                            duration: 8,
-                            ease: "none"
-                        }, "<");
-                    }
-                } else if (mobileContainerRef.current) {
-                    const mContainer = mobileContainerRef.current;
-                    const mScrollHeight = mContainer.scrollHeight - (window.innerHeight * 0.4);
-
-                    tl.to(mContainer, {
-                        y: -mScrollHeight,
-                        duration: 8,
-                        ease: "none"
-                    });
-
-                    if (progressLineMobileRef.current) {
-                        tl.fromTo(progressLineMobileRef.current,
-                            { height: "0%" },
-                            {
-                                height: "100%",
-                                ease: "none",
-                                duration: 8
-                            },
-                            "<"
-                        );
-                    }
-                }
-
-                tl.to({}, { duration: 1 });
-
-                tl.to(
-                    [contentRevealRef.current, timelineMobileRef.current, timelineDesktopRef.current],
-                    {
-                        opacity: 0,
-                        filter: "blur(10px)",
+                    // Initial states
+                    gsap.set(activeTimeline, {
+                        autoAlpha: 0,
+                        y: 40,
                         pointerEvents: "none",
+                    });
+
+                    // FIX #4: Set initial x only for desktop and via function
+                    // so it is recalculated on refresh.
+                    if (isDesktop && container) {
+                        gsap.set(container, { x: getStartX() });
+                    }
+
+                    gsap.set(contentRevealRef.current, {
+                        autoAlpha: 0,
+                        scale: 1.1,
+                        filter: "blur(10px)",
+                    });
+                    gsap.set(subtitleRef.current, { autoAlpha: 0, y: 40 });
+
+                    const tl = gsap.timeline({
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top top",
+                            end: "+=800%",
+                            scrub: 1,
+                            pin: true,
+                            anticipatePin: 1,
+                            // FIX #3 & #4: invalidateOnRefresh recalculates all
+                            // function-based values on viewport resize / Safari toolbar.
+                            invalidateOnRefresh: true,
+                            onRefresh: () => {
+                                // Re-apply initial x position after layout recalculation
+                                if (isDesktop && container) {
+                                    gsap.set(container, { x: getStartX() });
+                                }
+                            },
+                        },
+                    });
+
+                    tl.to({}, { duration: 1 });
+
+                    // PHASE 1: Initial pause — user sees heading centered
+                    tl.to(contentRevealRef.current, {
+                        autoAlpha: 1,
+                        scale: 1,
+                        filter: "blur(0px)",
+                        duration: 2,
+                        ease: "none",
+                    });
+
+                    tl.to({}, { duration: 1 });
+
+                    // PHASE 2: Heading rises, timeline appears
+                    // FIX #3: Use function-based values for y so they're
+                    // re-evaluated on invalidateOnRefresh.
+                    tl.to(contentRevealRef.current, {
+                        y: () => (window.innerWidth >= 1024 ? "-65%" : "-95%"),
                         duration: 2,
                         ease: "power2.inOut",
-                        immediateRender: false
-                    },
-                    ">+=0.2"
-                );
+                    });
 
-                tl.to(subtitleRef.current, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 2,
-                    ease: "power2.out"
-                }, "-=1");
+                    tl.to(
+                        activeTimeline,
+                        {
+                            autoAlpha: 1,
+                            y: () => (window.innerWidth >= 1024 ? "-55%" : "-10%"),
+                            duration: 2,
+                            ease: "power2.out",
+                            pointerEvents: "auto",
+                        },
+                        "<"
+                    );
 
-                tl.to({}, { duration: 1.5 });
+                    tl.to({}, { duration: 1.5 });
 
-            }, sectionRef);
+                    // PHASE 3: Timeline scroll (desktop horizontal / mobile vertical)
+                    if (isDesktop && container) {
+                        // FIX #3: Use function for scrollDistance so it's recalculated
+                        // after layout settles (fixes wrong scrollWidth on Safari).
+                        tl.to(container, {
+                            x: () => -(container.scrollWidth - window.innerWidth + 400),
+                            duration: 8,
+                            ease: "none",
+                        });
 
-            return () => ctx.revert();
-        });
+                        if (progressLineRef.current) {
+                            tl.to(
+                                progressLineRef.current,
+                                {
+                                    width: "100%",
+                                    duration: 8,
+                                    ease: "none",
+                                },
+                                "<"
+                            );
+                        }
+                    } else if (mobileContainerRef.current) {
+                        const mContainer = mobileContainerRef.current;
+
+                        tl.to(mContainer, {
+                            y: () => -(mContainer.scrollHeight - window.innerHeight * 0.4),
+                            duration: 8,
+                            ease: "none",
+                        });
+
+                        if (progressLineMobileRef.current) {
+                            tl.fromTo(
+                                progressLineMobileRef.current,
+                                { height: "0%" },
+                                {
+                                    height: "100%",
+                                    ease: "none",
+                                    duration: 8,
+                                },
+                                "<"
+                            );
+                        }
+                    }
+
+                    tl.to({}, { duration: 1 });
+
+                    // PHASE 4: Fade out content, reveal subtitle
+                    tl.to(
+                        [contentRevealRef.current, activeTimeline],
+                        {
+                            autoAlpha: 0,
+                            filter: "blur(10px)",
+                            pointerEvents: "none",
+                            duration: 2,
+                            ease: "power2.inOut",
+                            immediateRender: false,
+                        },
+                        ">+=0.2"
+                    );
+
+                    tl.to(
+                        subtitleRef.current,
+                        {
+                            autoAlpha: 1,
+                            y: 0,
+                            duration: 2,
+                            ease: "power2.out",
+                        },
+                        "-=1"
+                    );
+
+                    tl.to({}, { duration: 1.5 });
+                }, sectionRef);
+
+                return () => ctx.revert();
+            }
+        );
 
         return () => mm.revert();
-
     }, [data]);
 
     return (
@@ -200,7 +251,7 @@ export const Timeline = ({
             ref={sectionRef}
             className="w-full lg:h-screen h-[100dvh] bg-campana-bg relative flex flex-col items-center justify-center overflow-hidden z-60"
         >
-            {/* Imagen de fondo */}
+            {/* Background image */}
             <div className="absolute inset-0 top-10 -left-20 lg:-left-14 lg:right-auto h-[100dvh] lg:h-screen lg:w-auto z-0 lg:z-50 pointer-events-none overflow-hidden">
                 <Image
                     src="/assets/pabloStory.png"
@@ -211,7 +262,8 @@ export const Timeline = ({
                 />
             </div>
 
-            {/* Contenido centrado */}
+            {/* Centered heading content */}
+            {/* FIX #2: Replaced motion.h2 with plain h2 — GSAP owns the reveal. */}
             <div
                 ref={contentRevealRef}
                 className="absolute left-0 right-0 z-20"
@@ -225,23 +277,13 @@ export const Timeline = ({
                     )}
 
                     {heading && (
-                        <motion.h2
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                            transition={{ delay: 0.2 }}
-                            className="text-campana-primary text-[2.5rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl"
-                        >
+                        <h2 className="text-campana-primary text-[2.5rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl">
                             {(() => {
                                 const parts = heading.split(",");
                                 if (parts.length === 1) return heading;
-
-                                // 1. Tomamos la parte antes de la coma y la dividimos por espacios
                                 const firstPartWords = parts[0].trim().split(" ");
-                                // 2. Extraemos la última palabra
                                 const lastWordBeforeComma = firstPartWords.pop();
-                                // 3. El resto del texto que se queda con el estilo normal
                                 const remainingFirstPart = firstPartWords.join(" ");
-
                                 return (
                                     <>
                                         {remainingFirstPart}
@@ -252,18 +294,21 @@ export const Timeline = ({
                                     </>
                                 );
                             })()}
-                        </motion.h2>
+                        </h2>
                     )}
                 </div>
             </div>
 
             {/* MOBILE TIMELINE */}
+            {/* FIX #6: This ref is only animated when isMobile is true in matchMedia. */}
             <div
                 ref={timelineMobileRef}
                 className="lg:hidden absolute bottom-0 left-0 right-0 z-20 h-[60vh] overflow-hidden"
                 style={{
-                    maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
-                    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)'
+                    maskImage:
+                        "linear-gradient(to bottom, transparent 0%, black 20%, black 100%)",
+                    WebkitMaskImage:
+                        "linear-gradient(to bottom, transparent 0%, black 20%, black 100%)",
                 }}
             >
                 <div
@@ -286,7 +331,10 @@ export const Timeline = ({
                                     <span className="text-[#001D3D] font-ivy-presto font-bold tracking-[0.2em] text-md uppercase mb-2 leading-4">
                                         {item.title}
                                     </span>
-                                    <div className="text-[#001D3D] text-lg leading-relaxed font-medium" style={{ textAlign: "justify", textJustify: "inter-word" }}>
+                                    <div
+                                        className="text-[#001D3D] text-lg leading-relaxed font-medium"
+                                        style={{ textAlign: "justify", textJustify: "inter-word" }}
+                                    >
                                         {item.content}
                                     </div>
                                 </div>
@@ -297,18 +345,44 @@ export const Timeline = ({
             </div>
 
             {/* DESKTOP TIMELINE */}
+            {/* FIX #6: This ref is only animated when isDesktop is true in matchMedia. */}
             <div
                 ref={timelineDesktopRef}
                 className="hidden lg:block absolute bottom-0 right-0 z-20 w-9/10 mx-auto"
             >
-                <div className="absolute inset-0 left-0 right-0 h-[2px] bg-linear-to-r from-transparent via-campana-secondary-active to-transparent" style={{ top: "50%", transform: "translateY(-50%)" }} />
-                <div ref={progressLineRef} className="absolute h-[2px] bg-linear-to-r from-campana-secondary via-campana-secondary to-transparent" style={{ top: "50%", transform: "translateY(-50%)", width: "0%" }} />
+                <div
+                    className="absolute inset-0 left-0 right-0 h-[2px] bg-linear-to-r from-transparent via-campana-secondary-active to-transparent"
+                    style={{ top: "50%", transform: "translateY(-50%)" }}
+                />
+                <div
+                    ref={progressLineRef}
+                    className="absolute h-[2px] bg-linear-to-r from-campana-secondary via-campana-secondary to-transparent"
+                    style={{ top: "50%", transform: "translateY(-50%)", width: "0%" }}
+                />
                 <div className="overflow-hidden">
-                    <div ref={horizontalRef} className="flex gap-10 px-20 items-center h-[40vh] -mt-6">
+                    <div
+                        ref={horizontalRef}
+                        className="flex gap-10 px-20 items-center h-[40vh] -mt-6"
+                    >
                         {data.map((item) => (
-                            <div key={item.title} className="min-w-[200px] shrink-0 flex flex-col items-center justify-center relative">
-                                <span className="text-xl font-ivy-presto italic lining-nums text-neutral-800 transition-colors duration-500 select-none">{item.title}</span>
-                                <Tooltip containerClassName="cursor-pointer" content={<div key={`${item.title}-mobile-content`} className="max-w-md">{item.content}</div>}>
+                            <div
+                                key={item.title}
+                                className="min-w-[200px] shrink-0 flex flex-col items-center justify-center relative"
+                            >
+                                <span className="text-xl font-ivy-presto italic lining-nums text-neutral-800 transition-colors duration-500 select-none">
+                                    {item.title}
+                                </span>
+                                <Tooltip
+                                    containerClassName="cursor-pointer"
+                                    content={
+                                        <div
+                                            key={`${item.title}-mobile-content`}
+                                            className="max-w-md"
+                                        >
+                                            {item.content}
+                                        </div>
+                                    }
+                                >
                                     <div className="group relative flex items-center justify-center">
                                         <div className="absolute inset-0 rounded-full bg-campana-secondary opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-300" />
                                         <div className="h-10 w-10 rounded-full bg-campana-secondary-active flex items-center justify-center shadow-sm relative z-20 transition-transform duration-300 group-hover:scale-110">
@@ -326,24 +400,24 @@ export const Timeline = ({
             {subtitle && (
                 <div
                     ref={subtitleRef}
-                    className="opacity-0 pointer-events-none w-full md:w-[85%] lg:w-[60%] mx-auto absolute bottom-20 left-0 right-0 z-50 lg:static mt-2 lg:mt-12 lg:ml-auto lg:mr-50 px-6 md:px-0 text-right"
+                    className="pointer-events-none w-full md:w-[85%] lg:w-[60%] mx-auto absolute bottom-20 left-0 right-0 z-50 lg:static mt-2 lg:mt-12 lg:ml-auto lg:mr-50 px-6 md:px-0 text-right"
                 >
                     <h3 className="text-campana-primary text-[2.2rem] lg:text-5xl font-sans font-normal leading-[0.95] lg:leading-[1.1] tracking-tighter text-right lining-nums ml-auto lg:max-w-[1100px]">
                         {subtitle.split(" ").map((word, i) => {
-                            // 1. Detectamos si tiene números
                             const hasNumber = /\d/.test(word);
-                            // 2. Detectamos si la palabra CONTIENE la coma (ej: "excelencia,")
                             const hasComma = word.includes(",");
-                            // 3. Detectamos si la palabra está DESPUÉS de la coma 
-                            // Buscamos si en el array original alguna palabra previa tenía coma
                             const wordsArray = subtitle.split(" ");
-                            const indexFirstComma = wordsArray.findIndex(w => w.includes(","));
-                            const isAfterComma = indexFirstComma !== -1 && i > indexFirstComma;
-
+                            const indexFirstComma = wordsArray.findIndex((w) =>
+                                w.includes(",")
+                            );
+                            const isAfterComma =
+                                indexFirstComma !== -1 && i > indexFirstComma;
                             const shouldBeIvy = hasNumber || hasComma || isAfterComma;
-
                             return (
-                                <span key={i} className={shouldBeIvy ? "font-ivy-presto italic" : ""}>
+                                <span
+                                    key={i}
+                                    className={shouldBeIvy ? "font-ivy-presto italic" : ""}
+                                >
                                     {word}{" "}
                                 </span>
                             );
