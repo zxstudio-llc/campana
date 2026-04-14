@@ -60,8 +60,13 @@ export const Timeline = ({
                     const section = sectionRef.current!;
                     const container = horizontalRef.current!;
 
-                    // FIX #5: Removed clearProps from container — it was conflicting
-                    // with the initial x positioning and causing resets on refresh.
+                    let scrollDistance = 0;
+
+                    const calculateScroll = () => {
+                        if (!container) return 0;
+                        return container.scrollWidth - window.innerWidth + 400;
+                    };
+
                     gsap.set(
                         [
                             contentRevealRef.current,
@@ -70,10 +75,6 @@ export const Timeline = ({
                         { clearProps: "all" }
                     );
 
-                    // FIX #3 & #4: All viewport/layout-dependent values are now
-                    // wrapped in functions so ScrollTrigger re-evaluates them on
-                    // invalidateOnRefresh (covers Safari's late layout timing and
-                    // dynamic toolbar resizes).
                     const getStartX = () => {
                         if (!container) return 0;
                         const totalWidth = container.scrollWidth;
@@ -82,22 +83,16 @@ export const Timeline = ({
                         return vw * 0.75 - firstMarkerPos;
                     };
 
-                    // FIX #6: Only animate the timeline that is actually visible.
-                    // Previously both mobile and desktop refs were included in the
-                    // same tween array, causing the hidden one to flash unexpectedly.
                     const activeTimeline = isDesktop
                         ? timelineDesktopRef.current
                         : timelineMobileRef.current;
 
-                    // Initial states
                     gsap.set(activeTimeline, {
                         autoAlpha: 0,
                         y: 40,
                         pointerEvents: "none",
                     });
 
-                    // FIX #4: Set initial x only for desktop and via function
-                    // so it is recalculated on refresh.
                     if (isDesktop && container) {
                         gsap.set(container, { x: getStartX() });
                     }
@@ -109,6 +104,8 @@ export const Timeline = ({
                     });
                     gsap.set(subtitleRef.current, { autoAlpha: 0, y: 40 });
 
+                    scrollDistance = calculateScroll();
+
                     const tl = gsap.timeline({
                         scrollTrigger: {
                             trigger: section,
@@ -117,11 +114,8 @@ export const Timeline = ({
                             scrub: 1,
                             pin: true,
                             anticipatePin: 1,
-                            // FIX #3 & #4: invalidateOnRefresh recalculates all
-                            // function-based values on viewport resize / Safari toolbar.
                             invalidateOnRefresh: true,
                             onRefresh: () => {
-                                // Re-apply initial x position after layout recalculation
                                 if (isDesktop && container) {
                                     gsap.set(container, { x: getStartX() });
                                 }
@@ -131,7 +125,6 @@ export const Timeline = ({
 
                     tl.to({}, { duration: 1 });
 
-                    // PHASE 1: Initial pause — user sees heading centered
                     tl.to(contentRevealRef.current, {
                         autoAlpha: 1,
                         scale: 1,
@@ -142,9 +135,6 @@ export const Timeline = ({
 
                     tl.to({}, { duration: 1 });
 
-                    // PHASE 2: Heading rises, timeline appears
-                    // FIX #3: Use function-based values for y so they're
-                    // re-evaluated on invalidateOnRefresh.
                     tl.to(contentRevealRef.current, {
                         y: () => (window.innerWidth >= 1024 ? "-65%" : "-95%"),
                         duration: 2,
@@ -165,12 +155,10 @@ export const Timeline = ({
 
                     tl.to({}, { duration: 1.5 });
 
-                    // PHASE 3: Timeline scroll (desktop horizontal / mobile vertical)
                     if (isDesktop && container) {
-                        // FIX #3: Use function for scrollDistance so it's recalculated
-                        // after layout settles (fixes wrong scrollWidth on Safari).
                         tl.to(container, {
-                            x: () => -(container.scrollWidth - window.innerWidth + 400),
+                            // x: () => -(container.scrollWidth - window.innerWidth + 400),
+                            x: -scrollDistance,
                             duration: 8,
                             ease: "none",
                         });
