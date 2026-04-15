@@ -82,12 +82,12 @@ export default function BiographyCompany({ id, highlight, short_description, des
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: sectionRef.current,
-                    start: "top top",
+                    start: "top 50%",
                     end: "+=500%",
                     scrub: 1.2,
                     pin: true,
                     anticipatePin: 1,
-                    invalidateOnRefresh: true, // Crucial para mobile
+                    invalidateOnRefresh: true,
                 },
             })
 
