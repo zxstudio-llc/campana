@@ -92,7 +92,7 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=700%",
+                    end: "+=400%",
                     scrub: true,
                     pin: true,
                     pinSpacing: true,
@@ -154,14 +154,14 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
             );
 
             // PHASE 5: Exit / Dark Overlay
-            tl.to(
-                scrollOverlayRef.current,
-                {
-                    opacity: 1,
-                    duration: 1,
-                },
-                "<+=0.5"
-            );
+            // tl.to(
+            //     scrollOverlayRef.current,
+            //     {
+            //         opacity: 1,
+            //         duration: 1,
+            //     },
+            //     "<+=0.5"
+            // );
 
             tl.to(
                 contentRef.current,
