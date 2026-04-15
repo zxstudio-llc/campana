@@ -83,7 +83,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=500%",
+                    end: "+=300%",
                     scrub: 1.2,
                     pin: true,
                     anticipatePin: 1,
