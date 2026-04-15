@@ -123,17 +123,17 @@ export const Timeline = ({
                         },
                     });
 
-                    tl.to({}, { duration: 1 });
+                    // tl.to({}, { duration: 1 });
 
                     tl.to(contentRevealRef.current, {
                         autoAlpha: 1,
                         scale: 1,
                         filter: "blur(0px)",
-                        duration: 2,
+                        duration: 1,
                         ease: "none",
                     });
 
-                    tl.to({}, { duration: 1 });
+                    // tl.to({}, { duration: 1 });
 
                     tl.to(contentRevealRef.current, {
                         y: () => (window.innerWidth >= 1024 ? "-65%" : "-95%"),
@@ -263,7 +263,6 @@ export const Timeline = ({
                             {highlight}
                         </span>
                     )}
-
                     {heading && (
                         <h2 className="text-campana-primary text-[2.5rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl">
                             {(() => {
