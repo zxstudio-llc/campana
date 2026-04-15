@@ -113,16 +113,16 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     scale: 1,
                     filter: "blur(0px)",
                     pointerEvents: "auto",
-                    duration: 0.5,
+                    duration: 1,
                     ease: "power2.inOut"
-                }, 0.75)
+                }, 1)
                 .to({}, { duration: 1.5 })
                 .to(extraRef.current, {
                     opacity: 0,
                     scale: 0.85,
                     filter: "blur(15px)",
                     pointerEvents: "none",
-                    duration: 0.5,
+                    duration: 1,
                     ease: "power2.out"
                 })
                 .add("block1Reveal")
