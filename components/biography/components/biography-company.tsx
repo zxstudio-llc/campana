@@ -112,7 +112,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     scale: 1,
                     filter: "blur(0px)",
                     pointerEvents: "auto",
-                    duration: 1,
+                    duration: 0.5,
                     ease: "power2.inOut"
                 }, 0)
                 .to({}, { duration: 1.5 })
@@ -121,7 +121,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     scale: 0.85,
                     filter: "blur(15px)",
                     pointerEvents: "none",
-                    duration: 1.5,
+                    duration: 0.5,
                     ease: "power2.out"
                 })
                 .add("block1Reveal")
