@@ -105,7 +105,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
             // TIMELINE
             tl.to(bgLayerRef.current, {
                 opacity: 1,
-                duration: 2.5,
+                duration: 0.5,
                 ease: "none"
             }, 0)
                 .to(extraRef.current, {
