@@ -96,11 +96,11 @@ export default function InvestmentSection({
                 opacity: 1,
                 scale: 1,
                 filter: "blur(0px)",
-                duration: 2,
+                duration: 1,
                 ease: "none"
             });
 
-            tl.to({}, { duration: 1 });
+            // tl.to({}, { duration: 1 });
             tl.to(extraRef.current, {
                 opacity: 0,
                 duration: 2,
