@@ -113,7 +113,6 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
             // PHASE 1: Background Reveal
             tl.to(bgLayerRef.current, {
                 opacity: 0.5,
-                duration: 0.8,
             });
 
             // PHASE 2: Intro Text Fade Out
@@ -172,6 +171,8 @@ export function AboutUsSection({ id, about }: AboutUsProps) {
                 },
                 "<"
             );
+
+            tl.to({}, { duration: 2 });
         }, sectionRef);
 
         return () => ctx.revert();
