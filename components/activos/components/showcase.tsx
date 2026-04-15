@@ -70,7 +70,7 @@ export const DesktopUI = ({
   const EXPANDED_WIDTH = 380;
   const EXPANDED_HEIGHT = 156;
 
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const maskRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -167,8 +167,8 @@ export const DesktopUI = ({
               key={index}
               ref={(el) => { itemRefs.current[index] = el }}
               style={{
-                width: COLLAPSED_WIDTH,
-                height: COLLAPSED_HEIGHT,
+                width: isActive ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
+                height: isActive ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT,
               }}
               className={cn(
                 "relative overflow-hidden rounded-[28px] left-4",
@@ -199,7 +199,7 @@ export const DesktopUI = ({
                   transform: isActive ? "scaleY(1)" : "scaleY(0)",
                   transformOrigin: "top",
                 }}
-                className="absolute left-0 right-0 top-0"
+                className="expand-content absolute left-0 right-0 top-0"
               >
                 <div className="px-6 pt-6 pb-6 text-sm text-white/80 flex flex-col">
                   <span className="text-lg font-bold tracking-tight text-campana-secondary">
