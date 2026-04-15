@@ -83,7 +83,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=100%",
+                    end: "+=300%",
                     scrub: 1.2,
                     pin: true,
                     anticipatePin: 1,
@@ -105,7 +105,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
             // TIMELINE
             tl.to(bgLayerRef.current, {
                 opacity: 1,
-                ease: "none",
+                ease: "power4.out",
                 duration: 1
             }, 0)
                 .to(extraRef.current, {
