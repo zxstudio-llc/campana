@@ -114,7 +114,7 @@ export function MobileNav({
           <div className="relative w-8 h-8 md:w-10 md:h-10">
             <Menu
               className={cn(
-                "absolute inset-0 w-8 h-8 md:w-10 md:h-10 transition-all duration-300",
+                "absolute inset-0 w-8 h-8 md:w-10 md:h-10 transition-all duration-300 text-white",
                 open
                   ? "opacity-0 rotate-90 scale-75"
                   : "opacity-100 rotate-0 scale-100"
@@ -122,7 +122,7 @@ export function MobileNav({
             />
             <X
               className={cn(
-                "absolute inset-0 w-8 h-8 md:w-10 md:h-10 transition-all duration-300",
+                "absolute inset-0 w-8 h-8 md:w-10 md:h-10 transition-all duration-300 text-white",
                 open
                   ? "opacity-100 rotate-0 scale-100"
                   : "opacity-0 -rotate-90 scale-75"

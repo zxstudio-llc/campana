@@ -32,7 +32,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
     const firstTextRef = useRef<HTMLSpanElement>(null)
     const secondTextRef = useRef<HTMLSpanElement>(null)
     const collisionContainerRef = useRef<HTMLDivElement>(null)
-    const bgLayerRef = useRef<HTMLDivElement>(null)
+    const bgLayerRef = useRef<HTMLImageElement>(null)
     const scrollOverlayRef = useRef<HTMLDivElement>(null);
 
     const [isMobile, setIsMobile] = useState(false)
@@ -83,7 +83,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top top",
-                    end: "+=300%",
+                    end: "+=100%",
                     scrub: 1.2,
                     pin: true,
                     anticipatePin: 1,
@@ -105,7 +105,8 @@ export default function BiographyCompany({ id, highlight, short_description, des
             // TIMELINE
             tl.to(bgLayerRef.current, {
                 opacity: 1,
-                ease: "none"
+                ease: "none",
+                duration: 1
             }, 0)
                 .to(extraRef.current, {
                     opacity: 1,
@@ -114,7 +115,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     pointerEvents: "auto",
                     duration: 0.5,
                     ease: "power2.inOut"
-                }, 0)
+                }, 0.75)
                 .to({}, { duration: 1.5 })
                 .to(extraRef.current, {
                     opacity: 0,
@@ -193,6 +194,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                 className="relative w-full h-screen flex items-center z-40 overflow-hidden"
             >
                 <Image
+                    ref={bgLayerRef}
                     src="/assets/bggradient.png"
                     alt="Background Gradient"
                     fill
