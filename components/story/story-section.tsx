@@ -32,7 +32,7 @@ export function StoryTimelineSection({
                         return (
                             <>
                                 {words.join(" ")}{" "}
-                                <span className="font-ivy-presto italic text-xl transition-all">
+                                <span className="ffont-sans font-normal text-xl transition-all">
                                     {lastWord}
                                 </span>
                             </>

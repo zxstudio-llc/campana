@@ -31,6 +31,7 @@ export default function InvestmentSection({
     const sectionRef = useRef<HTMLDivElement>(null);
     const extraRef = useRef<HTMLDivElement>(null);
     const mainContentRef = useRef<HTMLDivElement>(null);
+    const scrollOverlayRef = useRef<HTMLDivElement>(null);
     const headingRevealRef = useRef<HTMLDivElement>(null);
     const videoContainerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -69,7 +70,7 @@ export default function InvestmentSection({
                 height: 0,
                 overflow: "hidden",
             });
-
+            gsap.set(scrollOverlayRef.current, { opacity: 0 });
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: sectionRef.current,
@@ -101,13 +102,23 @@ export default function InvestmentSection({
             });
 
             // tl.to({}, { duration: 1 });
-            tl.to(extraRef.current, {
-                opacity: 0,
-                duration: 2,
-                ease: "power2.inOut"
-            });
+            // tl.to(extraRef.current, {
+            //     opacity: 0,
+            //     duration: 2,
+            //     ease: "power2.inOut"
+            // });
 
             tl.to({}, { duration: 1 });
+            // Exit / Dark Overlay
+            tl.to(
+                scrollOverlayRef.current,
+                {
+                    opacity: 1,
+                    duration: 2,
+                    ease: "power2.inOut"
+                },
+                "<+=0.5"
+            );
             // MAIN CONTENT aparece
             tl.to(mainContentRef.current, { opacity: 1, duration: 1 });
 
@@ -216,14 +227,19 @@ export default function InvestmentSection({
                 )}
             </div>
 
+            <div
+                ref={scrollOverlayRef}
+                className="absolute inset-0 z-20 pointer-events-none bg-campana-bg-about backdrop-blur-sm"
+            />
+
             {/* MAIN CONTENT */}
             <div
                 ref={mainContentRef}
-                className="relative z-30 flex flex-col items-start justify-center w-full max-w-8xl ml-0 lg:ml-34 mx-auto h-full gap-4"
+                className="relative z-30 flex flex-col items-center justify-center w-full max-w-8xl  h-full gap-4"
             >
                 <div
                     ref={headingRevealRef}
-                    className="flex flex-col items-start w-full text-left"
+                    className="flex flex-col items-center w-full text-center"
                 >
                     <div className="relative w-full flex flex-col">
                         {highlight && (
@@ -257,7 +273,7 @@ export default function InvestmentSection({
                     <>
                         <div
                             ref={videoContainerRef}
-                            className="relative w-full aspect-video md:w-[1000px] mx-auto md:ml-0 h-[40vh] md:max-h-[500px] shadow-2xl overflow-hidden rounded-lg"
+                            className="relative w-full aspect-video md:w-[1000px] h-[40vh] md:max-h-[500px] shadow-2xl overflow-hidden rounded-lg"
                         >
                             <video
                                 ref={videoRef}
@@ -307,7 +323,7 @@ export default function InvestmentSection({
                         {/* CTA debajo del video */}
                         <div
                             ref={ctaRef}
-                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto mt-10"
+                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto mt-8"
                         >
                             {cta && (
                                 <button
