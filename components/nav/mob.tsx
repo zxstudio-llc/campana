@@ -18,7 +18,7 @@ type MobileNavProps = {
   siteInfo: SiteInfo | null
 }
 
-export function MobileNav({
+export function Mob({
   menuItems,
   open,
   setOpen,
@@ -145,11 +145,11 @@ export function MobileNav({
           ref={sidebarRef}
           onClick={(e) => e.stopPropagation()}
           className={cn(
-            "fixed inset-0 h-screen shadow-2xl z-40",
+            "absolute left-0 top-0 h-screen shadow-2xl z-40",
             "w-screen max-w-[900px]",
             "flex flex-col justify-center",
             "px-10 py-20",
-            "bg-black/20 backdrop-blur-sm"
+            "fixed inset-0 bg-black/20 backdrop-blur-sm"
           )}
         >
           <div className="absolute right-0 h-40 w-1 bg-gray-500 rounded-full hidden md:block" />

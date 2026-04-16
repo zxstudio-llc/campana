@@ -20,13 +20,16 @@ const MIN_READABLE_TIME: Record<string, number> = {
 }
 
 export function useScrollToSection() {
-    const scrollTo = useCallback((id: string) => {
+    const scrollTo = useCallback((id: string, instant = false) => {
         if (typeof window === 'undefined') return
 
         const el = document.getElementById(id)
         if (!el) return
 
-        const targetY = el.getBoundingClientRect().top + window.scrollY
+        const OFFSET = 4
+
+        const targetY =
+            el.getBoundingClientRect().top + window.scrollY - OFFSET
         const distance = Math.abs(targetY - window.scrollY)
         const duration = Math.min(Math.max(distance / 800, 2), 6)
 
@@ -35,34 +38,45 @@ export function useScrollToSection() {
                 y: targetY,
                 autoKill: false,
             },
-            duration,
+            duration: instant ? 0 : duration,
             ease: 'power2.inOut',
             onComplete: () => {
-                ScrollTrigger.refresh()
+                requestAnimationFrame(() => {
+                    ScrollTrigger.update()
 
-                ScrollTrigger.getAll().forEach((st) => {
-                    const triggerEl = st.trigger as HTMLElement
-                    if (!triggerEl || !st.animation) return
+                    gsap.set(window, {
+                        scrollTo: { y: targetY, autoKill: false }
+                    })
 
-                    const triggerTop = triggerEl.getBoundingClientRect().top + window.scrollY
-                    const sectionId = triggerEl.id
+                    ScrollTrigger.getAll().forEach((st) => {
+                        const triggerEl = st.trigger as HTMLElement
+                        if (!triggerEl || !st.animation) return
 
-                    if (triggerTop <= window.scrollY + window.innerHeight && sectionId === id) {
-                        const tl = st.animation as gsap.core.Timeline
-                        const total = tl.duration()
-                        const currentProgress = tl.progress()
+                        const sectionId = triggerEl.id
 
-                        const minTime = MIN_READABLE_TIME[sectionId] ?? 0
-                        const minProgress = minTime / total
+                        if (sectionId === id) {
+                            const tl = st.animation as gsap.core.Timeline
 
-                        if (currentProgress < minProgress) {
-                            gsap.to(tl, {
-                                progress: minProgress,
-                                duration: 1.5,
-                                ease: 'power2.out',
-                            })
+                            if (instant) {
+                                tl.progress(sectionId === 'biography' ? 1 : 0)
+                                return
+                            }
+
+                            const total = tl.duration()
+                            const currentProgress = tl.progress()
+
+                            const minTime = MIN_READABLE_TIME[sectionId] ?? 0
+                            const minProgress = minTime / total
+
+                            if (currentProgress < minProgress) {
+                                gsap.to(tl, {
+                                    progress: minProgress,
+                                    duration: 1.5,
+                                    ease: 'power2.out',
+                                })
+                            }
                         }
-                    }
+                    })
                 })
             },
         })
