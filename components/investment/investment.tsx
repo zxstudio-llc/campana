@@ -273,7 +273,7 @@ export default function InvestmentSection({
                     <>
                         <div
                             ref={videoContainerRef}
-                            className="relative w-full aspect-video md:w-[1000px] h-[40vh] md:max-h-[500px] shadow-2xl overflow-hidden rounded-lg"
+                            className="relative w-full aspect-video md:w-[1000px]  h-[40vh] md:max-h-[500px] shadow-2xl overflow-hidden rounded-lg"
                         >
                             <video
                                 ref={videoRef}
