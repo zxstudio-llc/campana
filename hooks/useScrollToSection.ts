@@ -23,13 +23,13 @@ export function useScrollToSection() {
     const scrollTo = useCallback((id: string, instant = false) => {
         if (typeof window === 'undefined') return
 
-        const el = document.getElementById(id)
+        const isHome = id === 'home'
+        const el = isHome ? document.body : document.getElementById(id)
         if (!el) return
 
-        const OFFSET = 4
+        const OFFSET = 0
+        const targetY = isHome ? 0 : el.getBoundingClientRect().top + window.scrollY - OFFSET
 
-        const targetY =
-            el.getBoundingClientRect().top + window.scrollY - OFFSET
         const distance = Math.abs(targetY - window.scrollY)
         const duration = Math.min(Math.max(distance / 800, 2), 6)
 
@@ -42,6 +42,11 @@ export function useScrollToSection() {
             ease: 'power2.inOut',
             onComplete: () => {
                 requestAnimationFrame(() => {
+                    // For instant jumps, we need a refresh to ensure pins are recalculated correctly
+                    if (instant) {
+                        ScrollTrigger.refresh()
+                    }
+
                     ScrollTrigger.update()
 
                     gsap.set(window, {
@@ -53,27 +58,27 @@ export function useScrollToSection() {
                         if (!triggerEl || !st.animation) return
 
                         const sectionId = triggerEl.id
+                        const tl = st.animation as gsap.core.Timeline
 
-                        if (sectionId === id) {
-                            const tl = st.animation as gsap.core.Timeline
-
+                        // If we scrolled past this section or jumped back to home
+                        if (isHome) {
+                            tl.progress(0)
+                        } else if (sectionId === id) {
                             if (instant) {
                                 tl.progress(sectionId === 'biography' ? 1 : 0)
-                                return
-                            }
+                            } else {
+                                const total = tl.duration()
+                                const currentProgress = tl.progress()
+                                const minTime = MIN_READABLE_TIME[sectionId] ?? 0
+                                const minProgress = minTime / total
 
-                            const total = tl.duration()
-                            const currentProgress = tl.progress()
-
-                            const minTime = MIN_READABLE_TIME[sectionId] ?? 0
-                            const minProgress = minTime / total
-
-                            if (currentProgress < minProgress) {
-                                gsap.to(tl, {
-                                    progress: minProgress,
-                                    duration: 1.5,
-                                    ease: 'power2.out',
-                                })
+                                if (currentProgress < minProgress) {
+                                    gsap.to(tl, {
+                                        progress: minProgress,
+                                        duration: 1.5,
+                                        ease: 'power2.out',
+                                    })
+                                }
                             }
                         }
                     })

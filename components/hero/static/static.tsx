@@ -4,10 +4,11 @@ import Image from 'next/image'
 import type { HeroStatic } from '@/lib/wordpress.d'
 
 interface StaticHeroProps {
+  id?: string
   hero: HeroStatic
 }
 
-export function StaticHero({ hero }: StaticHeroProps) {
+export function StaticHero({ id, hero }: StaticHeroProps) {
   const description = hero.description
 
   const align =
@@ -24,7 +25,7 @@ export function StaticHero({ hero }: StaticHeroProps) {
     Array.isArray(hero.cta) ? hero.cta : []
 
   return (
-    <section className="relative h-dvh w-full overflow-hidden">
+    <section id={id} className="relative h-dvh w-full overflow-hidden">
       {background && (
         <Image
           src={background.url}

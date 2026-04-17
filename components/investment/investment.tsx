@@ -313,7 +313,7 @@ export default function InvestmentSection({
                                 muted={isMuted}
                                 playsInline
                                 preload="auto"
-                                className="w-full object-contain"
+                                className="w-full object-fit bottom-0"
                             />
                             <div className={`absolute inset-0 flex items-center justify-center z-10 pointer-events-none transition-opacity duration-500 ${(showControls || !isPlaying) ? "opacity-100" : "opacity-0"}`}>
                                 <button

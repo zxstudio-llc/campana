@@ -5,10 +5,11 @@ import HeroScroll from './components/hero-scroll'
 import HeroLogo from './components/hero-logo'
 
 interface HeroProps {
+  id?: string;
   page: Page
 }
 
-export async function Hero({ page }: HeroProps) {
+export async function Hero({ id, page }: HeroProps) {
   const acf = page.acf
 
   if (!acf || acf.page_template !== 'default') return null
@@ -25,6 +26,7 @@ export async function Hero({ page }: HeroProps) {
 
     return (
       <HeroLogo
+        id={id}
         bg_photo_desktop={slider.acf.bg_photo_desktop}
         bg_photo_mobile={slider.acf.bg_photo_mobile}
       />
@@ -33,7 +35,7 @@ export async function Hero({ page }: HeroProps) {
 
   if (hero.hero_type === 'static' && hero.hero_static) {
     return <>
-      <StaticHero hero={hero.hero_static} />
+      <StaticHero id={id} hero={hero.hero_static} />
     </>
   }
 

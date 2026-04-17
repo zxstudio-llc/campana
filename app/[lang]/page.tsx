@@ -87,7 +87,7 @@ export default async function Home({
     <Section>
       <Preloader />
       <Container>
-        <Hero page={page} />
+        <Hero id="home" page={page} />
 
         <BlocksRenderer sections={sections} lang={lang} />
       </Container>

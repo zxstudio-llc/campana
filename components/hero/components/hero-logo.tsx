@@ -8,11 +8,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 interface Props {
+    id?: string;
     bg_photo_desktop?: string | null;
     bg_photo_mobile?: string | null;
 }
 
 export default function HeroLogo({
+    id,
     bg_photo_desktop,
     bg_photo_mobile,
 }: Props) {
@@ -84,7 +86,7 @@ export default function HeroLogo({
     }, [introSrc]);
 
     return (
-        <section ref={sectionRef} className="relative z-10 pointer-events-none">
+        <section id={id} ref={sectionRef} className="relative z-10 pointer-events-none">
             <div className="h-screen overflow-hidden relative">
                 <div className="absolute inset-0 bg-linear-to-b from-campana-bg-hover to-black" />
                 {introSrc && (
