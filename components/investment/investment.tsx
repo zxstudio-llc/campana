@@ -40,6 +40,31 @@ export default function InvestmentSection({
     const [isPlaying, setIsPlaying] = useState(false);
     // const [isPlaying, setIsPlaying] = useState(true);
     const [isMuted, setIsMuted] = useState(true);
+    const [showControls, setShowControls] = useState(true);
+    const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleMouseMove = () => {
+        setShowControls(true);
+        if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+        if (isPlaying) {
+            controlsTimeoutRef.current = setTimeout(() => {
+                setShowControls(false);
+            }, 2500);
+        }
+    };
+
+    useEffect(() => {
+        if (!isPlaying) {
+            setShowControls(true);
+            if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+        } else {
+            // Start timeout when play starts
+            handleMouseMove();
+        }
+        return () => {
+            if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+        };
+    }, [isPlaying]);
 
     useEffect(() => {
         return () => {
@@ -122,8 +147,12 @@ export default function InvestmentSection({
             // MAIN CONTENT aparece
             tl.to(mainContentRef.current, { opacity: 1, duration: 1 });
 
-            // HEADING sube
+            // HEADING sube y se oculta
             tl.to(headingRevealRef.current, {
+                y: -50,
+                opacity: 0,
+                height: 0,
+                marginBottom: 0,
                 duration: 1.5,
                 ease: "power2.inOut"
             });
@@ -147,7 +176,7 @@ export default function InvestmentSection({
                         }
                     }
                 },
-                "+=0.2"
+                "-=1.2"
             );
 
             tl.to(ctaRef.current, {
@@ -273,7 +302,9 @@ export default function InvestmentSection({
                     <>
                         <div
                             ref={videoContainerRef}
-                            className="relative w-full aspect-video md:w-[1000px]  h-[40vh] md:max-h-[500px] shadow-2xl overflow-hidden rounded-lg"
+                            onMouseMove={handleMouseMove}
+                            onMouseLeave={() => isPlaying && setShowControls(false)}
+                            className="relative w-full aspect-1920/1080 shadow-2xl overflow-hidden rounded-lg group"
                         >
                             <video
                                 ref={videoRef}
@@ -282,28 +313,30 @@ export default function InvestmentSection({
                                 muted={isMuted}
                                 playsInline
                                 preload="auto"
-                                className="w-full h-full object-cover"
+                                className="w-full object-contain"
                             />
-                            <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
+                            <div className={`absolute inset-0 flex items-center justify-center z-10 pointer-events-none transition-opacity duration-500 ${(showControls || !isPlaying) ? "opacity-100" : "opacity-0"}`}>
                                 <button
                                     onClick={() => {
                                         if (!videoRef.current) return;
                                         isPlaying ? videoRef.current.pause() : videoRef.current.play();
                                         setIsPlaying(!isPlaying);
                                     }}
-                                    className="h-9 w-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer"
+                                    className="h-20 w-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer pointer-events-auto"
                                 >
                                     {isPlaying ? (
-                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                                        <svg width="24" height="24" viewBox="0 0 14 14" fill="currentColor">
                                             <rect x="2" y="1" width="4" height="12" rx="1" />
                                             <rect x="8" y="1" width="4" height="12" rx="1" />
                                         </svg>
                                     ) : (
-                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                                        <svg width="24" height="24" viewBox="0 0 14 14" fill="currentColor">
                                             <path d="M3 1.5l9 5.5-9 5.5V1.5z" />
                                         </svg>
                                     )}
                                 </button>
+                            </div>
+                            <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
                                 <button
                                     onClick={() => {
                                         if (!videoRef.current) return;
@@ -323,14 +356,14 @@ export default function InvestmentSection({
                         {/* CTA debajo del video */}
                         <div
                             ref={ctaRef}
-                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto mt-8"
+                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto mb-8 mt-4"
                         >
                             {cta && (
                                 <button
                                     onClick={() => window.open(cta_url, "_blank")}
-                                    className="group/btn relative block px-[80px] bg-campana-secondary hover:bg-campana-seconday-hover text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] uppercase tracking-wider text-sm disabled:opacity-50 cursor-pointer"
+                                    className="group/btn relative block px-[40px] bg-campana-secondary hover:bg-campana-seconday-hover text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-[0.98] uppercase tracking-wider disabled:opacity-50 cursor-pointer"
                                 >
-                                    <span>{cta}</span>
+                                    <span className="text-xl">{cta}</span>
                                 </button>
                             )}
                         </div>
