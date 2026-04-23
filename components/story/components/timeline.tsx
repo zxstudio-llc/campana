@@ -38,16 +38,12 @@ export const Timeline = ({
     const timelineDesktopRef = useRef<HTMLDivElement>(null);
     const subtitleRef = useRef<HTMLDivElement>(null);
 
-    // FIX #2: Removed Framer Motion useInView — GSAP owns all reveals now.
-    // Removed: isVisible, motion.h2, animate={isVisible ? ...}
 
     useLayoutEffect(() => {
         if (!sectionRef.current) return;
 
         const mm = gsap.matchMedia();
 
-        // FIX #1: Replace invalid mm.add("all") with proper breakpoint conditions.
-        // Safari (and all spec-compliant browsers) require valid CSS media queries.
         mm.add(
             {
                 isDesktop: "(min-width: 1024px)",
@@ -111,7 +107,7 @@ export const Timeline = ({
                             trigger: section,
                             start: "top top",
                             end: "+=800%",
-                            scrub: 1,
+                            scrub: 1.5,
                             pin: true,
                             anticipatePin: 1,
                             invalidateOnRefresh: true,
@@ -123,8 +119,6 @@ export const Timeline = ({
                         },
                     });
 
-                    // tl.to({}, { duration: 1 });
-
                     tl.to(contentRevealRef.current, {
                         autoAlpha: 1,
                         scale: 1,
@@ -132,8 +126,6 @@ export const Timeline = ({
                         duration: 1,
                         ease: "none",
                     });
-
-                    // tl.to({}, { duration: 1 });
 
                     tl.to(contentRevealRef.current, {
                         y: () => (window.innerWidth >= 1024 ? "-65%" : "-95%"),
@@ -157,7 +149,6 @@ export const Timeline = ({
 
                     if (isDesktop && container) {
                         tl.to(container, {
-                            // x: () => -(container.scrollWidth - window.innerWidth + 400),
                             x: -scrollDistance,
                             duration: 8,
                             ease: "none",
@@ -199,7 +190,6 @@ export const Timeline = ({
 
                     tl.to({}, { duration: 1 });
 
-                    // PHASE 4: Fade out content, reveal subtitle
                     tl.to(
                         [contentRevealRef.current, activeTimeline],
                         {
@@ -256,14 +246,14 @@ export const Timeline = ({
                 className="absolute left-0 right-0 z-20"
                 style={{ top: "50%", transform: "translateY(-50%)" }}
             >
-                <div className="w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-end justify-end gap-4 md:gap-8 pb-6 pt-20 lg:pt-0">
+                <div className="w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-end justify-end gap-2 md:gap-8 pb-6 pt-20 lg:pt-0">
                     {highlight && (
-                        <span className="text-campana-primary font-inter font-bold uppercase block mb-4 text-sm md:text-xl font-sans tracking-tighter items-center justify-center gap-2 lining-nums">
+                        <span className="text-campana-primary font-inter font-bold uppercase block mb-2 md:mb-4 text-sm md:text-xl font-sans tracking-tighter items-center justify-center gap-2 lining-nums">
                             {highlight}
                         </span>
                     )}
                     {heading && (
-                        <h2 className="text-campana-primary text-[2rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl">
+                        <h2 className="text-campana-primary text-[1.9rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl">
                             {(() => {
                                 const parts = heading.split(",");
                                 if (parts.length === 1) return heading;
@@ -288,8 +278,9 @@ export const Timeline = ({
             {/* MOBILE TIMELINE */}
             <div
                 ref={timelineMobileRef}
-                className="lg:hidden absolute bottom-0 left-0 right-0 z-20 h-[60vh] overflow-hidden"
+                className="lg:hidden absolute bottom-0 left-0 right-0 z-20 h-[60vh] overflow-hidden opacity-0 translate-y-10"
                 style={{
+                    pointerEvents: "none",
                     maskImage:
                         "linear-gradient(to bottom, transparent 0%, black 20%, black 100%)",
                     WebkitMaskImage:
@@ -330,7 +321,6 @@ export const Timeline = ({
             </div>
 
             {/* DESKTOP TIMELINE */}
-            {/* FIX #6: This ref is only animated when isDesktop is true in matchMedia. */}
             <div
                 ref={timelineDesktopRef}
                 className="hidden lg:block absolute bottom-0 right-0 z-20 w-9/10 mx-auto"
@@ -387,7 +377,7 @@ export const Timeline = ({
                     ref={subtitleRef}
                     className="pointer-events-none w-full md:w-[85%] lg:w-[60%] mx-auto absolute bottom-20 left-0 right-0 z-50 lg:static mt-2 lg:mt-12 lg:ml-auto lg:mr-50 px-6 md:px-0 text-right"
                 >
-                    <h3 className="text-campana-primary text-[2.2rem] lg:text-5xl font-sans font-normal leading-[0.95] lg:leading-[1.1] tracking-tighter text-right lining-nums ml-auto lg:max-w-[1100px]">
+                    <h3 className="text-campana-primary text-[2.5rem] lg:text-5xl font-sans font-normal leading-[0.95] lg:leading-[1.1] tracking-tighter text-right lining-nums ml-auto lg:max-w-[1100px]">
                         {subtitle.split(" ").map((word, i) => {
                             const hasNumber = /\d/.test(word);
                             const hasComma = word.includes(",");
