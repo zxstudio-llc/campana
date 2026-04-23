@@ -251,20 +251,19 @@ export const Timeline = ({
             </div>
 
             {/* Centered heading content */}
-            {/* FIX #2: Replaced motion.h2 with plain h2 — GSAP owns the reveal. */}
             <div
                 ref={contentRevealRef}
                 className="absolute left-0 right-0 z-20"
                 style={{ top: "50%", transform: "translateY(-50%)" }}
             >
-                <div className="w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-end justify-end gap-4 md:gap-8 pb-6 pt-10 lg:pt-0">
+                <div className="w-full md:w-3/4 mx-auto px-6 text-center flex flex-col items-end justify-end gap-4 md:gap-8 pb-6 pt-20 lg:pt-0">
                     {highlight && (
                         <span className="text-campana-primary font-inter font-bold uppercase block mb-4 text-sm md:text-xl font-sans tracking-tighter items-center justify-center gap-2 lining-nums">
                             {highlight}
                         </span>
                     )}
                     {heading && (
-                        <h2 className="text-campana-primary text-[2.5rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl">
+                        <h2 className="text-campana-primary text-[2rem] lg:text-7xl font-sans font-normal leading-[0.9] tracking-tighter mb-12 text-right lining-nums md:max-w-4xl">
                             {(() => {
                                 const parts = heading.split(",");
                                 if (parts.length === 1) return heading;
@@ -287,7 +286,6 @@ export const Timeline = ({
             </div>
 
             {/* MOBILE TIMELINE */}
-            {/* FIX #6: This ref is only animated when isMobile is true in matchMedia. */}
             <div
                 ref={timelineMobileRef}
                 className="lg:hidden absolute bottom-0 left-0 right-0 z-20 h-[60vh] overflow-hidden"

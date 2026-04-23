@@ -128,7 +128,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                 .add("block1Reveal")
                 .to(bgImageRef.current, {
                     scale: 1,
-                    opacity: 1,
+                    opacity: isMobile ? 0 : 1,
                     duration: 2.5,
                     ease: "power2.out"
                 }, "block1Reveal")
@@ -146,7 +146,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     ease: "power2.inOut"
                 }, "block1Reveal")
 
-                .to({}, { duration: 1.5 }) // Pausa lectura
+                .to({}, { duration: 1.5 })
 
                 .add("textExit")
                 .to(textRef.current, {
@@ -163,6 +163,10 @@ export default function BiographyCompany({ id, highlight, short_description, des
                     ease: "power2.inOut"
                 }, "textExit")
                 .add("block2Reveal")
+                .to(bgImageRef.current, {
+                    opacity: 1,
+                    duration: 1.5
+                }, "block2Reveal")
                 .to(collisionContainerRef.current, {
                     opacity: 1,
                     duration: 2.5,
@@ -184,7 +188,7 @@ export default function BiographyCompany({ id, highlight, short_description, des
         });
 
         return () => mm.revert()
-    }, []) // Dejamos vacío para que mm.add maneje la lógica interna
+    }, [])
 
     return (
         <>

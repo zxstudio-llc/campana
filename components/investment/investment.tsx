@@ -221,7 +221,7 @@ export default function InvestmentSection({
                     </span>
                 )}
                 {secondary && (
-                    <h2 className="text-campana-primary text-5xl md:text-8xl font-sans font-normal leading-[0.9] tracking-tighter mb-10">
+                    <h2 className="text-campana-primary text-4xl md:text-8xl font-sans font-normal leading-[0.9] tracking-tighter mb-10">
                         {(() => {
                             const words = secondary.split(" ");
                             const totalWords = words.length;
@@ -356,14 +356,14 @@ export default function InvestmentSection({
                         {/* CTA debajo del video */}
                         <div
                             ref={ctaRef}
-                            className="flex flex-col items-center w-full md:w-[1000px] opacity-100 pointer-events-auto mb-8 mt-4"
+                            className="flex flex-col items-center w-[400px] md:w-[1000px] opacity-100 pointer-events-auto mb-8 mt-4"
                         >
                             {cta && (
                                 <button
                                     onClick={() => window.open(cta_url, "_blank")}
                                     className="group/btn relative block px-[40px] bg-campana-secondary hover:bg-campana-seconday-hover text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-[0.98] uppercase tracking-wider disabled:opacity-50 cursor-pointer"
                                 >
-                                    <span className="text-xl">{cta}</span>
+                                    <span className="md:text-xl text-lg">{cta}</span>
                                 </button>
                             )}
                         </div>
