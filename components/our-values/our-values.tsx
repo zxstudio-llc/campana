@@ -68,27 +68,35 @@ export function OurValueSection({
         if (!sectionRef.current) return;
 
         const ctx = gsap.context(() => {
+
             gsap.set(contentRef.current, {
                 opacity: 0,
                 scale: 1.1,
                 filter: "blur(10px)"
             });
 
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top 85%",
-                    toggleActions: "play none none reverse"
-                }
-            });
-
-            // Entrance reveal
-            tl.to(contentRef.current, {
+            gsap.to(contentRef.current, {
                 opacity: 1,
                 scale: 1,
                 filter: "blur(0px)",
-                duration: 1.2,
-                ease: "power2.out"
+                duration: 0.8,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top 20%",
+                    toggleActions: "play none none reverse",
+                }
+            });
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top top",
+                    end: () => `+=${window.innerHeight}`,
+                    pin: true,
+                    scrub: true,
+                    pinSpacing: true,
+                }
             });
 
         }, sectionRef);

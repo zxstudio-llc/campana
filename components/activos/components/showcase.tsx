@@ -11,7 +11,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import gsap from "gsap";
-import { CanvasRevealEffect } from "./canvasRevealEffect";
 
 interface ShowcaseItem {
   title: string;

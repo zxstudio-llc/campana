@@ -88,7 +88,11 @@ export default function InvestmentSection({
         if (!sectionRef.current) return;
 
         const ctx = gsap.context(() => {
-            gsap.set(ctaRef.current, { opacity: 0 });
+            // gsap.set(ctaRef.current, { opacity: 0 });
+            gsap.set([ctaRef.current, mainContentRef.current, scrollOverlayRef.current], {
+                opacity: 0,
+                visibility: "visible"
+            });
             gsap.set(extraRef.current, { opacity: 0, scale: 1.1, filter: "blur(20px)" });
             gsap.set(mainContentRef.current, { opacity: 0 });
             gsap.set(videoContainerRef.current, {
@@ -304,7 +308,7 @@ export default function InvestmentSection({
                             ref={videoContainerRef}
                             onMouseMove={handleMouseMove}
                             onMouseLeave={() => isPlaying && setShowControls(false)}
-                            className="relative w-full aspect-1920/1080 shadow-2xl overflow-hidden rounded-lg group"
+                            className="relative w-full aspect-1920/1080 md:w-[90%] shadow-2xl overflow-hidden rounded-b-lg group mt-0 md:-mt-4"
                         >
                             <video
                                 ref={videoRef}
@@ -313,7 +317,7 @@ export default function InvestmentSection({
                                 muted={isMuted}
                                 playsInline
                                 preload="auto"
-                                className="w-full object-fit bottom-0"
+                                className="w-full h-full object-fit md:object-cover bottom-0"
                             />
                             <div className={`absolute inset-0 flex items-center justify-center z-10 pointer-events-none transition-opacity duration-500 ${(showControls || !isPlaying) ? "opacity-100" : "opacity-0"}`}>
                                 <button

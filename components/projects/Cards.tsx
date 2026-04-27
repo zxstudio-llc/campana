@@ -44,6 +44,7 @@ export function ProjectsCardsSection({
 }: Props) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRevealRef = useRef<HTMLDivElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
   const [isCarouselActive, setIsCarouselActive] = React.useState(false);
   const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -61,11 +62,14 @@ export function ProjectsCardsSection({
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
+
+      // 1. REVEAL (Se mantiene igual)
       gsap.set(contentRevealRef.current, {
         opacity: 0,
         scale: 1.08,
         filter: "blur(10px)",
       });
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -74,6 +78,7 @@ export function ProjectsCardsSection({
           onLeaveBack: () => setIsCarouselActive(false),
         },
       });
+
       tl.to(contentRevealRef.current, {
         opacity: 1,
         scale: 1,
@@ -82,9 +87,23 @@ export function ProjectsCardsSection({
         ease: "power2.out",
         onComplete: () => setIsCarouselActive(true),
       });
+
+
+      if (descriptionRef.current) {
+        ScrollTrigger.create({
+          trigger: descriptionRef.current,
+          start: "top 1%",
+          end: () => `+=${window.innerHeight * 1.2}`,
+          pin: sectionRef.current,
+          pinSpacing: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        });
+      }
     }, sectionRef);
+
     return () => ctx.revert();
-  }, []);
+  }, [projects]);
 
   if (!projects?.length) return null;
 
@@ -157,6 +176,7 @@ export function ProjectsCardsSection({
           )}
           {description && (
             <p
+              ref={descriptionRef}
               className="text-[#001D3D] text-base md:text-lg w-full md:w-2xl mx-auto tracking-tight leading-5 font-sans font-normal"
               style={{
                 textAlign: "justify",

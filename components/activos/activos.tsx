@@ -33,12 +33,12 @@ export function ActivosSection({
     const [canStartTicker, setCanStartTicker] = useState(false);
     const isVisible = useInView(sectionRef, { once: true, margin: "-100px" });
     const [tickerKey, setTickerKey] = useState(0);
+    const descriptionRef = useRef<HTMLParagraphElement>(null);
 
     useLayoutEffect(() => {
         if (!sectionRef.current) return;
 
         const ctx = gsap.context(() => {
-
             gsap.set(contentRef.current, {
                 opacity: 0,
                 scale: 1.08,
@@ -46,7 +46,6 @@ export function ActivosSection({
                 filter: "blur(10px)"
             });
 
-            // Animación visual de entrada
             gsap.to(contentRef.current, {
                 opacity: 1,
                 scale: 1,
@@ -61,35 +60,34 @@ export function ActivosSection({
                 }
             });
 
-            // Activación del ticker SOLO cuando la sección está centrada
             ScrollTrigger.create({
                 trigger: sectionRef.current,
                 start: "top center",
                 end: "bottom center",
-
                 onEnter: () => {
                     setTickerKey(prev => prev + 1);
                     setCanStartTicker(true);
                 },
-
                 onEnterBack: () => {
                     setTickerKey(prev => prev + 1);
                     setCanStartTicker(true);
-                },
-
-                onLeave: () => {
-                    setCanStartTicker(false);
-                },
-
-                onLeaveBack: () => {
-                    setCanStartTicker(false);
                 }
             });
+
+            if (descriptionRef.current) {
+                ScrollTrigger.create({
+                    trigger: descriptionRef.current,
+                    start: "top 10%",
+                    end: () => `+=${window.innerHeight}`,
+                    pin: sectionRef.current,
+                    pinSpacing: true,
+                    anticipatePin: 1,
+                });
+            }
 
         }, sectionRef);
 
         return () => ctx.revert();
-
     }, []);
 
     if (!Array.isArray(activos)) return null;
@@ -190,6 +188,7 @@ export function ActivosSection({
                     )}
                     {description && (
                         <p
+                            ref={descriptionRef}
                             className="text-white text-base md:text-lg w-full md:w-md mx-auto tracking-tight leading-5 font-sans font-normal"
                             style={{
                                 textAlign: "justify",
